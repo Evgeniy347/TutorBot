@@ -1,0 +1,87 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D1635BD8-9FF1-4C2C-9848-322EC1A2017D}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		..\.gitignore = ..\.gitignore
+		BuildInfo.Build.props = BuildInfo.Build.props
+		Directory.Build.props = Directory.Build.props
+		..\LICENSE = ..\LICENSE
+		NuGet.Config = NuGet.Config
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.App", "TutorBot.App\TutorBot.App.csproj", "{2E150D9C-05EB-4096-B54B-2CF245BAAA5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Authentication", "TutorBot.Authentication\TutorBot.Authentication.csproj", "{335C8DD0-933C-4E68-A5EA-94172BEBB1E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Primitives", "TutorBot.Primitives\TutorBot.Primitives.csproj", "{49CA5926-2C12-4386-95C7-38F444A415A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Frontend", "TutorBot.Frontend\TutorBot.Frontend.csproj", "{DD2168A2-945F-492B-BB4C-F40B525BC5F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Core", "TutorBot.Core\TutorBot.Core.csproj", "{3E813BA1-B9B9-4213-8E96-623DE2055F2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.ServiceDefaults", "TutorBot.ServiceDefaults\TutorBot.ServiceDefaults.csproj", "{363787F9-88D5-4120-B254-6318ACED5878}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Abstractions", "TutorBot.Abstractions\TutorBot.Abstractions.csproj", "{ABB49293-7771-4438-90C5-5DC18CE1180A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Test", "TutorBot.Test\TutorBot.Test.csproj", "{EE5DEF33-FC3F-4494-A45B-2008FE351AF9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{5C17F5CF-BBF7-4928-A863-20A8F105524B}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\1. ????? ????????? ??? ?????????? ??????? TutorBot.md = ..\docs\1. ????? ????????? ??? ?????????? ??????? TutorBot.md
+		..\docs\2. ?????????? ?? ????????? ?? ?? ?? ???????????? .md = ..\docs\2. ?????????? ?? ????????? ?? ?? ?? ???????????? .md
+		..\docs\3. ?????????? ?? ??????????? ????.md = ..\docs\3. ?????????? ?? ??????????? ????.md
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.TelegramService", "TutorBot.TelegrammService\TutorBot.TelegramService.csproj", "{C8CCB451-43E0-4B70-BDEF-16B1BDBA66B1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2E150D9C-05EB-4096-B54B-2CF245BAAA5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E150D9C-05EB-4096-B54B-2CF245BAAA5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E150D9C-05EB-4096-B54B-2CF245BAAA5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E150D9C-05EB-4096-B54B-2CF245BAAA5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{335C8DD0-933C-4E68-A5EA-94172BEBB1E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{335C8DD0-933C-4E68-A5EA-94172BEBB1E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{335C8DD0-933C-4E68-A5EA-94172BEBB1E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{335C8DD0-933C-4E68-A5EA-94172BEBB1E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49CA5926-2C12-4386-95C7-38F444A415A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49CA5926-2C12-4386-95C7-38F444A415A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49CA5926-2C12-4386-95C7-38F444A415A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49CA5926-2C12-4386-95C7-38F444A415A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD2168A2-945F-492B-BB4C-F40B525BC5F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD2168A2-945F-492B-BB4C-F40B525BC5F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD2168A2-945F-492B-BB4C-F40B525BC5F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD2168A2-945F-492B-BB4C-F40B525BC5F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E813BA1-B9B9-4213-8E96-623DE2055F2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E813BA1-B9B9-4213-8E96-623DE2055F2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E813BA1-B9B9-4213-8E96-623DE2055F2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E813BA1-B9B9-4213-8E96-623DE2055F2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{363787F9-88D5-4120-B254-6318ACED5878}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{363787F9-88D5-4120-B254-6318ACED5878}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{363787F9-88D5-4120-B254-6318ACED5878}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{363787F9-88D5-4120-B254-6318ACED5878}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABB49293-7771-4438-90C5-5DC18CE1180A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABB49293-7771-4438-90C5-5DC18CE1180A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABB49293-7771-4438-90C5-5DC18CE1180A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABB49293-7771-4438-90C5-5DC18CE1180A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE5DEF33-FC3F-4494-A45B-2008FE351AF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE5DEF33-FC3F-4494-A45B-2008FE351AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE5DEF33-FC3F-4494-A45B-2008FE351AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE5DEF33-FC3F-4494-A45B-2008FE351AF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8CCB451-43E0-4B70-BDEF-16B1BDBA66B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8CCB451-43E0-4B70-BDEF-16B1BDBA66B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8CCB451-43E0-4B70-BDEF-16B1BDBA66B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8CCB451-43E0-4B70-BDEF-16B1BDBA66B1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -401,17 +401,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-# WSS Deploy folder
-**/[Dd]eploy/*.wsp
-**/[Dd]eploy/*.inf
-**/[Dd]eploy/*.rpt
-!**/Release/WSSC*.pdb 
- 
-# WSS Package
-**/bin/Package
-**/bin/*.zip
-/_Packages
-
 launchSettings.json  
  
 **/wwwroot/compiled_js/ 

@@ -1,0 +1,38 @@
+<Project>
+
+	<!-- Compiler properties -->
+	<PropertyGroup Condition="'$(DisableDefaultPropertyGroup)'==''">
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<TargetFramework>net9.0</TargetFramework>
+	</PropertyGroup>
+
+	<!-- Version info -->
+	<PropertyGroup>
+		<VersionPrefix>1.0.0</VersionPrefix>
+	</PropertyGroup>
+
+	<!-- Product info -->
+	<PropertyGroup>
+		<Company>УНЦ ИБ</Company>
+		<Authors>УНЦ ИБ</Authors>
+		<Product>TutorBot</Product>
+		<Copyright>© "УНЦ ИБ", 2025</Copyright>
+	</PropertyGroup>
+
+	<!-- Warning settings -->
+	<PropertyGroup>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<!-- NU1900 blocks SFA publish (Nexus-related) -->
+		<!-- NU1603 blocks package version mismatch -->
+		<WarningsNotAsErrors>NU1900;NU1603</WarningsNotAsErrors>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments> 
+	</PropertyGroup>
+	
+	<!-- Build process info -->
+	<Import Project="BuildInfo.Build.props" />
+
+</Project>

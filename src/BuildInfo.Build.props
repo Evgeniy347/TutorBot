@@ -1,0 +1,31 @@
+<Project>
+
+	<!-- Build process info -->
+	<PropertyGroup>
+		<BuildNumber>unknown</BuildNumber>
+		<BuildPipelineName>unknown</BuildPipelineName>
+		<SourceControlRepositoryName>unknown</SourceControlRepositoryName>
+		<SourceControlBranchName>unknown</SourceControlBranchName>
+		<SourceControlVersion>unknown</SourceControlVersion>
+	</PropertyGroup>
+
+	<!-- Build process attribute mapping -->
+	<ItemGroup Condition="'$(AddBuildInformation)' == 'true'">
+		<AssemblyAttribute Include="TutorBot.BuildNumberAttribute">
+			<_Parameter1>$(BuildNumber)</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="TutorBot.BuildPipelineNameAttribute">
+			<_Parameter1>$(BuildPipelineName)</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="TutorBot.SourceControlRepositoryNameAttribute">
+			<_Parameter1>$(SourceControlRepositoryName)</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="TutorBot.SourceControlBranchNameAttribute">
+			<_Parameter1>$(SourceControlBranchName)</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="TutorBot.SourceControlVersionAttribute">
+			<_Parameter1>$(SourceControlVersion)</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+</Project>

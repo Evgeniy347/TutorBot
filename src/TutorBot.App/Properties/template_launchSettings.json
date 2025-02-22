@@ -1,0 +1,17 @@
+{
+  "profiles": {
+    "TutorBot.App": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__DefaultConnection": "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;",
+        "ASPNETCORE_URLS": "http://localhost:7080",
+        "TelegrammBotService": true
+      },
+      "launchUrl": "http://localhost:7080",
+      "applicationUrl": "http://localhost:7080;https://localhost:7443"
+    }
+  }
+}
