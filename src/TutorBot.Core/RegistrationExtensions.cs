@@ -9,11 +9,15 @@ namespace TutorBot.Core
     {
         public static IServiceCollection AddApplicationCore(this IServiceCollection services, IConfigurationManager configuration)
         {
-            string? connectionString = configuration.GetConnectionString("DefaultConnection"); 
-            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString)); 
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+
+            string? connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));  
             services.AddSingleton<IApplication, ApplicationCore>();
 
             return services;
         }
-    } 
+    }
 }
