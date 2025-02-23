@@ -8,8 +8,8 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ConnectionStrings__DefaultConnection": "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;",
         "ASPNETCORE_URLS": "http://localhost:7080",
-        "TelegrammBot_Token": "Token",
-        "TelegrammBotService": true
+        "TelegramService:Token": "{Ваш_токен}",
+        "TelegramService:Enable": "true"
       },
       "launchUrl": "http://localhost:7080",
       "applicationUrl": "http://localhost:7080;https://localhost:7443"
