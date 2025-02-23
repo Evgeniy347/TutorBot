@@ -3,5 +3,8 @@
 Документация проекта 
 
 1. [Общие положения для командного проекта TutorBot](docs/1.General.md)
-2. [Инструкция по установке ПО на ПК разработчика](docs/2.Software_Installation.md)
-3. [Инструкция по регистрации бота](docs/3.Bot_registration.md)
+1. [Инструкция по установке ПО на ПК разработчика](docs/2.Software_Installation.md)
+1. [Инструкция по регистрации бота](docs/3.Bot_registration.md)
+1. [Запуск проекта](docs/4.StartApp.md)
+1. [Миграция БД](docs/5.DBMigration.md)
+1. [Диалоговый сценарий](docs/6.DialogDiagram.md)

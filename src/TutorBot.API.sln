@@ -33,6 +33,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{5C17F5CF-B
 		..\docs\1.General.md = ..\docs\1.General.md
 		..\docs\2.Software_Installation.md = ..\docs\2.Software_Installation.md
 		..\docs\3.Bot_registration.md = ..\docs\3.Bot_registration.md
+		..\docs\4.StartApp.md = ..\docs\4.StartApp.md
+		..\docs\5.DBMigration.md = ..\docs\5.DBMigration.md
+		..\docs\6.DialogDiagram.md = ..\docs\6.DialogDiagram.md
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
