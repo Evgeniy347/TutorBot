@@ -7,8 +7,9 @@
 
     public interface IHistoryService
     {
-        public Task AddHistory(MessageHistory history);
+        Task AddHistory(MessageHistory history);
+        Task AddStatusService(string status, string? message = null);
     }
 
-    public record MessageHistory(int UserID, DateTime Timestamp, string MessageText);
+    public record MessageHistory(long UserID, DateTime Timestamp, string MessageText);
 }

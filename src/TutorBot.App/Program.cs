@@ -18,30 +18,27 @@ namespace TutorBot.App
                 Args = args,
                 ApplicationName = "TutorBot.App"
             });
+
              
             var services = builder.Services;
 
             builder.AddServiceDefaults();
 
-            services.AddTutorBotAuthentication();
+            services.AddFrontendAuthentication();
 
             services.AddApplicationCore(builder.Configuration);
 
             services.AddFrontend();
 
             services.AddTelegramService(builder.Configuration);
-
-            services.AddOpenApi().ConfigureHttpJsonOptions(x => x.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-            services.ConfigureHttpJsonOptions(x => x.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
+             
             var app = builder.Build();
 
             app.MapDefaultEndpoints();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
+            { 
             }
 
             app.AddFrontend<TutorBot.App.Components.App>();

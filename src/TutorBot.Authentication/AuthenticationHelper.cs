@@ -7,7 +7,7 @@ namespace TutorBot.Authentication;
 /// </summary>
 public static class AuthenticationExtensions
 {
-    public static void AddTutorBotAuthentication(this IServiceCollection serviceCollection)
+    public static void AddFrontendAuthentication(this IServiceCollection serviceCollection)
     { 
     }
 } 

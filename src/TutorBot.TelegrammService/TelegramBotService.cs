@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options; 
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -12,26 +12,41 @@ namespace TutorBot.TelegramService
     internal class TelegramBotService(IApplication app, IOptions<TgBotServiceOptions> opt) : BackgroundService
     {
         private readonly TgBotServiceOptions _opt = opt.Value;
+        private static bool _isRun;
+
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             if (_opt.Enable)
             {
+                if (_isRun)
+                    throw new Exception("is run");
+
+                _isRun = true;
+
+
                 TelegramBotClient botClient = new TelegramBotClient(_opt.Token, cancellationToken: stoppingToken);
 
-                // Запуск получения обновлений
-                botClient.OnMessage += (m, t) => BotClient_OnMessage(m, t, botClient);
+                try
+                {
+                    User user = await botClient.GetMe();
+                    await app.HistoryService.AddStatusService("Start", $"Id:{user.Id} FirstName:{user.FirstName}");
 
-                TgUpdateHandler handler = new TgUpdateHandler(app, _opt);
+                    botClient.OnError += (exception, source) => ErrorHandle(exception, source, stoppingToken);
+                    botClient.OnMessage += (message, type) => MessageHandle(message, type, botClient);
+                    botClient.OnUpdate += (update) => UpdateHandle(botClient, update, stoppingToken);
 
-                botClient.StartReceiving(handler, cancellationToken: stoppingToken);
-
-                while (!stoppingToken.IsCancellationRequested)
-                    await Task.Delay(TimeSpan.MaxValue, stoppingToken);
+                    await Task.Delay(-1, stoppingToken);
+                }
+                finally
+                {
+                    await botClient.Close(stoppingToken);
+                    await app.HistoryService.AddStatusService("Stop");
+                }
             }
         }
 
-        private async Task BotClient_OnMessage(Message message, UpdateType type, TelegramBotClient botClient)
+        private async Task MessageHandle(Message message, UpdateType type, TelegramBotClient botClient)
         {
             // Проверяем, что сообщение содержит текст
             if (message.Type == MessageType.Text)
@@ -39,16 +54,16 @@ namespace TutorBot.TelegramService
                 // Создаем Inline Keyboard (кнопки под сообщением)
                 var inlineKeyboard = new InlineKeyboardMarkup(new[]
                 {
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Кнопка 1", "button1"),
-                    InlineKeyboardButton.WithCallbackData("Кнопка 2", "button2")
-                },
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Кнопка 3", "button3")
-                }
-            });
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Кнопка 1", "button1"),
+                        InlineKeyboardButton.WithCallbackData("Кнопка 2", "button2")
+                    },
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Кнопка 3", "button3")
+                    }
+                });
 
                 // Отправляем сообщение с кнопками
                 await botClient.SendMessage(
@@ -58,26 +73,27 @@ namespace TutorBot.TelegramService
                   );
             }
         }
-    }
 
-    internal class TgUpdateHandler(IApplication app, TgBotServiceOptions opt) : IUpdateHandler
-    {
-        private readonly IApplication _app = app;
-        private readonly TgBotServiceOptions _opt = opt;
-
-        public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
+        public Task ErrorHandle(Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
         {
+            Console.WriteLine(exception);
+            _ = app.HistoryService.AddHistory(new MessageHistory(-1, DateTime.Now, exception.ToString()));
             return Task.CompletedTask;
         }
 
-        public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public async Task UpdateHandle(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
+            await Task.Yield();
+
             if (update.Type == UpdateType.CallbackQuery)
             {
-                if (update.CallbackQuery?.Message == null)
+                if (update.CallbackQuery?.Message?.From == null)
                     return;
 
-                var callbackQuery = update.CallbackQuery;
+                CallbackQuery callbackQuery = update.CallbackQuery;
+                Message message = callbackQuery.Message;
+
+                _ = app.HistoryService.AddHistory(new MessageHistory(message.From.Id, DateTime.Now, message.Text ?? string.Empty));
 
                 // Отвечаем на нажатие кнопки
                 await botClient.AnswerCallbackQuery(
@@ -85,7 +101,7 @@ namespace TutorBot.TelegramService
                     text: $"Вы нажали: {callbackQuery.Data}"
                 );
 
-                // Редактируем сообщение, чтобы показать результат
+                //Редактируем сообщение, чтобы показать результат
                 await botClient.EditMessageText(
                     chatId: callbackQuery.Message.Chat.Id,
                     messageId: callbackQuery.Message.MessageId,

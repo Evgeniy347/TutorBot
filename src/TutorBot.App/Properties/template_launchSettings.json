@@ -6,7 +6,7 @@
       "dotnetRunMessages": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings__DefaultConnection": "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;",
+        "ConnectionStrings__DefaultConnection": "",
         "ASPNETCORE_URLS": "http://localhost:7080",
         "TelegramService:Token": "{Ваш_токен}",
         "TelegramService:Enable": "true"
