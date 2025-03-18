@@ -30,7 +30,7 @@ RUN for file in $(find . -type f -name "*.csproj"); do \
     done 
 
 # Restore project dependencies
-RUN dotnet restore "TutorBot.App/TutorBot.App.csproj" -r linux-x64
+RUN dotnet restore "TutorBot.App/TutorBot.App.csproj" -r linux-arm64
 
 #WORKDIR /src
 
@@ -54,7 +54,7 @@ RUN \
       /p:UseAppHost=false \
       /p:DebugType=None \
       /p:DebugSymbols=false \
-      -r linux-x64 \
+      -r linux-arm64 \
       --no-self-contained
        
 # Build final image with all the layers 
