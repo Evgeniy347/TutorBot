@@ -9,10 +9,10 @@ EXPOSE 8080
 FROM base AS setup
 
 #######
-RUN apt update 
-RUN apt install -y mc
-RUN apt install -y nginx
-RUN apt install -y curl 
+#RUN apt update 
+#RUN apt install -y mc
+#RUN apt install -y nginx
+#RUN apt install -y curl 
   
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build 
