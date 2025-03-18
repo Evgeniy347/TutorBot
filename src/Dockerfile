@@ -24,13 +24,27 @@ ARG VERSION_SUFFIX
 COPY ["Directory.Build.props","NuGet.Config", "./"]
 
 # Copy all the project files keeping their hierarchy
-COPY ["**/*.csproj", "./"] 
-RUN for file in $(find . -type f -name "*.csproj"); do \
-    mkdir -p ${file%.*}/ && mv $file ${file%.*}/; \
-    done 
-
+#COPY ["**/*.csproj", "./"] 
+#RUN for file in $(find . -type f -name "*.csproj"); do \
+    #mkdir -p ${file%.*}/ && mv $file ${file%.*}/; \
+    #done 
+#
 # Restore project dependencies
-RUN dotnet restore "TutorBot.App/TutorBot.App.csproj" -r linux-arm64
+#RUN dotnet restore "TutorBot.App/TutorBot.App.csproj" -r linux-arm64
+
+COPY *.sln .
+COPY TutorBot.Abstractions/*.csproj ./TutorBot.Abstractions/
+COPY TutorBot.API/*.csproj ./TutorBot.API/
+COPY TutorBot.App/*.csproj ./TutorBot.App/
+COPY TutorBot.Authentication/*.csproj ./TutorBot.Authentication/
+COPY TutorBot.Core/*.csproj ./TutorBot.Core/
+COPY TutorBot.Frontend/*.csproj ./TutorBot.Frontend/
+COPY TutorBot.Primitives/*.csproj ./TutorBot.Primitives/
+COPY TutorBot.ServiceDefaults/*.csproj ./TutorBot.ServiceDefaults/
+COPY TutorBot.TelegrammService/*.csproj ./TutorBot.TelegrammService/
+COPY TutorBot.Test/*.csproj ./TutorBot.Test/
+
+RUN dotnet restore -r linux-arm64 
 
 #WORKDIR /src
 
@@ -55,6 +69,7 @@ RUN \
       /p:DebugType=None \
       /p:DebugSymbols=false \
       -r linux-arm64 \
+      --no-restore \ 
       --no-self-contained
        
 # Build final image with all the layers 
