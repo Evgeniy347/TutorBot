@@ -44,7 +44,7 @@ COPY TutorBot.ServiceDefaults/*.csproj ./TutorBot.ServiceDefaults/
 COPY TutorBot.TelegrammService/*.csproj ./TutorBot.TelegrammService/
 COPY TutorBot.Test/*.csproj ./TutorBot.Test/
 
-RUN dotnet restore -r linux-arm64 
+RUN dotnet restore
 
 #WORKDIR /src
 
@@ -67,8 +67,7 @@ RUN \
       /p:VersionSuffix=$VERSION_SUFFIX \
       /p:UseAppHost=false \
       /p:DebugType=None \
-      /p:DebugSymbols=false \
-      -r linux-arm64 \
+      /p:DebugSymbols=false \ 
       --no-restore \ 
       --no-self-contained
        
