@@ -25,10 +25,9 @@ namespace TutorBot.App
             builder.AddServiceDefaults();
 
             services.AddFrontendAuthentication();
+            services.AddFrontend();
 
             services.AddApplicationCore(builder.Configuration);
-
-            services.AddFrontend();
 
             services.AddTelegramService(builder.Configuration);
              

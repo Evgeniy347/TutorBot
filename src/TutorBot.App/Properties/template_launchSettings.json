@@ -9,7 +9,8 @@
         "ConnectionStrings__DefaultConnection": "",
         "ASPNETCORE_URLS": "http://localhost:7080",
         "TelegramService:Token": "{Ваш_токен}",
-        "TelegramService:Enable": "true"
+        "TelegramService:Enable": "true",
+        "TelegramService:GroupNumbers:[0]": "{group}"
       },
       "launchUrl": "http://localhost:7080",
       "applicationUrl": "http://localhost:7080;https://localhost:7443"
