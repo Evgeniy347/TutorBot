@@ -22,7 +22,6 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
-          file: src/Dockerfile
+          context: src 
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tutorbot:latest
