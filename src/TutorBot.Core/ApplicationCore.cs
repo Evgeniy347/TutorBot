@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection; 
 using TutorBot.Abstractions;
+
 namespace TutorBot.Core
 {
     internal class ApplicationCore : IApplication
@@ -7,9 +9,69 @@ namespace TutorBot.Core
         public ApplicationCore(IServiceProvider serviceProvider)
         {
             HistoryService = new HistoryServiceCore(serviceProvider);
+            ChatService = new ChatService(serviceProvider);
         }
 
         public IHistoryService HistoryService { get; }
+
+        public IChatService ChatService { get; }
+    }
+
+    internal class ChatService(IServiceProvider serviceProvider) : IChatService
+    {
+        public async Task<ChatEntry> Create(long userID, string firstName, string lastName, string username, long chatID)
+        {
+            await using (var scope = serviceProvider.CreateAsyncScope())
+            {
+                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                DBChatEntry chatDB = new DBChatEntry()
+                {
+                    ChatID = chatID,
+                    UserID = userID,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    UserName = username,
+                    TimeCreate = DateTime.Now,
+                    TimeLastUpdate = DateTime.Now,
+                    IsFirstMessage = true
+                };
+
+                dbContext.Chats.Add(chatDB);
+
+                await dbContext.SaveChangesAsync();
+
+                return chatDB.MapCore();
+            }
+        }
+
+        public async Task<ChatEntry?> Find(long chatID)
+        {
+            await using (var scope = serviceProvider.CreateAsyncScope())
+            {
+                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                DBChatEntry? chatDB = await dbContext.Chats.Where(x => x.ChatID == chatID).FirstOrDefaultAsync();
+
+                if (chatDB != null)
+                    return chatDB.MapCore();
+
+                return null;
+            }
+        }
+
+        public async Task Update(ChatEntry chat)
+        {
+            await using (var scope = serviceProvider.CreateAsyncScope())
+            {
+                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                DBChatEntry chatDB = chat.MapDB();
+
+                chatDB.TimeLastUpdate = DateTime.Now;
+
+                dbContext.Chats.Update(chatDB);
+
+                await dbContext.SaveChangesAsync();
+            }
+        }
     }
 
     internal class HistoryServiceCore(IServiceProvider serviceProvider) : IHistoryService

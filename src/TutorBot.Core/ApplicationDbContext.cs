@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace TutorBot.Core
@@ -13,14 +11,12 @@ namespace TutorBot.Core
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
-        { 
+        {
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //dotnet ef migrations add InitialCreate
-            //dotnet ef database update
-            //optionsBuilder.UseNpgsql();
+            //optionsBuilder.UseNpgsql("");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,7 +26,28 @@ namespace TutorBot.Core
 
         public DbSet<MessageHistory> MessageHistories { get; set; }
 
+        public DbSet<DBChatEntry> Chats { get; set; }
+
         public DbSet<ServiceStatusHistory> ServiceHistories { get; set; }
+    }
+
+    [Index(nameof(ChatID))]
+    public class DBChatEntry
+    {
+        [Key]
+        public long Id { get; set; }
+        public long ChatID { get; set; }
+        public long UserID { get; set; }
+        public string LastName { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public long CountMessages { get; set; }
+        public string GroupNumber { get; set; } = string.Empty;
+        [Required]
+        public DateTime TimeCreate { get; set; }
+        [Required]
+        public DateTime TimeLastUpdate { get; set; }
+        public bool IsFirstMessage { get; set; }
     }
 
     public class ServiceStatusHistory
@@ -42,24 +59,31 @@ namespace TutorBot.Core
         public DateTime Timestamp { get; set; }
 
         [Required]
-        public required string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
 
         [Required]
-        public required string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
     }
 
+    [Index(nameof(ChatID), nameof(OrderID))]
     public class MessageHistory
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        public long UserId { get; set; }
+        public long ChatID { get; set; }
 
         [Required]
-        public required string MessageText { get; set; }
+        public long OrderID { get; set; }
 
         [Required]
         public DateTime Timestamp { get; set; }
+
+        [Required]
+        public string MessageText { get; set; } = string.Empty;
+
+        [Required]
+        public string Type { get; set; } = string.Empty;
     }
 }

@@ -8,12 +8,6 @@ EXPOSE 8080
  
 FROM base AS setup
 
-#######
-#RUN apt update 
-#RUN apt install -y mc
-#RUN apt install -y nginx
-#RUN apt install -y curl 
-  
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build 
 WORKDIR /src
@@ -22,15 +16,6 @@ ARG VERSION_PREFIX
 ARG VERSION_SUFFIX
 
 COPY ["Directory.Build.props","NuGet.Config", "./"]
-
-# Copy all the project files keeping their hierarchy
-#COPY ["**/*.csproj", "./"] 
-#RUN for file in $(find . -type f -name "*.csproj"); do \
-    #mkdir -p ${file%.*}/ && mv $file ${file%.*}/; \
-    #done 
-#
-# Restore project dependencies
-#RUN dotnet restore "TutorBot.App/TutorBot.App.csproj" -r linux-arm64
 
 COPY *.sln .
 COPY TutorBot.Abstractions/*.csproj ./TutorBot.Abstractions/
