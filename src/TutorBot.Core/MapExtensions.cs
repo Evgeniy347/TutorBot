@@ -51,5 +51,10 @@ namespace TutorBot.Core
                 Timestamp = history.Timestamp,
             };
         }
+
+        public static Abstractions.MessageHistory MapCore(this MessageHistory history)
+        {
+            return new Abstractions.MessageHistory(history.ChatID, history.Timestamp, history.MessageText, history.Type, history.OrderID, history.Id);
+        }
     }
 }

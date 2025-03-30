@@ -16,11 +16,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\TutorBot.Core\TutorBot.Core.csproj" />
+		<EmbeddedResource Include="wwwroot\**\*" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="wwwroot\**\*" />
+	  <ProjectReference Include="..\TutorBot.Abstractions\TutorBot.Abstractions.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

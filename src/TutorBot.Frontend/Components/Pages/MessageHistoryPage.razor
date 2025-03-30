@@ -1,0 +1,138 @@
+﻿@page "/MessageHistoryPage"
+@using System.Linq
+@using TutorBot.Abstractions;
+@inject IJSRuntime JSRuntime
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h3>Chat History</h3>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+
+        @foreach (var message in _displayedMessages)
+        {
+            <div class="message @message.Type.ToLower()">
+                <div class="message-content">
+                    <div class="message-text">@message.MessageText</div>
+                    <div class="message-meta">
+                        <span class="message-time">@message.Timestamp.ToString("HH:mm")</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    window.addEventListener("load", () => {
+        var chat_messages  =  document.getElementById("chat-messages");
+        chat_messages.scroll(0, chat_messages.scrollHeight)
+    });
+</script>
+
+@code {
+
+    [Inject]
+    protected IApplication _application { get; set; } = default!;
+
+    private List<MessageHistory> _displayedMessages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _displayedMessages = await GetMessages(int.MaxValue);
+    }
+
+    async Task<List<MessageHistory>> GetMessages(int offset)
+    {
+        return (await _application.HistoryService.GetMessages(0, offset, 5000, true)).OrderBy(x => x.ID).ToList();
+    }
+}
+
+<script>
+    function getScrollTop(element) {
+        return element.scrollTop;
+    }
+</script>
+
+<style>
+
+    .chat-container {
+        max-width: 600px;
+        margin: 0 auto;
+        border: 1px solid #e1e1e1;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 80vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        background-color: #0088cc;
+        color: white;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .match-count {
+        font-size: 0.8em;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 10px;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .message {
+        max-width: 80%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        position: relative;
+    }
+
+        .message.client, .message.user {
+            align-self: flex-start;
+            background-color: #e1f7d1;
+            border-bottom-right-radius: 0;
+            word-break: break-word;
+        }
+
+        .message.bot {
+            align-self: flex-end;
+            background-color: #f1f1f1;
+            border-bottom-left-radius: 0;
+            word-break: break-word;
+        }
+
+        .message.error {
+            align-self: flex-end;
+            background-color: #ffd1d1;
+            border-bottom-left-radius: 0;
+            word-break: break-word;
+        }
+
+    .message-meta {
+        display: flex;
+        justify-content: flex-end;
+        font-size: 0.7em;
+        color: #666;
+        margin-top: 4px;
+    }
+
+    .loading-indicator {
+        text-align: center;
+        padding: 10px;
+        color: #666;
+    }
+
+</style>

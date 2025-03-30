@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.DependencyInjection;
 using TutorBot.Abstractions;
 
 namespace TutorBot.Core
@@ -107,6 +107,34 @@ namespace TutorBot.Core
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+            }
+        }
+
+        public async Task<Abstractions.MessageHistory[]> GetMessages(long chatID, int offcet, int count, bool revers)
+        {
+            await using (var scope = serviceProvider.CreateAsyncScope())
+            {
+                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+
+                if (revers)
+                {
+                    return await dbContext.MessageHistories
+                        .Where(x => x.Id < offcet && !string.IsNullOrWhiteSpace(x.Type))
+                        .OrderByDescending(x => x.Id)
+                        .Take(count)
+                        .Select(x => x.MapCore())
+                        .ToArrayAsync();
+                }
+                else
+                {
+                    return await dbContext.MessageHistories
+                        .Where(x => x.Id > offcet && !string.IsNullOrWhiteSpace(x.Type))
+                        .OrderBy(x => x.Id)
+                        .Take(count)
+                        .Select(x => x.MapCore())
+                        .ToArrayAsync();
+                }
             }
         }
     }

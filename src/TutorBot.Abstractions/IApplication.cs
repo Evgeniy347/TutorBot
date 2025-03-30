@@ -11,6 +11,8 @@ namespace TutorBot.Abstractions
     {
         Task AddHistory(MessageHistory history);
         Task AddStatusService(string status, string? message = null);
+
+        Task<MessageHistory[]> GetMessages(long chatID, int offcet, int count, bool revers);
     }
 
     public interface IChatService
@@ -37,5 +39,5 @@ namespace TutorBot.Abstractions
         public long NextCount() => CountMessages++;
     }
 
-    public record MessageHistory(long ChatID, DateTime Timestamp, string MessageText, string Type, long OrderID);
+    public record MessageHistory(long ChatID, DateTime Timestamp, string MessageText, string Type, long OrderID, int ID = -1);
 }
