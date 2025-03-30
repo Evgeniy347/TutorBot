@@ -19,6 +19,7 @@ namespace TutorBot.Abstractions
     {
         Task<ChatEntry?> Find(long chatID);
         Task<ChatEntry> Create(long userID, string firstName, string lastName, string username, long chatID);
+        Task<ChatEntry[]> GetChats();
         Task Update(ChatEntry chat);
     }
 
@@ -31,7 +32,8 @@ namespace TutorBot.Abstractions
         public string UserName { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public long CountMessages { get; set; }
-        public string GroupNumber { get; set; } = string.Empty;
+        public string GroupNumber { get; set; } = string.Empty; 
+        public string LastMessage { get; set; } = string.Empty;
         public DateTime TimeCreate { get; set; }
         public DateTime TimeLastUpdate { get; set; }
         public bool IsFirstMessage { get; set; }

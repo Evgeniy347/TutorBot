@@ -58,6 +58,15 @@ namespace TutorBot.Core
             }
         }
 
+        public async Task<ChatEntry[]> GetChats()
+        {
+            await using (var scope = serviceProvider.CreateAsyncScope())
+            {
+                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                return await dbContext.Chats.Select(x => x.MapCore()).ToArrayAsync();
+            }
+        }
+
         public async Task Update(ChatEntry chat)
         {
             await using (var scope = serviceProvider.CreateAsyncScope())
@@ -120,7 +129,7 @@ namespace TutorBot.Core
                 if (revers)
                 {
                     return await dbContext.MessageHistories
-                        .Where(x => x.Id < offcet && !string.IsNullOrWhiteSpace(x.Type))
+                        .Where(x => x.Id < offcet && x.ChatID == chatID && !string.IsNullOrWhiteSpace(x.Type))
                         .OrderByDescending(x => x.Id)
                         .Take(count)
                         .Select(x => x.MapCore())
@@ -129,7 +138,7 @@ namespace TutorBot.Core
                 else
                 {
                     return await dbContext.MessageHistories
-                        .Where(x => x.Id > offcet && !string.IsNullOrWhiteSpace(x.Type))
+                        .Where(x => x.Id > offcet && x.ChatID == chatID && !string.IsNullOrWhiteSpace(x.Type))
                         .OrderBy(x => x.Id)
                         .Take(count)
                         .Select(x => x.MapCore())

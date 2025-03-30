@@ -2,33 +2,99 @@
 @using System.Linq
 @using TutorBot.Abstractions;
 @inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
 
-<div class="chat-container">
-    <div class="chat-header">
-        <h3>Chat History</h3>
-    </div>
-
-    <div class="chat-messages" id="chat-messages">
-
-        @foreach (var message in _displayedMessages)
-        {
-            <div class="message @message.Type.ToLower()">
-                <div class="message-content">
-                    <div class="message-text">@message.MessageText</div>
-                    <div class="message-meta">
-                        <span class="message-time">@message.Timestamp.ToString("HH:mm")</span>
+<div class="telegram-layout">
+    <!-- Боковая панель с пользователями -->
+    <div class="user-sidebar">
+        <div class="sidebar-header">
+            <h3>Chats</h3>
+            <input type="text" placeholder="Search..." class="sidebar-search" @bind="_searchQuery" />
+        </div>
+        <div class="user-list">
+            @foreach (var user in FilteredUsers)
+            {
+                <div class="user-item @(_selectedUser?.ChatID == user.ChatID ? "active" : "")"
+                     @onclick="() => SelectUser(user.ChatID)">
+                    <div class="user-avatar"></div>
+                    <div class="user-info">
+                        <div class="user-name">@DisplayName(user)</div>
+                        <div class="last-message">@user.LastMessage</div>
                     </div>
+                    <div class="message-time">@user.TimeLastUpdate.ToString("HH:mm")</div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
-</div>
+
+    <!-- Основная область чата -->
+    <div class="chat-container">
+        <div class="chat-header">
+            @if (_selectedUser != null)
+            {
+                <div class="chat-user-info">
+                    <div class="user-avatar"></div>
+                    <div class="user-name">@DisplayName(_selectedUser)</div>
+                </div>
+            }
+            else
+            {
+                <h3>Select a chat</h3>
+            }
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            @if (_selectedUser != null)
+            {
+                <!-- Блок с текущей датой (фиксированный вверху) -->
+                <div class="date-divider">
+                    <span>@DateTime.Now.ToString("dd MMMM yyyy")</span>
+                </div>
+
+                DateTime? prevMessageDate = null;
+              
+                @foreach (var message in _displayedMessages)
+                {
+                    var currentMessageDate = message.Timestamp.Date;
+                    
+                    <!-- Проверяем, изменилась ли дата сообщения -->
+                    @if (prevMessageDate != null && currentMessageDate != prevMessageDate)
+                    {
+                        <div class="date-divider">
+                            <span>@currentMessageDate.ToString("dd MMMM yyyy")</span>
+                        </div>
+                    }
+                    
+                    <div class="message @message.Type.ToLower()">
+                        <div class="message-content">
+                            <div class="message-text">@message.MessageText</div>
+                            <div class="message-meta">
+                                <span class="message-time">@message.Timestamp.ToString("HH:mm")</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    prevMessageDate = currentMessageDate;
+                }
+            }
+            else
+            {
+                <div class="no-chat-selected">
+                    <p>Please select a chat from the sidebar</p>
+                </div>
+            }
+        </div>
+    </div>
+</div> 
 
 <script>
-    window.addEventListener("load", () => {
-        var chat_messages  =  document.getElementById("chat-messages");
-        chat_messages.scroll(0, chat_messages.scrollHeight)
-    });
+
+    function scrollToBottom()
+    {
+    debugger;
+    var chat_messages  =  document.getElementById("chat-messages");
+    setTimeout(()=>chat_messages.scroll(0, chat_messages.scrollHeight), 100);
+    }
 </script>
 
 @code {
@@ -36,103 +102,75 @@
     [Inject]
     protected IApplication _application { get; set; } = default!;
 
-    private List<MessageHistory> _displayedMessages = new();
+    private MessageHistory[] _displayedMessages = [];
+    private ChatEntry[] _users = [];
+    private string _searchQuery = string.Empty;
+    private ChatEntry? _selectedUser;
+
 
     protected override async Task OnInitializedAsync()
     {
-        _displayedMessages = await GetMessages(int.MaxValue);
+        await Task.CompletedTask;
+        _users = await _application.ChatService.GetChats();
     }
 
-    async Task<List<MessageHistory>> GetMessages(int offset)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        return (await _application.HistoryService.GetMessages(0, offset, 5000, true)).OrderBy(x => x.ID).ToList();
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("scrollToBottom");
+        }
+    }
+
+    private IEnumerable<ChatEntry> FilteredUsers => _users
+        .Where(FilterChat)
+        .OrderByDescending(u => u.TimeLastUpdate);
+
+    private bool FilterChat(ChatEntry chat)
+    {
+        if (string.IsNullOrEmpty(_searchQuery))
+            return true;
+
+        if (chat.FirstName.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (chat.UserName.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (chat.LastName.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private string DisplayName(ChatEntry chat)
+    {
+        if (!string.IsNullOrEmpty(chat.FirstName))
+            return chat.FirstName;
+
+        if (!string.IsNullOrEmpty(chat.LastName))
+            return chat.LastName;
+
+        if (!string.IsNullOrEmpty(chat.UserName))
+            return chat.UserName;
+
+        return "ChatID: " + chat.ChatID;
+    }
+
+    private async Task SelectUser(long userId)
+    {
+        _selectedUser = _users.FirstOrDefault(u => u.ChatID == userId) ?? _users.FirstOrDefault();
+
+        if (_selectedUser != null)
+            _displayedMessages = await GetMessages(int.MaxValue);
+    }
+
+    private async Task<MessageHistory[]> GetMessages(int offset)
+    {
+        if (_selectedUser == null)
+            return [];
+
+        return (await _application.HistoryService.GetMessages(_selectedUser.ChatID, offset, 5000, true)).OrderBy(x => x.ID).ToArray();
     }
 }
 
-<script>
-    function getScrollTop(element) {
-        return element.scrollTop;
-    }
-</script>
-
-<style>
-
-    .chat-container {
-        max-width: 600px;
-        margin: 0 auto;
-        border: 1px solid #e1e1e1;
-        border-radius: 8px;
-        overflow: hidden;
-        height: 80vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .chat-header {
-        background-color: #0088cc;
-        color: white;
-        padding: 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .match-count {
-        font-size: 0.8em;
-        background: rgba(255, 255, 255, 0.2);
-        padding: 2px 8px;
-        border-radius: 10px;
-    }
-
-    .chat-messages {
-        flex: 1;
-        padding: 15px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .message {
-        max-width: 80%;
-        padding: 8px 12px;
-        border-radius: 8px;
-        position: relative;
-    }
-
-        .message.client, .message.user {
-            align-self: flex-start;
-            background-color: #e1f7d1;
-            border-bottom-right-radius: 0;
-            word-break: break-word;
-        }
-
-        .message.bot {
-            align-self: flex-end;
-            background-color: #f1f1f1;
-            border-bottom-left-radius: 0;
-            word-break: break-word;
-        }
-
-        .message.error {
-            align-self: flex-end;
-            background-color: #ffd1d1;
-            border-bottom-left-radius: 0;
-            word-break: break-word;
-        }
-
-    .message-meta {
-        display: flex;
-        justify-content: flex-end;
-        font-size: 0.7em;
-        color: #666;
-        margin-top: 4px;
-    }
-
-    .loading-indicator {
-        text-align: center;
-        padding: 10px;
-        color: #666;
-    }
-
-</style>

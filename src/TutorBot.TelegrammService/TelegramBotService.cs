@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options; 
+using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums; 
+using Telegram.Bot.Types.Enums;
 using TutorBot.Abstractions;
 using TutorBot.TelegramService.BotActions;
 
@@ -55,13 +55,13 @@ namespace TutorBot.TelegramService
 
                 if (message.From == null)
                 {
-                    _ = app.HistoryService.AddHistory(new MessageHistory(-1, DateTime.Now, "From is null", "Error", -1));
+                    _ = WriteError("From is null");
                     return;
                 }
 
                 if (message.Chat == null)
                 {
-                    _ = app.HistoryService.AddHistory(new MessageHistory(-1, DateTime.Now, "Chat is null", "Error", -1));
+                    _ = WriteError("Chat is null");
                     return;
                 }
 
@@ -90,6 +90,20 @@ namespace TutorBot.TelegramService
             }
         }
 
+        private async Task WriteError(string message)
+        {
+            ChatEntry chat = await GetErrorChat();
+            await app.HistoryService.AddHistory(new MessageHistory(chat.UserID, DateTime.Now, message, "Error", chat.NextCount()));
+        }
+
+        private async Task<ChatEntry> GetErrorChat()
+        {
+            ChatEntry? chatEntry = await app.ChatService.Find(-1) ??
+                await app.ChatService.Create(-1, "Error Service", string.Empty, string.Empty, -1);
+
+            return chatEntry;
+        }
+
         private async Task<ChatEntry> GetChat(Message message)
         {
             Chat chat = Check.NotNull(message.Chat);
@@ -108,7 +122,7 @@ namespace TutorBot.TelegramService
         public Task ErrorHandle(Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
         {
             Console.WriteLine(exception);
-            _ = app.HistoryService.AddHistory(new MessageHistory(-1, DateTime.Now, exception.ToString(), "Error", -1));
+            _ = WriteError(exception.ToString());
             return Task.CompletedTask;
         }
     }
