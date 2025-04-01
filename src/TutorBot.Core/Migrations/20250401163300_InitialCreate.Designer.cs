@@ -12,7 +12,7 @@ using TutorBot.Core;
 namespace TutorBot.Core.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250223072754_InitialCreate")]
+    [Migration("20250401163300_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,10 +20,59 @@ namespace TutorBot.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("TutorBot.Core.DBChatEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ChatID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CountMessages")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("GroupNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsFirstMessage")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("TimeCreate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("TimeLastUpdate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("UserID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatID");
+
+                    b.ToTable("Chats");
+                });
 
             modelBuilder.Entity("TutorBot.Core.MessageHistory", b =>
                 {
@@ -33,17 +82,26 @@ namespace TutorBot.Core.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<long>("ChatID")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("MessageText")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long>("OrderID")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChatID", "OrderID");
 
                     b.ToTable("MessageHistories");
                 });

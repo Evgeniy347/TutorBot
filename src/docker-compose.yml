@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  tutorbot_app_test:
+    image: evgeniy911/tutorbot:latest
+    container_name: tutorbot_test
+    environment:
+      "ConnectionStrings__DefaultConnection": "Server=postgres_db_test:5432;Database=tutor_bot_content;User Id=tutor_bot_user;Password=STRONG_PASSWORD;Timeout=15;"
+    volumes:
+      - './appsettings.json:/app/appsettings.json'
+    ports:
+      - "8080:8080"
+    networks:
+      - tutorbot_network_test
+    restart: unless-stopped
+
+  tutorbot_db_test:
+    image: postgres:latest
+    container_name: postgres_db_test
+    environment:
+      POSTGRES_USER: tutor_bot_user
+      POSTGRES_PASSWORD: STRONG_PASSWORD
+      POSTGRES_DB: tutor_bot_content
+    volumes:
+      - './postgres_data:/var/lib/postgresql/data'
+    ports:
+      - "5432:5432"
+    networks:
+      - tutorbot_network_test
+    restart: unless-stopped
+
+networks:
+  tutorbot_network_test:
