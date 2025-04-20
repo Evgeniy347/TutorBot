@@ -408,3 +408,4 @@ launchSettings.json
 **/.idea/
 !**/TestData/*.pfx
 Generated/
+**/appsettings.private.json

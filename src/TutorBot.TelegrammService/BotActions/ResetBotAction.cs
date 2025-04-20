@@ -1,5 +1,5 @@
 ﻿using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups; 
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TutorBot.TelegramService.BotActions
 {
@@ -10,6 +10,8 @@ namespace TutorBot.TelegramService.BotActions
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {
             client.ChatEntry.GroupNumber = string.Empty;
+            client.ChatEntry.SessionID = Guid.NewGuid();
+
             await client.SendMessage(TextMessages.WelcomeMessage, replyMarkup: new ReplyKeyboardRemove());
         }
     }

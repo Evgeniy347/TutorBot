@@ -11,46 +11,34 @@ namespace TutorBot.TelegramService
 {
     internal class TelegramBotService(IApplication app, IOptions<TgBotServiceOptions> opt) : BackgroundService
     {
-        private static bool _isRun;
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (opt.Value.Enable)
+            TelegramBotClient botClient = new TelegramBotClient(opt.Value.Token, cancellationToken: stoppingToken);
+
+            try
             {
-                if (_isRun)
-                    throw new Exception("is run");
+                User user = await botClient.GetMe();
 
-                _isRun = true;
+                await app.HistoryService.AddStatusService("Start", $"Id:{user.Id} FirstName:{user.FirstName}");
 
+                botClient.OnError += (exception, source) => ErrorHandle(exception, source, botClient);
+                botClient.OnMessage += (message, type) => MessageHandle(message, type, botClient);
 
-                TelegramBotClient botClient = new TelegramBotClient(opt.Value.Token, cancellationToken: stoppingToken);
-
-                try
-                {
-                    User user = await botClient.GetMe();
-
-                    await app.HistoryService.AddStatusService("Start", $"Id:{user.Id} FirstName:{user.FirstName}");
-
-                    botClient.OnError += (exception, source) => ErrorHandle(exception, source, stoppingToken);
-                    botClient.OnMessage += (message, type) => MessageHandle(message, type, botClient);
-
-                    await Task.Delay(-1, stoppingToken);
-                }
-                finally
-                {
-                    await botClient.Close(stoppingToken);
-                    await app.HistoryService.AddStatusService("Stop");
-                }
+                await Task.Delay(-1, stoppingToken);
+            }
+            finally
+            {
+                await botClient.Close(stoppingToken);
+                await app.HistoryService.AddStatusService("Stop");
             }
         }
-
 
         private async Task MessageHandle(Message message, UpdateType type, ITelegramBotClient client)
         {
             await using (TutorBotContext context = new TutorBotContext(client, opt, app))
             {
                 // Проверяем, что сообщение содержит текст
-                if (message.Type != MessageType.Text)
+                if (message.Type != MessageType.Text || string.IsNullOrWhiteSpace(message.Text))
                     return;
 
                 if (message.From == null)
@@ -67,7 +55,7 @@ namespace TutorBot.TelegramService
 
                 context.ChatEntry = await GetChat(message);
 
-                _ = app.HistoryService.AddHistory(new MessageHistory(message.From.Id, DateTime.Now, message.Text ?? string.Empty, "Client", context.ChatEntry.NextCount()));
+                _ = app.HistoryService.AddHistory(new MessageHistory(message.From.Id, DateTime.Now, message.Text ?? string.Empty, "Client", context.ChatEntry.NextCount(), context.ChatEntry.SessionID));
 
                 if (string.IsNullOrEmpty(context.ChatEntry.GroupNumber))
                 {
@@ -77,7 +65,10 @@ namespace TutorBot.TelegramService
 
                 if (!string.IsNullOrEmpty(context.ChatEntry.GroupNumber))
                 {
-                    var action = BotActionHub.Handles.FirstOrDefault(a => a.Key == message.Text);
+                    var action = BotActionHub.Handles.FirstOrDefault(a => a.Key == message.Text) ??
+                        (context.ChatEntry.LastActionKey == ALBotAction.Instance.Key ? ALBotAction.Instance : null);
+
+                    context.ChatEntry.LastActionKey = action?.Key;
                     if (action != null)
                     {
                         await action.ExecuteAsync(message, context);
@@ -93,7 +84,7 @@ namespace TutorBot.TelegramService
         private async Task WriteError(string message)
         {
             ChatEntry chat = await GetErrorChat();
-            await app.HistoryService.AddHistory(new MessageHistory(chat.UserID, DateTime.Now, message, "Error", chat.NextCount()));
+            await app.HistoryService.AddHistory(new MessageHistory(chat.UserID, DateTime.Now, message, "Error", chat.NextCount(), new Guid()));
         }
 
         private async Task<ChatEntry> GetErrorChat()
@@ -119,11 +110,15 @@ namespace TutorBot.TelegramService
             return chatEntry!;
         }
 
-        public Task ErrorHandle(Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
+        public async Task ErrorHandle(Exception exception, HandleErrorSource source, TelegramBotClient client)
         {
             Console.WriteLine(exception);
             _ = WriteError(exception.ToString());
-            return Task.CompletedTask;
+
+            await Task.CompletedTask;
+            //await using (TutorBotContext context = new TutorBotContext(client, opt, app))
+            //{
+            //} 
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TutorBot.Abstractions;
 
@@ -30,11 +31,11 @@ namespace TutorBot.TelegramService
             set => _ChatEntry = Check.NotNull(value);
         }
 
-        public async Task<Message> SendMessage(string text, ReplyMarkup? replyMarkup = null)
+        public async Task<Message> SendMessage(string text, ReplyMarkup? replyMarkup = null, ParseMode parseMode = ParseMode.None)
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(TutorBotContext));
-             
+
             string logText = text;
 
             if (replyMarkup is null)
@@ -55,9 +56,9 @@ namespace TutorBot.TelegramService
 ";
             }
 
-            _ = App.HistoryService.AddHistory(new MessageHistory(ChatEntry.ChatID, DateTime.Now, logText, "Bot", ChatEntry.NextCount()));
+            _ = App.HistoryService.AddHistory(new MessageHistory(ChatEntry.ChatID, DateTime.Now, logText, "Bot", ChatEntry.NextCount(), ChatEntry.SessionID));
 
-            return await Client.SendMessage(ChatEntry.ChatID, text, replyMarkup: replyMarkup);
+            return await Client.SendMessage(ChatEntry.ChatID, text, replyMarkup: replyMarkup, parseMode: parseMode); 
         }
 
         public async ValueTask DisposeAsync()

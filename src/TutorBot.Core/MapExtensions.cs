@@ -19,6 +19,8 @@ namespace TutorBot.Core
                 TimeCreate = chat.TimeCreate,
                 TimeLastUpdate = chat.TimeLastUpdate,
                 UserID = chat.UserID,
+                SessionID = chat.SessionID,
+                LastActionKey = chat.LastActionKey
             };
         }
 
@@ -37,6 +39,8 @@ namespace TutorBot.Core
                 TimeCreate = chat.TimeCreate,
                 TimeLastUpdate = chat.TimeLastUpdate,
                 UserID = chat.UserID,
+                LastActionKey = chat.LastActionKey,
+                SessionID = chat.SessionID,
             };
         }
 
@@ -49,12 +53,13 @@ namespace TutorBot.Core
                 OrderID = history.OrderID,
                 Type = history.Type,
                 Timestamp = history.Timestamp,
+                SessionID = history.SessionID
             };
         }
 
         public static Abstractions.MessageHistory MapCore(this MessageHistory history)
         {
-            return new Abstractions.MessageHistory(history.ChatID, history.Timestamp, history.MessageText, history.Type, history.OrderID, history.Id);
+            return new Abstractions.MessageHistory(history.ChatID, history.Timestamp, history.MessageText, history.Type, history.OrderID, history.SessionID, history.Id);
         }
     }
 }

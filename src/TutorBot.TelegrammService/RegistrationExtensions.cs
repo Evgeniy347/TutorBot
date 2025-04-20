@@ -7,8 +7,14 @@ public static class RegistrationExtensions
 {
     public static IServiceCollection AddTelegramService(this IServiceCollection services, IConfigurationManager configuration)
     {
-        services.Configure<TgBotServiceOptions>(configuration.GetSection("TelegramService"));
-        services.AddHostedService<TelegramBotService>();
+        IConfigurationSection section = configuration.GetSection("TelegramService"); 
+        services.Configure<TgBotServiceOptions>(section); 
+        TgBotServiceOptions? tgBotConfig = section.Get<TgBotServiceOptions>();
+
+        if (tgBotConfig != null && tgBotConfig.Enable)
+        {
+            services.AddHostedService<TelegramBotService>();
+        }
 
         return services;
     }

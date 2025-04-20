@@ -18,9 +18,11 @@ namespace TutorBot.App
                 Args = args,
                 ApplicationName = "TutorBot.App"
             });
-
              
             var services = builder.Services;
+
+            builder.Configuration.AddJsonFile("appsettings.json");
+            builder.Configuration.AddJsonFile("appsettings.private.json");
 
             builder.AddServiceDefaults();
 

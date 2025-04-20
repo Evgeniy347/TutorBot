@@ -10,11 +10,14 @@ namespace TutorBot.Core
         {
             HistoryService = new HistoryServiceCore(serviceProvider);
             ChatService = new ChatService(serviceProvider);
+            ALService = new ALServiceService(serviceProvider);
         }
 
         public IHistoryService HistoryService { get; }
 
         public IChatService ChatService { get; }
+
+        public IALServiceService ALService { get; }
     }
 
     internal class ChatService(IServiceProvider serviceProvider) : IChatService
@@ -124,7 +127,6 @@ namespace TutorBot.Core
             await using (var scope = serviceProvider.CreateAsyncScope())
             {
                 ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
 
                 if (revers)
                 {

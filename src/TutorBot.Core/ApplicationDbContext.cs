@@ -48,6 +48,8 @@ namespace TutorBot.Core
         [Required]
         public DateTime TimeLastUpdate { get; set; }
         public bool IsFirstMessage { get; set; }
+        public string? LastActionKey { get; internal set; }
+        public Guid SessionID { get; internal set; }
     }
 
     public class ServiceStatusHistory
@@ -65,7 +67,7 @@ namespace TutorBot.Core
         public string Message { get; set; } = string.Empty;
     }
 
-    [Index(nameof(ChatID), nameof(OrderID))]
+    [Index(nameof(ChatID), nameof(OrderID), nameof(SessionID))]
     public class MessageHistory
     {
         [Key]
@@ -85,5 +87,7 @@ namespace TutorBot.Core
 
         [Required]
         public string Type { get; set; } = string.Empty;
+
+        public Guid SessionID { get; set; }
     }
 }

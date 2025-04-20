@@ -15,7 +15,8 @@ namespace TutorBot.TelegramService.BotActions
             new SimpleTextBotAction("Прохождение тестирования на уровень владения иностранным языком", TextMessages.LanguageTestMessage),
             new SimpleSubMenuBotAction("Ликвидации академических задолженностей", GetDebtMenuKeyboard()),
             new SimpleSubMenuBotAction("Modeus", GetModeusMenuKeyboard()),
-            new SimpleSubMenuBotAction("На главную", GetMainMenuKeyboard()),
+            new SimpleSubMenuBotAction("На главную", GetMainMenuKeyboard()), 
+            ALBotAction.Instance,
             new ResetBotAction()
           ];
 
@@ -28,10 +29,11 @@ namespace TutorBot.TelegramService.BotActions
             new[] { new KeyboardButton("Ликвидации академических задолженностей") },
             new[] { new KeyboardButton("Modeus") },
             new[] { new KeyboardButton("Я иностранный студент") },
+            new[] { new KeyboardButton("Спросить нейросеть") },
             new[] { new KeyboardButton("Перезапустить") }
         });
         }
-
+         
         public static ReplyKeyboardMarkup GetDebtMenuKeyboard()
         {
             return new ReplyKeyboardMarkup(new[]
