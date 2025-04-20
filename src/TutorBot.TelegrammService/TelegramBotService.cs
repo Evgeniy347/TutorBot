@@ -65,10 +65,10 @@ namespace TutorBot.TelegramService
 
                 if (!string.IsNullOrEmpty(context.ChatEntry.GroupNumber))
                 {
-                    var action = BotActionHub.Handles.FirstOrDefault(a => a.Key == message.Text) ??
-                        (context.ChatEntry.LastActionKey == ALBotAction.Instance.Key ? ALBotAction.Instance : null);
+                    IBotAction? action = SelectAction(message, context);
 
                     context.ChatEntry.LastActionKey = action?.Key;
+
                     if (action != null)
                     {
                         await action.ExecuteAsync(message, context);
@@ -79,6 +79,30 @@ namespace TutorBot.TelegramService
                     }
                 }
             }
+        }
+
+        private static IBotAction? SelectAction(Message message, TutorBotContext context)
+        {
+            IBotAction? action = FindAction(message.Text, context);
+
+            if (action == null && !string.IsNullOrEmpty(context.ChatEntry.LastActionKey))
+            {
+                IBotAction? lastAction = FindAction(context.ChatEntry.LastActionKey, context);
+                if (lastAction != null && lastAction.EnableProlangate)
+                    action = lastAction;
+            }
+
+            return action;
+        }
+
+        private static IBotAction? FindAction(string? text, TutorBotContext context)
+        {
+            var action = BotActionHub.Handles.FirstOrDefault(a => a.Key == text);
+
+            if (action == null && context.ChatEntry.IsAdmin)
+                action = BotActionHub.AdminHandles.FirstOrDefault(a => a.Key == text);
+
+            return action;
         }
 
         private async Task WriteError(string message)
@@ -115,10 +139,26 @@ namespace TutorBot.TelegramService
             Console.WriteLine(exception);
             _ = WriteError(exception.ToString());
 
+            try
+            {
+                ChatEntry[] adminChats = await app.ChatService.GetChats(new GetChatsFilter(false, true));
+
+                foreach (ChatEntry adminChat in adminChats)
+                {
+                    try
+                    {
+                        await using (TutorBotContext context = new TutorBotContext(client, opt, app))
+                        {
+                            context.ChatEntry = adminChat;
+                            await context.SendMessage($"Произошла ошибка:{exception}");
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
             await Task.CompletedTask;
-            //await using (TutorBotContext context = new TutorBotContext(client, opt, app))
-            //{
-            //} 
         }
     }
 }

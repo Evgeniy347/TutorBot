@@ -10,27 +10,7 @@ namespace TutorBot.Core
             {
                 Id = chat.ID,
                 ChatID = chat.ChatID,
-                CountMessages = chat.CountMessages,
-                GroupNumber = chat.GroupNumber,
-                IsFirstMessage = chat.IsFirstMessage,
-                FirstName = chat.FirstName,
-                LastName = chat.LastName,
-                UserName = chat.UserName,
-                TimeCreate = chat.TimeCreate,
-                TimeLastUpdate = chat.TimeLastUpdate,
-                UserID = chat.UserID,
-                SessionID = chat.SessionID,
-                LastActionKey = chat.LastActionKey
-            };
-        }
-
-        public static ChatEntry MapCore(this DBChatEntry chat)
-        {
-            return new ChatEntry()
-            {
-                ID = chat.Id,
-                ChatID = chat.ChatID,
-                CountMessages = chat.CountMessages,
+                MessagesCount = chat.MessagesCount,
                 GroupNumber = chat.GroupNumber,
                 IsFirstMessage = chat.IsFirstMessage,
                 FirstName = chat.FirstName,
@@ -41,6 +21,30 @@ namespace TutorBot.Core
                 UserID = chat.UserID,
                 LastActionKey = chat.LastActionKey,
                 SessionID = chat.SessionID,
+                IsAdmin = chat.IsAdmin,
+                EnableAdminError = chat.EnableAdminError
+            };
+        }
+
+        public static ChatEntry MapCore(this DBChatEntry chat)
+        {
+            return new ChatEntry()
+            {
+                ID = chat.Id,
+                ChatID = chat.ChatID,
+                MessagesCount = chat.MessagesCount,
+                GroupNumber = chat.GroupNumber,
+                IsFirstMessage = chat.IsFirstMessage,
+                FirstName = chat.FirstName,
+                LastName = chat.LastName,
+                UserName = chat.UserName,
+                TimeCreate = chat.TimeCreate,
+                TimeLastUpdate = chat.TimeLastUpdate,
+                UserID = chat.UserID,
+                LastActionKey = chat.LastActionKey,
+                SessionID = chat.SessionID,
+                IsAdmin = chat.IsAdmin,
+                EnableAdminError = chat.EnableAdminError,
             };
         }
 

@@ -5,6 +5,7 @@ namespace TutorBot.TelegramService.BotActions
     internal class SimpleTextBotAction(string key, string text) : IBotAction
     {
         public string Key => key;
+        public bool EnableProlangate => false;
 
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {

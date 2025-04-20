@@ -61,12 +61,23 @@ namespace TutorBot.Core
             }
         }
 
-        public async Task<ChatEntry[]> GetChats()
+        public async Task<ChatEntry[]> GetChats(GetChatsFilter? filter)
         {
             await using (var scope = serviceProvider.CreateAsyncScope())
             {
                 ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                return await dbContext.Chats.Select(x => x.MapCore()).ToArrayAsync();
+
+                IQueryable<DBChatEntry> query = dbContext.Chats;
+
+                if (filter != null)
+                {
+                    if (filter.IsAdmin)
+                        query = query.Where(x => x.IsAdmin);
+                    if (filter.EnableAdminError)
+                        query = query.Where(x => x.EnableAdminError == true);
+                }
+
+                return await query.Select(x => x.MapCore()).ToArrayAsync();
             }
         }
 

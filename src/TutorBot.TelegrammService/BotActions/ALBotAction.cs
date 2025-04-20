@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions; 
+﻿using System.Text.RegularExpressions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using System.Text;
@@ -8,6 +8,7 @@ namespace TutorBot.TelegramService.BotActions
     internal class ALBotAction : IBotAction
     {
         public static ALBotAction Instance = new ALBotAction();
+        public bool EnableProlangate => true;
 
         public string Key => "Спросить нейросеть";
 
@@ -18,7 +19,7 @@ namespace TutorBot.TelegramService.BotActions
                 await client.SendMessage("Сформулируйте вопрос");
             }
             else
-            { 
+            {
                 string answer = @"
 Использование **Modeus** имеет множество преимуществ, которые делают процесс обучения более удобным и эффективным. Вот ключевые из них:
 
@@ -26,20 +27,14 @@ namespace TutorBot.TelegramService.BotActions
    - **Доступ к расписанию**: Вы всегда будете знать, когда и где проходят ваши занятия.
    - **Электронные ведомости**: Можно следить за своими оценками и прогрессом по каждому предмету.
    - **Календарь событий**: Легко планировать свое время благодаря напоминаниям о предстоящих мероприятиях и экзаменах.
-";// await client.App.ALService.TransferQuestionAL(client.ChatEntry.ChatID, message.Text ?? string.Empty, client.ChatEntry.SessionID);
+";
 
-                string escapeAnswer = EscapeMarkdownSpecialCharacters(answer);
-
-                var answer3 = Telegram.Bot.Extensions.Markdown.ToMarkdown(answer, []);
+                answer = await client.App.ALService.TransferQuestionAL(client.ChatEntry.ChatID, message.Text ?? string.Empty, client.ChatEntry.SessionID);
                  
                 var answerEscape = TelegramMarkdownHelper.EscapeMarkdownV2(answer);
                 await client.SendMessage(answerEscape, parseMode: ParseMode.MarkdownV2);
             }
-        }
-        public string EscapeMarkdownSpecialCharacters(string input)
-        {
-            return Regex.Replace(input, @"([_*$$$$()~`>#+\-.!])", @"\$1");
-        }
+        } 
     }
 
     public static class TelegramMarkdownHelper
@@ -92,5 +87,5 @@ namespace TutorBot.TelegramService.BotActions
             }
             return result.ToString();
         }
-    } 
+    }
 }

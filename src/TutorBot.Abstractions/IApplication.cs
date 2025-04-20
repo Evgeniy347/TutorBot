@@ -24,9 +24,11 @@ namespace TutorBot.Abstractions
     {
         Task<ChatEntry?> Find(long chatID);
         Task<ChatEntry> Create(long userID, string firstName, string lastName, string username, long chatID);
-        Task<ChatEntry[]> GetChats();
+        Task<ChatEntry[]> GetChats(GetChatsFilter? filter = null);
         Task Update(ChatEntry chat);
     }
+
+    public record GetChatsFilter(bool IsAdmin, bool EnableAdminError);
 
     public class ChatEntry
     {
@@ -36,7 +38,7 @@ namespace TutorBot.Abstractions
         public string LastName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
-        public long CountMessages { get; set; }
+        public long MessagesCount { get; set; }
         public string GroupNumber { get; set; } = string.Empty;
         public string LastMessage { get; set; } = string.Empty;
         public DateTime TimeCreate { get; set; }
@@ -46,7 +48,10 @@ namespace TutorBot.Abstractions
         public string? LastActionKey { get; set; }
         public Guid SessionID { get; set; }
 
-        public long NextCount() => CountMessages++;
+        public bool IsAdmin { get; set; }
+        public bool EnableAdminError { get; set; }
+
+        public long NextCount() => MessagesCount++;
     }
 
     public record MessageHistory(long ChatID, DateTime Timestamp, string MessageText, string Type, long OrderID, Guid SessionID, int ID = -1);

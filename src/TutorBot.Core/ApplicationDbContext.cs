@@ -41,15 +41,18 @@ namespace TutorBot.Core
         public string LastName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
-        public long CountMessages { get; set; }
+        public long MessagesCount { get; set; }
         public string GroupNumber { get; set; } = string.Empty;
         [Required]
         public DateTime TimeCreate { get; set; }
         [Required]
         public DateTime TimeLastUpdate { get; set; }
         public bool IsFirstMessage { get; set; }
-        public string? LastActionKey { get; internal set; }
-        public Guid SessionID { get; internal set; }
+        public string? LastActionKey { get; set; }
+        public bool IsAdmin { get; set; }
+        public bool EnableAdminError { get; set; }
+
+        public Guid SessionID { get; set; }
     }
 
     public class ServiceStatusHistory
