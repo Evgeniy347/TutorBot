@@ -10,14 +10,14 @@ namespace TutorBot.Core
         {
             HistoryService = new HistoryServiceCore(serviceProvider);
             ChatService = new ChatService(serviceProvider);
-            ALService = new ALServiceService(serviceProvider);
+            ALService = new YandexSearchService(serviceProvider);
         }
 
         public IHistoryService HistoryService { get; }
 
         public IChatService ChatService { get; }
 
-        public IALServiceService ALService { get; }
+        public IALService ALService { get; }
     }
 
     internal class ChatService(IServiceProvider serviceProvider) : IChatService

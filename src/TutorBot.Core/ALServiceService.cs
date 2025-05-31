@@ -9,13 +9,13 @@ using TutorBot.Abstractions;
 
 namespace TutorBot.Core
 {
-    internal class ALServiceService : IALServiceService
+    internal class GigaChatService : IALService
     {
         private readonly GigaChatOptions _options;
         private readonly IServiceProvider _serviceProvider;
-         
+
         private readonly GigaChat _gigaChat;
-        internal ALServiceService(IServiceProvider serviceProvider)
+        internal GigaChatService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             _options = serviceProvider.GetRequiredService<IOptions<GigaChatOptions>>().Value;
@@ -127,5 +127,5 @@ namespace TutorBot.Core
         public required string SecretKey { get; init; }
         public required bool IsCommercial { get; init; }
         public required bool IgnoreTLS { get; init; }
-    } 
+    }
 }

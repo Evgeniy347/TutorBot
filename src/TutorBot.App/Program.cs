@@ -1,52 +1,46 @@
-﻿using System.Text.Json.Serialization;
+﻿using TutorBot.Abstractions;
 using TutorBot.Authentication;
-using TutorBot.Abstractions;
 using TutorBot.Core;
-using TutorBot.Frontend; 
+using TutorBot.Frontend;
 using TutorBot.TelegramService;
 
-namespace TutorBot.App
+Console.OutputEncoding = Console.InputEncoding = System.Text.Encoding.UTF8;
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
 {
-    public class Program
-    {
-        static async Task Main(string[] args)
-        {
-            Console.OutputEncoding = Console.InputEncoding = System.Text.Encoding.UTF8;
+    Args = args,
+    ApplicationName = "TutorBot.App"
+});
 
-            var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
-            {
-                Args = args,
-                ApplicationName = "TutorBot.App"
-            });
-             
-            var services = builder.Services;
+var services = builder.Services;
 
-            builder.Configuration.AddJsonFile("appsettings.json");
-            builder.Configuration.AddJsonFile("appsettings.private.json");
+builder.Configuration.AddJsonFile("appsettings.json");
+builder.Configuration.AddJsonFile("appsettings.private.json", true);
 
-            builder.AddServiceDefaults();
+builder.AddServiceDefaults();
 
-            services.AddFrontendAuthentication();
-            services.AddFrontend();
+services.AddFrontendAuthentication();
+services.AddFrontend();
 
-            services.AddApplicationCore(builder.Configuration);
+services.AddApplicationCore(builder.Configuration);
 
-            services.AddTelegramService(builder.Configuration);
-             
-            var app = builder.Build();
+services.AddTelegramService(builder.Configuration);
 
-            app.MapDefaultEndpoints();
+var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            { 
-            }
+var alServise = app.Services.GetRequiredService<IApplication>();
 
-            app.AddFrontend<TutorBot.App.Components.App>();
+await alServise.ALService.TransferQuestionAL(123, "C# Lang", new Guid());
 
-            app.UseHttpsRedirection();
+app.MapDefaultEndpoints();
 
-            await app.RunAsync();
-        }
-    }
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
 }
+
+app.AddFrontend<TutorBot.App.Components.App>();
+
+app.UseHttpsRedirection();
+
+await app.RunAsync();

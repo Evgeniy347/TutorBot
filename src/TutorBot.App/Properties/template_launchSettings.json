@@ -5,12 +5,8 @@
       "launchBrowser": true,
       "dotnetRunMessages": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings__DefaultConnection": "",
-        "ASPNETCORE_URLS": "http://localhost:7080",
-        "TelegramService:Token": "{Ваш_токен}",
-        "TelegramService:Enable": "true",
-        "TelegramService:GroupNumbers:[0]": "{group}"
+        "ASPNETCORE_ENVIRONMENT": "Development", 
+        "ASPNETCORE_URLS": "http://localhost:7080"
       },
       "launchUrl": "http://localhost:7080",
       "applicationUrl": "http://localhost:7080;https://localhost:7443"

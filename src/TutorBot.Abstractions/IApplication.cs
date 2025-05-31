@@ -5,10 +5,10 @@ namespace TutorBot.Abstractions
     {
         IHistoryService HistoryService { get; }
         IChatService ChatService { get; }
-        IALServiceService ALService { get; }
+        IALService ALService { get; }
     }
 
-    public interface IALServiceService
+    public interface IALService
     {
         Task<string> TransferQuestionAL(long chatID, string currentMessage, Guid sessionID);
     }
