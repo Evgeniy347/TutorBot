@@ -54,8 +54,9 @@ namespace TutorBot.Core
             {
                 MessageText = history.MessageText,
                 ChatID = history.ChatID,
+                UserID = history.UserID,
                 OrderID = history.OrderID,
-                Type = history.Type,
+                Type = history.Type.ToString(),
                 Timestamp = history.Timestamp,
                 SessionID = history.SessionID
             };
@@ -63,7 +64,8 @@ namespace TutorBot.Core
 
         public static Abstractions.MessageHistory MapCore(this MessageHistory history)
         {
-            return new Abstractions.MessageHistory(history.ChatID, history.Timestamp, history.MessageText, history.Type, history.OrderID, history.SessionID, history.Id);
+            Enum.TryParse(history.Type, out MessageHistoryRole rolel);
+            return new Abstractions.MessageHistory(history.ChatID, history.Timestamp, history.MessageText, rolel, history.OrderID, history.UserID, history.SessionID, history.Id);
         }
     }
 }

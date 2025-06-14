@@ -5,7 +5,7 @@ namespace TutorBot.TelegramService.BotActions.Admins
     internal class NotifyBotAction : IBotAction
     {
         public string Key => "Оповещения об ошибках";
-        public bool EnableProlangate => false;
+        public bool EnableProlongated => false;
 
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {

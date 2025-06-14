@@ -5,7 +5,7 @@ namespace TutorBot.TelegramService.BotActions.Admins
     internal class AdminBotAction : IBotAction
     {
         public string Key => "/admin";
-        public bool EnableProlangate => true;
+        public bool EnableProlongated => true;
 
         private readonly Dictionary<long, int> _attemptsCont = new Dictionary<long, int>();
 

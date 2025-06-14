@@ -407,5 +407,5 @@ launchSettings.json
 **/node_modules/
 **/.idea/
 !**/TestData/*.pfx
-Generated/
-**/appsettings.private.json
+Generated/ 
+**/*.private.*

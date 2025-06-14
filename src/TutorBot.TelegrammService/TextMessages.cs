@@ -3,7 +3,7 @@
     public static class TextMessages
     {
         public const string ErrorGroupNumber = $"Указан некорректный номер группы. Пожалуйста, назовите номер группы в формате РИ-000000";
-        public const string WelcomeMessage = "Добрый день. Пожалуйста, назовите номер группы в формате РИ-000000.";
+        public const string WelcomeMessage = "Добрый день. Пожалуйста, назовите номер группы в формате РИ-000000."; 
         public const string AskInterest = "Что вас интересует?";
         public const string ScheduleLink = "Перейдите по ссылке: https://urfu.ru/ru/students/study/schedule/#/groups";
         public const string FindTeacherLink = "Перейдите по ссылке: https://urfu.ru/ru/students/study/schedule/#/groups";
@@ -13,5 +13,15 @@
         public const string ForeignStudentLink = "Перейдите по ссылке: https://urfu.ru/ru/international/centr-adaptacii-inostrannykh-obuchajushchikhsja/";
         public const string FkSectionMessage = "Ответственный Мусина Ольга Ивановна https://urfu.ru/ru/about/personal-pages/personal/person/olga.musina/";
         public const string LanguageTestMessage = "Ответственный Чернова Ольга Вячеславовна https://urfu.ru/ru/about/personal-pages/personal/person/o.v.chernova/";
+    }
+
+    public static class TextPromts
+    {
+        public const string WelcomeGroup = @"
+Представь себя в роли ассистента кафедры информационной безопасности.
+Тебя добавили в общий чат группы студентов и преподавателей кафедры.
+Твоя задача анализировать новостную ленту кафедры и помогать с ответами на вопросы студентов.
+Поздоровайся со всеми.
+";
     }
 }

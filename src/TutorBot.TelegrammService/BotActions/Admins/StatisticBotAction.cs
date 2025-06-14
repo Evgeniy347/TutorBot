@@ -6,7 +6,7 @@ namespace TutorBot.TelegramService.BotActions.Admins
     internal class StatisticBotAction : IBotAction
     {
         public string Key => "Получить статистику";
-        public bool EnableProlangate => false;
+        public bool EnableProlongated => false;
 
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {

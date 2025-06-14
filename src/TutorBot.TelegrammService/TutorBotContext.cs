@@ -7,29 +7,18 @@ using TutorBot.Abstractions;
 
 namespace TutorBot.TelegramService
 {
-    internal class TutorBotContext : IAsyncDisposable
+    internal record TutorBotContext(ITelegramBotClient Client, TgBotServiceOptions Opt, IApplication App, long BotID) : IAsyncDisposable
     {
         private bool _disposed;
-
-        public TutorBotContext(ITelegramBotClient client, IOptions<TgBotServiceOptions> opt, IApplication app)
-        {
-            Opt = opt.Value;
-            App = app;
-            Client = client;
-        }
-
-        public TgBotServiceOptions Opt { get; }
-
-        public IApplication App { get; }
-
-        public ITelegramBotClient Client { get; }
-
+          
         private ChatEntry? _ChatEntry;
         public ChatEntry ChatEntry
         {
             get => Check.NotNull(_ChatEntry);
             set => _ChatEntry = Check.NotNull(value);
         }
+
+        public bool IsGroupChat { get; internal set; }
 
         public async Task<Message> SendMessage(string text, ReplyMarkup? replyMarkup = null, ParseMode parseMode = ParseMode.None)
         {
@@ -56,9 +45,9 @@ namespace TutorBot.TelegramService
 ";
             }
 
-            _ = App.HistoryService.AddHistory(new MessageHistory(ChatEntry.ChatID, DateTime.Now, logText, "Bot", ChatEntry.NextCount(), ChatEntry.SessionID));
+            _ = App.HistoryService.AddHistory(new MessageHistory(ChatEntry.ChatID, DateTime.Now, logText, MessageHistoryRole.Bot, ChatEntry.NextCount(), ChatEntry.UserID, ChatEntry.SessionID));
 
-            return await Client.SendMessage(ChatEntry.ChatID, text, replyMarkup: replyMarkup, parseMode: parseMode); 
+            return await Client.SendMessage(ChatEntry.ChatID, text, replyMarkup: replyMarkup, parseMode: parseMode);
         }
 
         public async ValueTask DisposeAsync()

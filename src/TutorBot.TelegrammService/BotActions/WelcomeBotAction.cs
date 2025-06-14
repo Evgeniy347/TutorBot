@@ -6,7 +6,7 @@ namespace TutorBot.TelegramService.BotActions
     internal class WelcomeBotAction(TgBotServiceOptions opt) : IBotAction
     {
         public string Key => "Welcome";
-        public bool EnableProlangate => false;
+        public bool EnableProlongated => false;
 
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {

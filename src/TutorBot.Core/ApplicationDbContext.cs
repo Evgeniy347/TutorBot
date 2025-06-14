@@ -80,6 +80,9 @@ namespace TutorBot.Core
         public long ChatID { get; set; }
 
         [Required]
+        public long UserID { get; set; }
+
+        [Required]
         public long OrderID { get; set; }
 
         [Required]

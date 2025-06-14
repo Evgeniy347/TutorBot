@@ -17,12 +17,12 @@ namespace TutorBot.TelegramService
 
             try
             {
-                User user = await botClient.GetMe();
+                User bot = await botClient.GetMe();
 
-                await app.HistoryService.AddStatusService("Start", $"Id:{user.Id} FirstName:{user.FirstName}");
+                await app.HistoryService.AddStatusService("Start", $"bot.Id:{bot.Id} FirstName:{bot.FirstName}");
 
-                botClient.OnError += (exception, source) => ErrorHandle(exception, source, botClient);
-                botClient.OnMessage += (message, type) => MessageHandle(message, type, botClient);
+                botClient.OnError += (exception, source) => ErrorHandle(exception, source, bot.Id, botClient);
+                botClient.OnMessage += (message, type) => MessageHandle(message, type, bot.Id, botClient);
 
                 await Task.Delay(-1, stoppingToken);
             }
@@ -33,51 +33,58 @@ namespace TutorBot.TelegramService
             }
         }
 
-        private async Task MessageHandle(Message message, UpdateType type, ITelegramBotClient client)
+        private async Task MessageHandle(Message message, UpdateType type, long botID, ITelegramBotClient client)
         {
-            await using (TutorBotContext context = new TutorBotContext(client, opt, app))
+            await using (TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID))
             {
-                // Проверяем, что сообщение содержит текст
-                if (message.Type != MessageType.Text || string.IsNullOrWhiteSpace(message.Text))
-                    return;
-
                 if (message.From == null)
                 {
-                    _ = WriteError("From is null");
+                    _ = WriteError("From is null", botID);
                     return;
                 }
 
                 if (message.Chat == null)
                 {
-                    _ = WriteError("Chat is null");
+                    _ = WriteError("Chat is null", botID);
                     return;
                 }
 
-                context.ChatEntry = await GetChat(message);
+                context.IsGroupChat = message.Chat.Type is ChatType.Group or ChatType.Supergroup;
 
-                _ = app.HistoryService.AddHistory(new MessageHistory(message.From.Id, DateTime.Now, message.Text ?? string.Empty, "Client", context.ChatEntry.NextCount(), context.ChatEntry.SessionID));
+                context.ChatEntry = await EnsureChat(message);
 
-                if (string.IsNullOrEmpty(context.ChatEntry.GroupNumber))
+                if (message.Type == MessageType.NewChatMembers || context.IsGroupChat)
                 {
-                    WelcomeBotAction resetBotAction = new WelcomeBotAction(opt.Value);
-                    await resetBotAction.ExecuteAsync(message, context);
+                    GroupChatBotAction resetBotAction = new GroupChatBotAction();
+                    await resetBotAction.ExecuteAsync(message, context); 
+                } 
+
+                if (message.Type == MessageType.Text && string.IsNullOrWhiteSpace(message.Text))
+                { 
+                    if (string.IsNullOrEmpty(context.ChatEntry.GroupNumber))
+                    {
+                        WelcomeBotAction resetBotAction = new WelcomeBotAction(opt.Value);
+                        await resetBotAction.ExecuteAsync(message, context);
+                    }
+
+                    if (!string.IsNullOrEmpty(context.ChatEntry.GroupNumber))
+                    {
+                        IBotAction? action = SelectAction(message, context);
+
+                        context.ChatEntry.LastActionKey = action?.Key;
+
+                        if (action != null)
+                        {
+                            await action.ExecuteAsync(message, context);
+                        }
+                        else
+                        {
+                            await context.SendMessage("Пожалуйста, выберите опцию из меню.");
+                        }
+                    }
                 }
 
-                if (!string.IsNullOrEmpty(context.ChatEntry.GroupNumber))
-                {
-                    IBotAction? action = SelectAction(message, context);
-
-                    context.ChatEntry.LastActionKey = action?.Key;
-
-                    if (action != null)
-                    {
-                        await action.ExecuteAsync(message, context);
-                    }
-                    else
-                    {
-                        await context.SendMessage("Пожалуйста, выберите опцию из меню.");
-                    }
-                }
+                _ = app.HistoryService.AddHistory(new MessageHistory(message.Chat.Id, DateTime.Now, message.Text ?? string.Empty, MessageHistoryRole.User, message.From.Id, context.ChatEntry.NextCount(), context.ChatEntry.SessionID));
             }
         }
 
@@ -88,7 +95,7 @@ namespace TutorBot.TelegramService
             if (action == null && !string.IsNullOrEmpty(context.ChatEntry.LastActionKey))
             {
                 IBotAction? lastAction = FindAction(context.ChatEntry.LastActionKey, context);
-                if (lastAction != null && lastAction.EnableProlangate)
+                if (lastAction != null && lastAction.EnableProlongated)
                     action = lastAction;
             }
 
@@ -105,10 +112,10 @@ namespace TutorBot.TelegramService
             return action;
         }
 
-        private async Task WriteError(string message)
+        private async Task WriteError(string message, long botID)
         {
             ChatEntry chat = await GetErrorChat();
-            await app.HistoryService.AddHistory(new MessageHistory(chat.UserID, DateTime.Now, message, "Error", chat.NextCount(), new Guid()));
+            await app.HistoryService.AddHistory(new MessageHistory(chat.UserID, DateTime.Now, message, MessageHistoryRole.Error, botID, chat.NextCount(), new Guid()));
         }
 
         private async Task<ChatEntry> GetErrorChat()
@@ -119,7 +126,7 @@ namespace TutorBot.TelegramService
             return chatEntry;
         }
 
-        private async Task<ChatEntry> GetChat(Message message)
+        private async Task<ChatEntry> EnsureChat(Message message)
         {
             Chat chat = Check.NotNull(message.Chat);
 
@@ -134,10 +141,10 @@ namespace TutorBot.TelegramService
             return chatEntry!;
         }
 
-        public async Task ErrorHandle(Exception exception, HandleErrorSource source, TelegramBotClient client)
+        public async Task ErrorHandle(Exception exception, HandleErrorSource source, long botID, TelegramBotClient client)
         {
             Console.WriteLine(exception);
-            _ = WriteError(exception.ToString());
+            _ = WriteError(exception.ToString(), botID);
 
             try
             {
@@ -147,7 +154,7 @@ namespace TutorBot.TelegramService
                 {
                     try
                     {
-                        await using (TutorBotContext context = new TutorBotContext(client, opt, app))
+                        await using (TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID))
                         {
                             context.ChatEntry = adminChat;
                             await context.SendMessage($"Произошла ошибка:{exception}");

@@ -11,6 +11,8 @@ namespace TutorBot.Abstractions
     public interface IALServiceService
     {
         Task<string> TransferQuestionAL(long chatID, string currentMessage, Guid sessionID);
+        Task<string> AskAssistant(long chatID, long userID, string currentMessage, Guid sessionID);
+        Task<string> AskAssistant(string currentMessage);
     }
 
     public interface IHistoryService
@@ -54,5 +56,13 @@ namespace TutorBot.Abstractions
         public long NextCount() => MessagesCount++;
     }
 
-    public record MessageHistory(long ChatID, DateTime Timestamp, string MessageText, string Type, long OrderID, Guid SessionID, int ID = -1);
+    public record MessageHistory(long ChatID, DateTime Timestamp, string MessageText, MessageHistoryRole Type, long OrderID, long UserID, Guid SessionID, int ID = -1);
+
+    public enum MessageHistoryRole
+    {
+        None,
+        User,
+        Bot,
+        Error
+    }
 }

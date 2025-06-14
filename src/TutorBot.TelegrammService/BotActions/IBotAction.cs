@@ -5,7 +5,7 @@ namespace TutorBot.TelegramService.BotActions
     internal interface IBotAction
     {
         string Key { get; }
-        bool EnableProlangate { get; }
+        bool EnableProlongated { get; }
         Task ExecuteAsync(Message message, TutorBotContext client);
     }
 }

@@ -8,7 +8,7 @@ namespace TutorBot.TelegramService.BotActions
     internal class ALBotAction : IBotAction
     {
         public static ALBotAction Instance = new ALBotAction();
-        public bool EnableProlangate => true;
+        public bool EnableProlongated => true;
 
         public string Key => "Спросить нейросеть";
 
@@ -20,21 +20,12 @@ namespace TutorBot.TelegramService.BotActions
             }
             else
             {
-                string answer = @"
-Использование **Modeus** имеет множество преимуществ, которые делают процесс обучения более удобным и эффективным. Вот ключевые из них:
+                string answer = await client.App.ALService.TransferQuestionAL(client.ChatEntry.ChatID, message.Text ?? string.Empty, client.ChatEntry.SessionID);
 
-### 1. **Удобство доступа к учебным ресурсам**
-   - **Доступ к расписанию**: Вы всегда будете знать, когда и где проходят ваши занятия.
-   - **Электронные ведомости**: Можно следить за своими оценками и прогрессом по каждому предмету.
-   - **Календарь событий**: Легко планировать свое время благодаря напоминаниям о предстоящих мероприятиях и экзаменах.
-";
-
-                answer = await client.App.ALService.TransferQuestionAL(client.ChatEntry.ChatID, message.Text ?? string.Empty, client.ChatEntry.SessionID);
-                 
                 var answerEscape = TelegramMarkdownHelper.EscapeMarkdownV2(answer);
                 await client.SendMessage(answerEscape, parseMode: ParseMode.MarkdownV2);
             }
-        } 
+        }
     }
 
     public static class TelegramMarkdownHelper

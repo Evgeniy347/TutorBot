@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk"> 
 	<ItemGroup>
 		<ProjectReference Include="..\TutorBot.Abstractions\TutorBot.Abstractions.csproj" />
 		<ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />

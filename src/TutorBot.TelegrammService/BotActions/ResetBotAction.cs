@@ -6,7 +6,7 @@ namespace TutorBot.TelegramService.BotActions
     internal class ResetBotAction : IBotAction
     {
         public string Key => "Перезапустить";
-        public bool EnableProlangate => false;
+        public bool EnableProlongated => false;
 
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {

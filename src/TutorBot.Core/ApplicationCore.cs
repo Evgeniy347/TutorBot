@@ -8,9 +8,10 @@ namespace TutorBot.Core
     {
         public ApplicationCore(IServiceProvider serviceProvider)
         {
-            HistoryService = new HistoryServiceCore(serviceProvider);
-            ChatService = new ChatService(serviceProvider);
-            ALService = new ALServiceService(serviceProvider);
+            ServiceLocator locator = new ServiceLocator(serviceProvider, this);
+            HistoryService = new HistoryServiceCore(locator);
+            ChatService = new ChatService(locator);
+            ALService = new ALServiceService(locator);
         }
 
         public IHistoryService HistoryService { get; }
@@ -20,13 +21,38 @@ namespace TutorBot.Core
         public IALServiceService ALService { get; }
     }
 
-    internal class ChatService(IServiceProvider serviceProvider) : IChatService
+    public class ServiceLocatorScope(IServiceScope scope) : IAsyncDisposable
+    {
+        public ApplicationDbContext DBContext => scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        public void Dispose() => scope.Dispose();
+
+        public async ValueTask DisposeAsync()
+        {
+            await Task.Yield();
+            scope.Dispose();
+        }
+    }
+
+    internal class ServiceLocator(IServiceProvider serviceProvider, ApplicationCore applicationCore)
+    {
+        public IServiceProvider Services => serviceProvider;
+
+        public ApplicationCore Application => applicationCore;
+
+        public ServiceLocatorScope CreateAsyncScope()
+        {
+            var scope = serviceProvider.CreateScope();
+            return new ServiceLocatorScope(scope);
+        }
+    }
+
+    internal class ChatService(ServiceLocator locator) : IChatService
     {
         public async Task<ChatEntry> Create(long userID, string firstName, string lastName, string username, long chatID)
         {
-            await using (var scope = serviceProvider.CreateAsyncScope())
+            await using (var scope = locator.CreateAsyncScope())
             {
-                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 DBChatEntry chatDB = new DBChatEntry()
                 {
                     ChatID = chatID,
@@ -39,9 +65,9 @@ namespace TutorBot.Core
                     IsFirstMessage = true
                 };
 
-                dbContext.Chats.Add(chatDB);
+                scope.DBContext.Chats.Add(chatDB);
 
-                await dbContext.SaveChangesAsync();
+                await scope.DBContext.SaveChangesAsync();
 
                 return chatDB.MapCore();
             }
@@ -49,10 +75,9 @@ namespace TutorBot.Core
 
         public async Task<ChatEntry?> Find(long chatID)
         {
-            await using (var scope = serviceProvider.CreateAsyncScope())
+            await using (var scope = locator.CreateAsyncScope())
             {
-                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                DBChatEntry? chatDB = await dbContext.Chats.Where(x => x.ChatID == chatID).FirstOrDefaultAsync();
+                DBChatEntry? chatDB = await scope.DBContext.Chats.Where(x => x.ChatID == chatID).FirstOrDefaultAsync();
 
                 if (chatDB != null)
                     return chatDB.MapCore();
@@ -63,11 +88,9 @@ namespace TutorBot.Core
 
         public async Task<ChatEntry[]> GetChats(GetChatsFilter? filter)
         {
-            await using (var scope = serviceProvider.CreateAsyncScope())
+            await using (var scope = locator.CreateAsyncScope())
             {
-                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-                IQueryable<DBChatEntry> query = dbContext.Chats;
+                IQueryable<DBChatEntry> query = scope.DBContext.Chats;
 
                 if (filter != null)
                 {
@@ -83,31 +106,29 @@ namespace TutorBot.Core
 
         public async Task Update(ChatEntry chat)
         {
-            await using (var scope = serviceProvider.CreateAsyncScope())
+            await using (var scope = locator.CreateAsyncScope())
             {
-                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 DBChatEntry chatDB = chat.MapDB();
 
                 chatDB.TimeLastUpdate = DateTime.Now;
 
-                dbContext.Chats.Update(chatDB);
+                scope.DBContext.Chats.Update(chatDB);
 
-                await dbContext.SaveChangesAsync();
+                await scope.DBContext.SaveChangesAsync();
             }
         }
     }
 
-    internal class HistoryServiceCore(IServiceProvider serviceProvider) : IHistoryService
+    internal class HistoryServiceCore(ServiceLocator locator) : IHistoryService
     {
         public async Task AddStatusService(string status, string? message = null)
         {
             try
             {
-                await using (var scope = serviceProvider.CreateAsyncScope())
+                await using (var scope = locator.CreateAsyncScope())
                 {
-                    ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    await dbContext.ServiceHistories.AddAsync(new ServiceStatusHistory() { Status = status, Message = message ?? string.Empty, Timestamp = DateTime.Now });
-                    await dbContext.SaveChangesAsync();
+                    await scope.DBContext.ServiceHistories.AddAsync(new ServiceStatusHistory() { Status = status, Message = message ?? string.Empty, Timestamp = DateTime.Now });
+                    await scope.DBContext.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -120,11 +141,10 @@ namespace TutorBot.Core
         {
             try
             {
-                await using (var scope = serviceProvider.CreateAsyncScope())
+                await using (var scope = locator.CreateAsyncScope())
                 {
-                    ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    await dbContext.MessageHistories.AddAsync(history.MapCore());
-                    await dbContext.SaveChangesAsync();
+                    await scope.DBContext.MessageHistories.AddAsync(history.MapCore());
+                    await scope.DBContext.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -135,13 +155,11 @@ namespace TutorBot.Core
 
         public async Task<Abstractions.MessageHistory[]> GetMessages(long chatID, int offcet, int count, bool revers)
         {
-            await using (var scope = serviceProvider.CreateAsyncScope())
+            await using (var scope = locator.CreateAsyncScope())
             {
-                ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
                 if (revers)
                 {
-                    return await dbContext.MessageHistories
+                    return await scope.DBContext.MessageHistories
                         .Where(x => x.Id < offcet && x.ChatID == chatID && !string.IsNullOrWhiteSpace(x.Type))
                         .OrderByDescending(x => x.Id)
                         .Take(count)
@@ -150,7 +168,7 @@ namespace TutorBot.Core
                 }
                 else
                 {
-                    return await dbContext.MessageHistories
+                    return await scope.DBContext.MessageHistories
                         .Where(x => x.Id > offcet && x.ChatID == chatID && !string.IsNullOrWhiteSpace(x.Type))
                         .OrderBy(x => x.Id)
                         .Take(count)
