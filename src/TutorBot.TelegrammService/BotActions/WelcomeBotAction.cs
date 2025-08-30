@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using static TutorBot.TelegramService.BotActions.DialogModel;
 
@@ -18,7 +19,8 @@ namespace TutorBot.TelegramService.BotActions
             {
                 await client.SendMessage(
                     text: welcomeHandler.WelcomeText,
-                    replyMarkup: new ReplyKeyboardRemove()
+                    replyMarkup: new ReplyKeyboardRemove(),
+                    parseMode: ParseMode.Html
                 );
                 client.ChatEntry.IsFirstMessage = false;
             }
@@ -32,7 +34,8 @@ namespace TutorBot.TelegramService.BotActions
 
                     if (!isValid)
                     {
-                        await client.SendMessage(welcomeHandler.FullNameError!);
+                        await client.SendMessage(welcomeHandler.FullNameError!,
+                            parseMode: ParseMode.Html);
                     }
                     else
                     {
@@ -52,7 +55,8 @@ namespace TutorBot.TelegramService.BotActions
                     {
                         await client.SendMessage(
                             text: welcomeHandler.FullNameQuestion,
-                            replyMarkup: new ReplyKeyboardRemove()
+                            replyMarkup: new ReplyKeyboardRemove(),
+                            parseMode: ParseMode.Html
                         );
                     }
                     else
@@ -65,7 +69,8 @@ namespace TutorBot.TelegramService.BotActions
                 {
                     await client.SendMessage(
                         text: welcomeHandler.ErrorText,
-                        replyMarkup: new ReplyKeyboardRemove()
+                        replyMarkup: new ReplyKeyboardRemove(),
+                        parseMode: ParseMode.Html
                     );
                 }
             }
