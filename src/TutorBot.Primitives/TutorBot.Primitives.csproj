@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<ItemGroup>
-		<InternalsVisibleTo Include="TutorBot.TelegrammService" />
-		<InternalsVisibleTo Include="TutorBot.Core" /> 
+		<InternalsVisibleTo Include="TutorBot.TelegramService" />
+		<InternalsVisibleTo Include="TutorBot.Core" />
+		<InternalsVisibleTo Include="TutorBot.Test" />
 	</ItemGroup>
 </Project>

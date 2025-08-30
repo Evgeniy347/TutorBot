@@ -58,3 +58,200 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.telegram-layout {
+    display: flex;
+    height: 80vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Стили для боковой панели */
+.user-sidebar {
+    width: 350px;
+    border-right: 1px solid #e1e1e1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f8f8;
+}
+
+.sidebar-header {
+    padding: 15px;
+    background-color: #0088cc;
+    color: white;
+}
+
+.sidebar-search {
+    width: 100%;
+    padding: 8px 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 15px;
+    outline: none;
+}
+
+.user-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.user-item {
+    display: flex;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #e1e1e1;
+    align-items: center;
+}
+
+    .user-item:hover {
+        background-color: #e9e9e9;
+    }
+
+    .user-item.active {
+        background-color: #d8e6f1;
+    }
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.last-message {
+    font-size: 0.8em;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.message-time {
+    font-size: 0.7em;
+    color: #999;
+    margin-left: 10px;
+}
+
+/* Cтили для дат */
+.date-divider {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+    position: relative;
+}
+
+    .date-divider span {
+        background-color: #e6ebee;
+        color: #707579;
+        font-size: 0.85em;
+        padding: 4px 12px;
+        border-radius: 15px;
+        z-index: 1;
+    }
+
+    .date-divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background-color: #d3d9de;
+        z-index: 0;
+    }
+
+/* Стили для области чата */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    background-color: #0088cc;
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.chat-user-info {
+    display: flex;
+    align-items: center;
+}
+
+.no-chat-selected {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #666;
+}
+
+/* Cтили сообщений */
+.chat-messages {
+    flex: 1;
+    padding: 10px 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background-color: #e6ebee;
+}
+
+.message {
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    position: relative;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+    .message.client, .message.user {
+        align-self: flex-start;
+        background-color: #ffffff;
+        border-bottom-right-radius: 0;
+        word-break: break-word;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    }
+
+    .message.bot {
+        align-self: flex-end;
+        background-color: #dcf8c6;
+        border-bottom-left-radius: 0;
+        word-break: break-word;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    }
+
+    .message.error {
+        align-self: flex-end;
+        background-color: #ffd1d1;
+        border-bottom-left-radius: 0;
+        word-break: break-word;
+    }
+
+.message-meta {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.7em;
+    color: #666;
+    margin-top: 4px;
+} 

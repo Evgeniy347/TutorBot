@@ -1,25 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
- 
-  <ItemGroup>
-    <ProjectReference Include="..\TutorBot.Abstractions\TutorBot.Abstractions.csproj" />
-    <ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />
-  </ItemGroup> 
+
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.*-*" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.*-*">
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	    <PrivateAssets>all</PrivateAssets>
-	  </PackageReference>
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.*-*" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.*-*">
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	    <PrivateAssets>all</PrivateAssets>
-	  </PackageReference>
-	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.*-*" />
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.*-*" />
-		<PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.*-*">
+		<ProjectReference Include="..\TutorBot.Abstractions\TutorBot.Abstractions.csproj" />
+		<ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="GigaChatSDK" Version="1.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.*-*" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+		<PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.5">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Migrations\" />
+		<InternalsVisibleTo Include="TutorBot.Test" />
+	</ItemGroup> 
 </Project>

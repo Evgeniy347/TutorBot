@@ -8,12 +8,6 @@ EXPOSE 8080
  
 FROM base AS setup
 
-#######
-RUN apt update 
-RUN apt install -y mc
-RUN apt install -y nginx
-RUN apt install -y curl 
-  
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build 
 WORKDIR /src
@@ -23,14 +17,19 @@ ARG VERSION_SUFFIX
 
 COPY ["Directory.Build.props","NuGet.Config", "./"]
 
-# Copy all the project files keeping their hierarchy
-COPY ["**/*.csproj", "./"] 
-RUN for file in $(find . -type f -name "*.csproj"); do \
-    mkdir -p ${file%.*}/ && mv $file ${file%.*}/; \
-    done 
+COPY *.sln .
+COPY TutorBot.Abstractions/*.csproj ./TutorBot.Abstractions/
+COPY TutorBot.API/*.csproj ./TutorBot.API/
+COPY TutorBot.App/*.csproj ./TutorBot.App/
+COPY TutorBot.Authentication/*.csproj ./TutorBot.Authentication/
+COPY TutorBot.Core/*.csproj ./TutorBot.Core/
+COPY TutorBot.Frontend/*.csproj ./TutorBot.Frontend/
+COPY TutorBot.Primitives/*.csproj ./TutorBot.Primitives/
+COPY TutorBot.ServiceDefaults/*.csproj ./TutorBot.ServiceDefaults/
+COPY TutorBot.TelegrammService/*.csproj ./TutorBot.TelegrammService/
+COPY TutorBot.Test/*.csproj ./TutorBot.Test/
 
-# Restore project dependencies
-RUN dotnet restore "TutorBot.App/TutorBot.App.csproj" -r linux-x64
+RUN dotnet restore
 
 #WORKDIR /src
 
@@ -53,8 +52,8 @@ RUN \
       /p:VersionSuffix=$VERSION_SUFFIX \
       /p:UseAppHost=false \
       /p:DebugType=None \
-      /p:DebugSymbols=false \
-      -r linux-x64 \
+      /p:DebugSymbols=false \ 
+      --no-restore \ 
       --no-self-contained
        
 # Build final image with all the layers 

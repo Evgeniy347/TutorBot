@@ -1,265 +1,188 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options; 
-using Telegram.Bot;
+using Microsoft.Extensions.Options;
+using System.Reflection;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 using TutorBot.Abstractions;
+using TutorBot.TelegramService.BotActions;
 
 namespace TutorBot.TelegramService
 {
-    internal class TelegramBotService(IApplication app, IOptions<TgBotServiceOptions> opt) : BackgroundService
+    internal class TelegramBotService(IApplication app, IOptions<TgBotServiceOptions> opt,
+        Func<string, CancellationToken, ITelegramBot> clientFactory) : BackgroundService
     {
-        private readonly TgBotServiceOptions _opt = opt.Value;
-        private static bool _isRun;
+        private DialogModelLoader _dialogLoader = new DialogModelLoader(opt.Value.DialogModelPath);
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (_opt.Enable)
+            ITelegramBot botClient = clientFactory(opt.Value.Token, stoppingToken);
+
+            try
             {
-                if (_isRun)
-                    throw new Exception("is run");
+                User bot = await botClient.GetMe();
 
-                _isRun = true;
+                botClient.AddErrorHandler((exception, source) => ErrorHandle(exception, source, bot.Id, botClient));
+                botClient.AddMessageHandler((message, type) => MessageHandle(message, type, bot.Id, botClient));
 
+                await app.HistoryService.AddStatusService("Start", $"bot.Id:{bot.Id} FirstName:{bot.FirstName}");
 
-                TelegramBotClient botClient = new TelegramBotClient(_opt.Token, cancellationToken: stoppingToken);
-
-                try
-                {
-                    User user = await botClient.GetMe();
-                    await app.HistoryService.AddStatusService("Start", $"Id:{user.Id} FirstName:{user.FirstName}");
-
-                    botClient.OnError += (exception, source) => ErrorHandle(exception, source, stoppingToken);
-                    botClient.OnMessage += (message, type) => MessageHandle(message, type, botClient); 
-
-                    await Task.Delay(-1, stoppingToken);
-                }
-                finally
-                {
-                    await botClient.Close(stoppingToken);
-                    await app.HistoryService.AddStatusService("Stop");
-                }
+                await Task.Delay(-1, stoppingToken);
+            }
+            finally
+            {
+                await botClient.Close(stoppingToken);
+                await app.HistoryService.AddStatusService("Stop");
             }
         }
 
-
-        private async Task MessageHandle(Message message, UpdateType type, TelegramBotClient botClient)
+        private async Task MessageHandle(Message message, UpdateType type, long botID, ITelegramBot client)
         {
-            // Проверяем, что сообщение содержит текст
-            if (message.Type == MessageType.Text)
+            TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID);
+
+            if (message.From == null)
             {
-                ChatTransaction transaction = GetTransaction(message.Chat.Id);
+                _ = WriteError("From is null", botID);
+                return;
+            }
 
-                if (string.IsNullOrEmpty(transaction.GroupNumber))
-                { 
-                    if (string.IsNullOrEmpty(message.Text) || transaction.IsFirstMessage)
-                    {
-                        await botClient.SendMessage(
-                            chatId: message.Chat.Id,
-                            text: DialogTemplateMessage.GetHellowGroupNumber(),
-                            replyMarkup: new ReplyKeyboardRemove()
-                        );
-                        transaction.IsFirstMessage = false;
-                    }
-                    else
-                    {
-                        if (_opt.GroupNumbers.Contains(message.Text, StringComparer.OrdinalIgnoreCase))
-                        {
-                            transaction.GroupNumber = message.Text;
+            if (message.Chat == null)
+            {
+                _ = WriteError("Chat is null", botID);
+                return;
+            }
 
-                            // Отправляем сообщение с кнопками 
-                            await botClient.SendMessage(message.Chat.Id, TextMessages.AskInterest, replyMarkup: GetMainMenuKeyboard());
-                        }
-                        else
-                        {
-                            await botClient.SendMessage(
-                                chatId: message.Chat.Id,
-                                text: DialogTemplateMessage.GetErrorGroupNumber(),
-                                replyMarkup: new ReplyKeyboardRemove()
-                            );
-                        }
-                    }
+            context.IsGroupChat = message.Chat.Type is ChatType.Group or ChatType.Supergroup;
+
+            context.ChatEntry = await EnsureChat(message);
+
+            if (message.Type == MessageType.NewChatMembers || context.IsGroupChat)
+            {
+                GroupChatBotAction resetBotAction = new GroupChatBotAction();
+                await resetBotAction.ExecuteAsync(message, context);
+            }
+
+            if (message.Type == MessageType.Text && !string.IsNullOrWhiteSpace(message.Text))
+            {
+                DialogModel model = _dialogLoader.GetModel();
+                bool isWelcome = IsWelcome(context, model);
+
+                if (isWelcome)
+                {
+                    WelcomeBotAction resetBotAction = new WelcomeBotAction(model);
+                    await resetBotAction.ExecuteAsync(message, context);
                 }
 
-                if (!string.IsNullOrEmpty(transaction.GroupNumber))
+                isWelcome = IsWelcome(context, model);
+
+                if (!isWelcome)
                 {
-                    var action = _handles.FirstOrDefault(a => a.Key == message.Text);
+                    IBotAction? action = SelectAction(message, context);
+
                     if (action != null)
                     {
-                        await action.ExecuteAsync(transaction, botClient);
+                        context.ChatEntry.LastActionKey = action.Key;
+                        await action.ExecuteAsync(message, context);
                     }
                     else
                     {
-                        await botClient.SendMessage(message.Chat.Id, "Пожалуйста, выберите опцию из меню.");
+                        model = _dialogLoader.GetModel();
+                        IBotAction startAction = BotActionHub.FindHandler(model, model.Start.NextStep, true)!;
+                        await startAction.ExecuteAsync(message, context);
                     }
                 }
             }
+
+            _ = app.HistoryService.AddHistory(new MessageHistory(message.Chat.Id, DateTime.Now, message.Text ?? string.Empty, MessageHistoryRole.User, message.From.Id, context.ChatEntry.SessionID));
         }
 
-        public Task ErrorHandle(Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
+        private static bool IsWelcome(TutorBotContext context, DialogModel model)
+        {
+            bool isWelcome = string.IsNullOrEmpty(context.ChatEntry.GroupNumber) ||
+                string.IsNullOrEmpty(context.ChatEntry.FullName) && !string.IsNullOrEmpty(model.Handlers.Welcome.FullNameQuestion);
+
+            return isWelcome;
+        }
+
+        private IBotAction? SelectAction(Message message, TutorBotContext context)
+        {
+            IBotAction? action = FindAction(message.Text, context);
+
+            if (action == null && !string.IsNullOrEmpty(context.ChatEntry.LastActionKey))
+            {
+                IBotAction? lastAction = FindAction(context.ChatEntry.LastActionKey, context);
+                if (lastAction != null && lastAction.EnableProlongated)
+                    action = lastAction;
+            }
+
+            return action;
+        }
+
+        private IBotAction? FindAction(string? text, TutorBotContext context)
+        {
+            DialogModel model = _dialogLoader.GetModel();
+
+            IBotAction? action = BotActionHub.FindHandler(model, text);
+
+            if (action == null && context.ChatEntry.IsAdmin)
+                action = BotActionHub.AdminHandles.FirstOrDefault(a => a.Key == text);
+
+            return action;
+        }
+
+        private async Task WriteError(string message, long botID)
+        {
+            ChatEntry chat = await GetErrorChat();
+            await app.HistoryService.AddHistory(new MessageHistory(chat.UserID, DateTime.Now, message, MessageHistoryRole.Error, botID, new Guid()));
+        }
+
+        private async Task<ChatEntry> GetErrorChat()
+        {
+            ChatEntry? chatEntry = await app.ChatService.Find(-1) ??
+                await app.ChatService.Create(-1, "Error Service", string.Empty, string.Empty, -1);
+
+            return chatEntry;
+        }
+
+        private async Task<ChatEntry> EnsureChat(Message message)
+        {
+            Chat chat = Check.NotNull(message.Chat);
+
+            ChatEntry? chatEntry = await app.ChatService.Find(chat.Id);
+
+            if (chatEntry == null)
+            {
+                User user = Check.NotNull(message.From);
+                chatEntry = await app.ChatService.Create(user.Id, user.FirstName, user.LastName ?? string.Empty, user.Username ?? string.Empty, chat.Id);
+            }
+
+            return chatEntry!;
+        }
+
+        public async Task ErrorHandle(Exception exception, HandleErrorSource source, long botID, ITelegramBot client)
         {
             Console.WriteLine(exception);
-            _ = app.HistoryService.AddHistory(new MessageHistory(-1, DateTime.Now, exception.ToString()));
-            return Task.CompletedTask;
-        }
-          
-        private IBotAction[] _handles = [
-            new SimpleTextBotAction("Расписание группы", TextMessages.ScheduleLink),
-            new SimpleTextBotAction("Найти преподавателя", TextMessages.FindTeacherLink),
-            new SimpleTextBotAction("Количество академических задолженностей", TextMessages.AcademicDebtCountMessage),
-            new SimpleTextBotAction("График пересдач", TextMessages.RetakeScheduleLink),
-            new SimpleTextBotAction("Заказ хвостовки", TextMessages.OrderExamSheetLink),
-            new SimpleTextBotAction("Я иностранный студент", TextMessages.ForeignStudentLink),
-            new SimpleTextBotAction("Выбор секции ФК", TextMessages.FkSectionMessage),
-            new SimpleTextBotAction("Прохождение тестирования на уровень владения иностранным языком", TextMessages.LanguageTestMessage),
-            new SimpleSubMenuBotAction("Ликвидации академических задолженностей", GetDebtMenuKeyboard()),
-            new SimpleSubMenuBotAction("Modeus", GetModeusMenuKeyboard()),
-            new SimpleSubMenuBotAction("На главную", GetMainMenuKeyboard()),
-            new ResetBotAction()
-          ];
+            _ = WriteError(exception.ToString(), botID);
 
-        private static ReplyKeyboardMarkup GetMainMenuKeyboard()
-        {
-            return new ReplyKeyboardMarkup(new[]
+            try
             {
-            new[] { new KeyboardButton("Расписание группы") },
-            new[] { new KeyboardButton("Найти преподавателя") },
-            new[] { new KeyboardButton("Ликвидации академических задолженностей") },
-            new[] { new KeyboardButton("Modeus") },
-            new[] { new KeyboardButton("Я иностранный студент") },
-            new[] { new KeyboardButton("Перезапустить") }
-        });
-        }
+                ChatEntry[] adminChats = await app.ChatService.GetChats(new GetChatsFilter(false, true));
 
-        private static ReplyKeyboardMarkup GetDebtMenuKeyboard()
-        {
-            return new ReplyKeyboardMarkup(new[]
-            {
-            new[] { new KeyboardButton("Количество академических задолженностей") },
-            new[] { new KeyboardButton("График пересдач") },
-            new[] { new KeyboardButton("Заказ хвостовки") },
-            new[] { new KeyboardButton("На главную") }
-        });
-        }
+                foreach (ChatEntry adminChat in adminChats)
+                {
+                    try
+                    {
+                        TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID);
 
-        private static ReplyKeyboardMarkup GetModeusMenuKeyboard()
-        {
-            return new ReplyKeyboardMarkup(new[]
-            {
-            new[] { new KeyboardButton("Выбор секции ФК") },
-            new[] { new KeyboardButton("Прохождение тестирования на уровень владения иностранным языком") },
-            new[] { new KeyboardButton("На главную") }
-        });
-        }
-
-        private ChatTransaction GetTransaction(long chatID)
-        {
-            return _tran ??= new ChatTransaction() { ChatID = chatID, IsFirstMessage = true };
-        }
-
-        ChatTransaction? _tran;
-    }
-
-    public static class TextMessages
-    {
-        public const string WelcomeMessage = "Добрый день/вечер. Пожалуйста, назовите номер группы в формате РИ-000000.";
-        public const string AskInterest = "Что вас интересует?";
-        public const string ScheduleLink = "Перейдите по ссылке: https://urfu.ru/ru/students/study/schedule/#/groups";
-        public const string FindTeacherLink = "Перейдите по ссылке: https://urfu.ru/ru/students/study/schedule/#/groups";
-        public const string AcademicDebtCountMessage = "Количество академических задолженностей (далее долгов) необходимо смотреть в зачетной книжке (зачетная книжка и БРС это разные вещи, вы должны проверить именно в зачетной книжке) à https://istudent.urfu.ru/services/ucheba";
-        public const string RetakeScheduleLink = "Перейдите по ссылке: https://rtf.urfu.ru/resident-learning/retake/";
-        public const string OrderExamSheetLink = "Перейдите по ссылке: http://docs.google.com/forms/d/1JMzq0Xou95CaQfm5rOuku3xKUsR7MUI_yz2sQr135w4/viewform?edit_requested=true";
-        public const string ForeignStudentLink = "Перейдите по ссылке: https://urfu.ru/ru/international/centr-adaptacii-inostrannykh-obuchajushchikhsja/";
-        public const string FkSectionMessage = "Ответственный Мусина Ольга Ивановна https://urfu.ru/ru/about/personal-pages/personal/person/olga.musina/";
-        public const string LanguageTestMessage = "Ответственный Чернова Ольга Вячеславовна https://urfu.ru/ru/about/personal-pages/personal/person/o.v.chernova/";
-    }
-
-    public interface IBotAction
-    {
-        string Key { get; }
-        Task ExecuteAsync(ChatTransaction transaction, ITelegramBotClient botClient);
-    }
-
-    public class SimpleTextBotAction : IBotAction
-    {
-        public string Key { get; } // Ключ действия
-        private readonly string _text; // Текст для отправки
-
-        public SimpleTextBotAction(string key, string text)
-        {
-            Key = key;
-            _text = text;
-        }
-
-        public async Task ExecuteAsync(ChatTransaction transaction, ITelegramBotClient botClient)
-        {
-            await botClient.SendMessage(transaction.ChatID, _text);
-        }
-    }
-
-    public class ResetBotAction : IBotAction
-    {
-        public string Key => "Перезапустить";
-         
-        public async Task ExecuteAsync(ChatTransaction transaction, ITelegramBotClient botClient)
-        {
-            transaction.GroupNumber = string.Empty; 
-            await botClient.SendMessage(transaction.ChatID, DialogTemplateMessage.GetHellowGroupNumber(), replyMarkup: new ReplyKeyboardRemove()); 
-        }
-    }
-
-    public class SimpleSubMenuBotAction : IBotAction
-    {
-        public string Key { get; } // Ключ действия
-        private readonly ReplyKeyboardMarkup _subMenuKeyboard; // Клавиатура подменю
-
-        public SimpleSubMenuBotAction(string key, ReplyKeyboardMarkup subMenuKeyboard)
-        {
-            Key = key;
-            _subMenuKeyboard = subMenuKeyboard;
-        }
-
-        public async Task ExecuteAsync(ChatTransaction transaction, ITelegramBotClient botClient)
-        {
-            await botClient.SendMessage(transaction.ChatID, "Выберите опцию:", replyMarkup: _subMenuKeyboard);
-        }
-    }
-
-    public class ChatTransaction
-    {
-        public long ChatID { get; set; }
-        public string? GroupNumber { get; set; }
-        public bool IsFirstMessage { get; set; }
-    }
-
-    public class DialogTemplateMessage
-    {
-        public static string GetHellowGroupNumber() => $"Добрый {GetTimeOfDay(DateTime.Now)}. Пожалуйста, назовите номер группы в формате РИ-000000";
-
-        public static string GetErrorGroupNumber() => $"Указан некорректный номер группы. Пожалуйста, назовите номер группы в формате РИ-000000";
-
-        private static string GetTimeOfDay(DateTime time)
-        {
-            int hour = time.Hour;
-
-            if (hour >= 6 && hour < 12)
-            {
-                return "утро";
+                        context.ChatEntry = adminChat;
+                        await context.SendMessage($"Произошла ошибка:{exception}");
+                    }
+                    catch { }
+                }
             }
-            else if (hour >= 12 && hour < 18)
-            {
-                return "день";
-            }
-            else if (hour >= 18 && hour < 24)
-            {
-                return "вечер";
-            }
-            else
-            {
-                return "ночь";
-            }
+            catch { }
+
+            await Task.CompletedTask;
         }
     }
 }

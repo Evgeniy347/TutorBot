@@ -11,11 +11,19 @@ namespace TutorBot.Core
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+             
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                string? connectionString = configuration.GetConnectionString("DefaultConnection");
+                if (string.IsNullOrEmpty(connectionString))
+                    throw new NullReferenceException("connectionString");
+                options.UseNpgsql(connectionString);
+            });
 
-            string? connectionString = configuration.GetConnectionString("DefaultConnection");
-
-            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));  
             services.AddSingleton<IApplication, ApplicationCore>();
+
+            IConfigurationSection section = configuration.GetSection("GigaChat");
+            services.Configure<GigaChatOptions>(section);
 
             return services;
         }

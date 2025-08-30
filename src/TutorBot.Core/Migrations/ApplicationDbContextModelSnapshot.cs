@@ -17,12 +17,145 @@ namespace TutorBot.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TutorBot.Core.MessageHistory", b =>
+            modelBuilder.Entity("TutorBot.Core.DBChatEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ChatID")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("EnableAdminError")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("GroupNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFirstMessage")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastActionKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("SessionID")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("TimeCreate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("TimeModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long>("UserID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatID");
+
+                    b.ToTable("Chats");
+                });
+
+            modelBuilder.Entity("TutorBot.Core.DBChatEntryVersion", b =>
+                {
+                    b.Property<long>("UniqueId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("UniqueId"));
+
+                    b.Property<long>("ChatID")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("EnableAdminError")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("GroupNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFirstMessage")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastActionKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("SessionID")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("TimeCreate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("TimeModified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long>("UserID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UniqueId");
+
+                    b.HasIndex("ChatID");
+
+                    b.ToTable("ChatsVersions");
+                });
+
+            modelBuilder.Entity("TutorBot.Core.DBMessageHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,22 +163,34 @@ namespace TutorBot.Core.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<long>("ChatID")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("MessageText")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<Guid>("SessionID")
+                        .HasColumnType("uuid");
 
-                    b.Property<long>("UserId")
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("UserID")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ChatID", "SessionID");
+
                     b.ToTable("MessageHistories");
                 });
 
-            modelBuilder.Entity("TutorBot.Core.ServiceStatusHistory", b =>
+            modelBuilder.Entity("TutorBot.Core.DBServiceStatusHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +207,7 @@ namespace TutorBot.Core.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 

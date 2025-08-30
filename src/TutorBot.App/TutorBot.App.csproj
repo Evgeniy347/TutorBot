@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<UserSecretsId>684a39d5-9b24-4ce7-85f7-5f9ecda4998c</UserSecretsId>
+		<UserSecretsId>684a39d5-9b24-4ce7-85f7-5f9ecda4998c</UserSecretsId> 
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -16,6 +16,10 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.*-*" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.*-*">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
@@ -42,5 +46,6 @@
 		<ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />
 		<ProjectReference Include="..\TutorBot.ServiceDefaults\TutorBot.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\TutorBot.TelegrammService\TutorBot.TelegramService.csproj" />
+		<InternalsVisibleTo Include="TutorBot.Test" />
 	</ItemGroup>
 </Project>
