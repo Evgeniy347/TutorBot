@@ -1,4 +1,5 @@
-﻿using Telegram.Bot.Types; 
+﻿using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace TutorBot.TelegramService.BotActions
 {
@@ -8,8 +9,8 @@ namespace TutorBot.TelegramService.BotActions
         public bool EnableProlongated => false;
 
         public async Task ExecuteAsync(Message message, TutorBotContext client)
-        {
-            await client.SendMessage(text);
+        { 
+            await client.SendMessage(text, parseMode: ParseMode.Html);
         }
     }
 }
