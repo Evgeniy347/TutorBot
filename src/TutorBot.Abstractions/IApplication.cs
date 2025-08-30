@@ -10,6 +10,7 @@ namespace TutorBot.Abstractions
 
     public interface IALServiceService
     {
+        public bool Enable { get; }
         Task<string> TransferQuestionAL(long chatID, string currentMessage, Guid sessionID);
         Task<string> AskAssistant(long chatID, long userID, string currentMessage, Guid sessionID);
         Task<string> AskAssistant(string currentMessage);
@@ -30,7 +31,7 @@ namespace TutorBot.Abstractions
         Task Update(ChatEntry chat);
     }
 
-    public record GetChatsFilter(bool IsAdmin, bool EnableAdminError);
+    public record GetChatsFilter(bool IsAdmin = false, bool EnableAdminError = false);
 
     public class ChatEntry
     {

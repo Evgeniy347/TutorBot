@@ -13,6 +13,8 @@ namespace TutorBot.Core
 
         private GigaChat? _gigaChat;
 
+        public bool Enable => _options.Enable;
+
         public Task<string> AskAssistant(string currentMessage)
         {
             MessageQuery messageQuery = CreateMessage();
@@ -198,7 +200,8 @@ namespace TutorBot.Core
     }
 
     internal class GigaChatOptions
-    {
+    { 
+        public required bool Enable { get; init; }
         public required string SecretKey { get; init; }
         public required bool IsCommercial { get; init; }
         public required bool IgnoreTLS { get; init; }

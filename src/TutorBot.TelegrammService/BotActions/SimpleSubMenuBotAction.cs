@@ -6,7 +6,7 @@ namespace TutorBot.TelegramService.BotActions
     internal class SimpleSubMenuBotAction(string key, ReplyKeyboardMarkup subMenuKeyboard) : IBotAction
     {
         public string Key => key;
-        public bool EnableProlongated => false;
+        public bool EnableProlongated => true;
 
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {

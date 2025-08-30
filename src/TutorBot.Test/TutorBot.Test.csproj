@@ -5,18 +5,25 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="6.0.4">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+		<PackageReference Include="Docker.DotNet" Version="3.125.15" />
+		<PackageReference Include="Shouldly" Version="4.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.8" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
-		<PackageReference Include="xunit" Version="2.9.3" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  
+		<PackageReference Include="xunit.v3" Version="2.0.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+		<PackageReference Include="coverlet.collector" Version="6.0.4">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.4.25258.110" />
+		<PackageReference Include="Testcontainers" Version="4.3.0" />
+		<PackageReference Include="Testcontainers.PostgreSql" Version="4.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -24,8 +31,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Helpers\" />
 	  <Folder Include="TestData\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\TutorBot.Abstractions\TutorBot.Abstractions.csproj" />
+	  <ProjectReference Include="..\TutorBot.App\TutorBot.App.csproj" />
+	  <ProjectReference Include="..\TutorBot.Core\TutorBot.Core.csproj" />
+	  <ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />
+	  <ProjectReference Include="..\TutorBot.TelegrammService\TutorBot.TelegramService.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -9,20 +8,21 @@ using TutorBot.TelegramService.BotActions;
 
 namespace TutorBot.TelegramService
 {
-    internal class TelegramBotService(IApplication app, IOptions<TgBotServiceOptions> opt) : BackgroundService
+    internal class TelegramBotService(IApplication app, IOptions<TgBotServiceOptions> opt,
+        Func<string, CancellationToken, ITelegramBot> clientFactory) : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            TelegramBotClient botClient = new TelegramBotClient(opt.Value.Token, cancellationToken: stoppingToken);
+            ITelegramBot botClient = clientFactory(opt.Value.Token, stoppingToken);
 
             try
             {
                 User bot = await botClient.GetMe();
 
-                await app.HistoryService.AddStatusService("Start", $"bot.Id:{bot.Id} FirstName:{bot.FirstName}");
+                botClient.AddErrorHandler((exception, source) => ErrorHandle(exception, source, bot.Id, botClient));
+                botClient.AddMessageHandler((message, type) => MessageHandle(message, type, bot.Id, botClient));
 
-                botClient.OnError += (exception, source) => ErrorHandle(exception, source, bot.Id, botClient);
-                botClient.OnMessage += (message, type) => MessageHandle(message, type, bot.Id, botClient);
+                await app.HistoryService.AddStatusService("Start", $"bot.Id:{bot.Id} FirstName:{bot.FirstName}");
 
                 await Task.Delay(-1, stoppingToken);
             }
@@ -33,7 +33,7 @@ namespace TutorBot.TelegramService
             }
         }
 
-        private async Task MessageHandle(Message message, UpdateType type, long botID, ITelegramBotClient client)
+        private async Task MessageHandle(Message message, UpdateType type, long botID, ITelegramBot client)
         {
             await using (TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID))
             {
@@ -56,11 +56,11 @@ namespace TutorBot.TelegramService
                 if (message.Type == MessageType.NewChatMembers || context.IsGroupChat)
                 {
                     GroupChatBotAction resetBotAction = new GroupChatBotAction();
-                    await resetBotAction.ExecuteAsync(message, context); 
-                } 
+                    await resetBotAction.ExecuteAsync(message, context);
+                }
 
-                if (message.Type == MessageType.Text && string.IsNullOrWhiteSpace(message.Text))
-                { 
+                if (message.Type == MessageType.Text && !string.IsNullOrWhiteSpace(message.Text))
+                {
                     if (string.IsNullOrEmpty(context.ChatEntry.GroupNumber))
                     {
                         WelcomeBotAction resetBotAction = new WelcomeBotAction(opt.Value);
@@ -71,15 +71,14 @@ namespace TutorBot.TelegramService
                     {
                         IBotAction? action = SelectAction(message, context);
 
-                        context.ChatEntry.LastActionKey = action?.Key;
-
                         if (action != null)
                         {
+                            context.ChatEntry.LastActionKey = action.Key;
                             await action.ExecuteAsync(message, context);
                         }
                         else
                         {
-                            await context.SendMessage("Пожалуйста, выберите опцию из меню.");
+                            await context.SendMessage("Пожалуйста, выберите опцию из меню.", replyMarkup: BotActionHub.GetMainMenuKeyboard());
                         }
                     }
                 }
@@ -141,7 +140,7 @@ namespace TutorBot.TelegramService
             return chatEntry!;
         }
 
-        public async Task ErrorHandle(Exception exception, HandleErrorSource source, long botID, TelegramBotClient client)
+        public async Task ErrorHandle(Exception exception, HandleErrorSource source, long botID, ITelegramBot client)
         {
             Console.WriteLine(exception);
             _ = WriteError(exception.ToString(), botID);

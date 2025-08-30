@@ -7,7 +7,7 @@ using TutorBot.Abstractions;
 
 namespace TutorBot.TelegramService
 {
-    internal record TutorBotContext(ITelegramBotClient Client, TgBotServiceOptions Opt, IApplication App, long BotID) : IAsyncDisposable
+    internal record TutorBotContext(ITelegramBot Client, TgBotServiceOptions Opt, IApplication App, long BotID) : IAsyncDisposable
     {
         private bool _disposed;
           
