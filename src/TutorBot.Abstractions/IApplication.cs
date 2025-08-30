@@ -37,27 +37,26 @@ namespace TutorBot.Abstractions
     {
         public long ID { get; set; }
         public long ChatID { get; set; }
+        public long Version { get; set; } 
         public long UserID { get; set; }
         public string LastName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
-        public long MessagesCount { get; set; }
+        public string FullName { get; set; } = string.Empty;
         public string GroupNumber { get; set; } = string.Empty;
         public string LastMessage { get; set; } = string.Empty;
         public DateTime TimeCreate { get; set; }
-        public DateTime TimeLastUpdate { get; set; }
+        public DateTime TimeModified { get; set; }
         public bool IsFirstMessage { get; set; }
 
         public string? LastActionKey { get; set; }
         public Guid SessionID { get; set; }
 
         public bool IsAdmin { get; set; }
-        public bool EnableAdminError { get; set; }
-
-        public long NextCount() => MessagesCount++;
+        public bool EnableAdminError { get; set; } 
     }
 
-    public record MessageHistory(long ChatID, DateTime Timestamp, string MessageText, MessageHistoryRole Type, long OrderID, long UserID, Guid SessionID, int ID = -1);
+    public record MessageHistory(long ChatID, DateTime Timestamp, string MessageText, MessageHistoryRole Type, long UserID, Guid SessionID, int ID = -1);
 
     public enum MessageHistoryRole
     {

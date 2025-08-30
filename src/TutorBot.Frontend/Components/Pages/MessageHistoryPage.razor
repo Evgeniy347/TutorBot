@@ -21,7 +21,7 @@
                         <div class="user-name">@DisplayName(user)</div>
                         <div class="last-message">@user.LastMessage</div>
                     </div>
-                    <div class="message-time">@user.TimeLastUpdate.ToString("HH:mm")</div>
+                    <div class="message-time">@user.TimeModified.ToString("HH:mm")</div>
                 </div>
             }
         </div>
@@ -124,7 +124,7 @@
 
     private IEnumerable<ChatEntry> FilteredUsers => _users
         .Where(FilterChat)
-        .OrderByDescending(u => u.TimeLastUpdate);
+        .OrderByDescending(u => u.TimeModified);
 
     private bool FilterChat(ChatEntry chat)
     {

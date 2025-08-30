@@ -32,7 +32,7 @@ namespace TutorBot.Core
                 if (chatDB == null)
                     throw new ArgumentException(nameof(chatID));
 
-                MessageHistory[] histories = await scope.DBContext.MessageHistories
+                DBMessageHistory[] histories = await scope.DBContext.MessageHistories
                     .Where(x => x.ChatID == chatID && x.SessionID == sessionID && !string.IsNullOrWhiteSpace(x.Type))
                     .OrderBy(x => x.Id)
                     .Take(1000)
@@ -46,13 +46,13 @@ namespace TutorBot.Core
 
                 if (message.StartsWith("принято", StringComparison.OrdinalIgnoreCase))
                 {
-                    await locator.Application.HistoryService.AddHistory(new Abstractions.MessageHistory(chatID, DateTime.Now, message, MessageHistoryRole.Bot, 0, -1, sessionID));
+                    await locator.Application.HistoryService.AddHistory(new Abstractions.MessageHistory(chatID, DateTime.Now, message, MessageHistoryRole.Bot, 0,  sessionID));
                     return string.Empty;
                 }
 
                 if (message.StartsWith("не знаю", StringComparison.OrdinalIgnoreCase))
                 {
-                    await locator.Application.HistoryService.AddHistory(new Abstractions.MessageHistory(chatID, DateTime.Now, message, MessageHistoryRole.Bot, 0, -1, sessionID));
+                    await locator.Application.HistoryService.AddHistory(new Abstractions.MessageHistory(chatID, DateTime.Now, message, MessageHistoryRole.Bot, 0,  sessionID));
                     return string.Empty;
                 }
 
@@ -77,9 +77,9 @@ namespace TutorBot.Core
                 if (chatDB == null)
                     throw new ArgumentException(nameof(chatID));
 
-                MessageHistory[] histories = await scope.DBContext.MessageHistories
+                DBMessageHistory[] histories = await scope.DBContext.MessageHistories
                     .Where(x => x.ChatID == chatID && x.SessionID == sessionID && !string.IsNullOrWhiteSpace(x.Type))
-                    .OrderBy(x => x.OrderID)
+                    .OrderBy(x => x.Id)
                     .Take(1000)
                     .ToArrayAsync();
 
@@ -93,13 +93,13 @@ namespace TutorBot.Core
             }
         }
 
-        private static MessageQuery BuildMessage(string currentMessage, DBChatEntry chatDB, long userID, string systemPromt, MessageHistory[] histories)
+        private static MessageQuery BuildMessage(string currentMessage, DBChatEntry chatDB, long userID, string systemPromt, DBMessageHistory[] histories)
         {
             MessageQuery messageQuery = CreateMessage();
 
             messageQuery.messages.Add(new MessageContent("system", systemPromt));
 
-            foreach (MessageHistory history in histories)
+            foreach (DBMessageHistory history in histories)
             {
                 string role = string.Empty;
 
@@ -127,13 +127,13 @@ namespace TutorBot.Core
             return messageQuery;
         }
 
-        private static MessageQuery BuildMessage(string currentMessage, DBChatEntry chatDB, string systemPromt, MessageHistory[] histories)
+        private static MessageQuery BuildMessage(string currentMessage, DBChatEntry chatDB, string systemPromt, DBMessageHistory[] histories)
         {
             MessageQuery messageQuery = CreateMessage();
 
             messageQuery.messages.Add(new MessageContent("system", systemPromt));
 
-            foreach (MessageHistory history in histories)
+            foreach (DBMessageHistory history in histories)
             {
                 string role = string.Empty;
 

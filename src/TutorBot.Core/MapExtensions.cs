@@ -10,14 +10,15 @@ namespace TutorBot.Core
             {
                 Id = chat.ID,
                 ChatID = chat.ChatID,
-                MessagesCount = chat.MessagesCount,
+                Version = chat.Version,
                 GroupNumber = chat.GroupNumber,
+                FullName = chat.FullName,
                 IsFirstMessage = chat.IsFirstMessage,
                 FirstName = chat.FirstName,
                 LastName = chat.LastName,
                 UserName = chat.UserName,
                 TimeCreate = chat.TimeCreate,
-                TimeLastUpdate = chat.TimeLastUpdate,
+                TimeModified = chat.TimeModified,
                 UserID = chat.UserID,
                 LastActionKey = chat.LastActionKey,
                 SessionID = chat.SessionID,
@@ -32,14 +33,15 @@ namespace TutorBot.Core
             {
                 ID = chat.Id,
                 ChatID = chat.ChatID,
-                MessagesCount = chat.MessagesCount,
+                Version = chat.Version,
                 GroupNumber = chat.GroupNumber,
+                FullName = chat.FullName,
                 IsFirstMessage = chat.IsFirstMessage,
                 FirstName = chat.FirstName,
                 LastName = chat.LastName,
                 UserName = chat.UserName,
                 TimeCreate = chat.TimeCreate,
-                TimeLastUpdate = chat.TimeLastUpdate,
+                TimeModified = chat.TimeModified,
                 UserID = chat.UserID,
                 LastActionKey = chat.LastActionKey,
                 SessionID = chat.SessionID,
@@ -48,24 +50,46 @@ namespace TutorBot.Core
             };
         }
 
-        public static MessageHistory MapCore(this Abstractions.MessageHistory history)
+        public static DBChatEntryVersion MapVersion(this DBChatEntry chat)
         {
-            return new MessageHistory()
+            return new DBChatEntryVersion()
+            {
+                Id = chat.Id,
+                ChatID = chat.ChatID,
+                Version = chat.Version,
+                GroupNumber = chat.GroupNumber,
+                FullName = chat.FullName,
+                IsFirstMessage = chat.IsFirstMessage,
+                FirstName = chat.FirstName,
+                LastName = chat.LastName,
+                UserName = chat.UserName,
+                TimeCreate = chat.TimeCreate,
+                TimeModified = chat.TimeModified,
+                UserID = chat.UserID,
+                LastActionKey = chat.LastActionKey,
+                SessionID = chat.SessionID,
+                IsAdmin = chat.IsAdmin,
+                EnableAdminError = chat.EnableAdminError,
+            };
+        }
+
+        public static DBMessageHistory MapCore(this MessageHistory history)
+        {
+            return new DBMessageHistory()
             {
                 MessageText = history.MessageText,
                 ChatID = history.ChatID,
                 UserID = history.UserID,
-                OrderID = history.OrderID,
                 Type = history.Type.ToString(),
                 Timestamp = history.Timestamp,
                 SessionID = history.SessionID
             };
         }
 
-        public static Abstractions.MessageHistory MapCore(this MessageHistory history)
+        public static MessageHistory MapCore(this DBMessageHistory history)
         {
             Enum.TryParse(history.Type, out MessageHistoryRole rolel);
-            return new Abstractions.MessageHistory(history.ChatID, history.Timestamp, history.MessageText, rolel, history.OrderID, history.UserID, history.SessionID, history.Id);
+            return new MessageHistory(history.ChatID, history.Timestamp, history.MessageText, rolel, history.UserID, history.SessionID, history.Id);
         }
     }
 }

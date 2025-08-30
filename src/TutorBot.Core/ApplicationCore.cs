@@ -61,7 +61,7 @@ namespace TutorBot.Core
                     LastName = lastName,
                     UserName = username,
                     TimeCreate = DateTime.Now,
-                    TimeLastUpdate = DateTime.Now,
+                    TimeModified = DateTime.Now,
                     IsFirstMessage = true
                 };
 
@@ -109,14 +109,18 @@ namespace TutorBot.Core
             await using (var scope = locator.CreateAsyncScope())
             {
                 DBChatEntry chatDB = chat.MapDB();
+                DBChatEntryVersion chatDBVer = chatDB.MapVersion();
 
-                chatDB.TimeLastUpdate = DateTime.Now;
+                chatDB.TimeModified = DateTime.Now;
+                chatDB.Version++;
 
                 scope.DBContext.Chats.Update(chatDB);
+                scope.DBContext.ChatsVersions.Add(chatDBVer);
 
                 await scope.DBContext.SaveChangesAsync();
             }
         }
+
     }
 
     internal class HistoryServiceCore(ServiceLocator locator) : IHistoryService
@@ -127,7 +131,7 @@ namespace TutorBot.Core
             {
                 await using (var scope = locator.CreateAsyncScope())
                 {
-                    await scope.DBContext.ServiceHistories.AddAsync(new ServiceStatusHistory() { Status = status, Message = message ?? string.Empty, Timestamp = DateTime.Now });
+                    await scope.DBContext.ServiceHistories.AddAsync(new DBServiceStatusHistory() { Status = status, Message = message ?? string.Empty, Timestamp = DateTime.Now });
                     await scope.DBContext.SaveChangesAsync();
                 }
             }

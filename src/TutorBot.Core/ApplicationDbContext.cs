@@ -24,11 +24,13 @@ namespace TutorBot.Core
 
         }
 
-        public DbSet<MessageHistory> MessageHistories { get; set; }
+        public DbSet<DBMessageHistory> MessageHistories { get; set; }
 
         public DbSet<DBChatEntry> Chats { get; set; }
 
-        public DbSet<ServiceStatusHistory> ServiceHistories { get; set; }
+        public DbSet<DBChatEntryVersion> ChatsVersions { get; set; }
+
+        public DbSet<DBServiceStatusHistory> ServiceHistories { get; set; }
     }
 
     [Index(nameof(ChatID))]
@@ -36,17 +38,18 @@ namespace TutorBot.Core
     {
         [Key]
         public long Id { get; set; }
+        public long Version { get; set; }
         public long ChatID { get; set; }
         public long UserID { get; set; }
+        public string FullName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public long MessagesCount { get; set; }
+        public string FirstName { get; set; } = string.Empty; 
         public string GroupNumber { get; set; } = string.Empty;
         [Required]
         public DateTime TimeCreate { get; set; }
         [Required]
-        public DateTime TimeLastUpdate { get; set; }
+        public DateTime TimeModified { get; set; }
         public bool IsFirstMessage { get; set; }
         public string? LastActionKey { get; set; }
         public bool IsAdmin { get; set; }
@@ -55,7 +58,33 @@ namespace TutorBot.Core
         public Guid SessionID { get; set; }
     }
 
-    public class ServiceStatusHistory
+    [Index(nameof(ChatID))]
+    public class DBChatEntryVersion
+    {
+        [Key]
+        public long UniqueId { get; set; }
+        public long Id { get; set; }
+        public long Version { get; set; }
+        public long ChatID { get; set; }
+        public long UserID { get; set; } 
+        public string FullName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty; 
+        public string GroupNumber { get; set; } = string.Empty;
+        [Required]
+        public DateTime TimeCreate { get; set; }
+        [Required]
+        public DateTime TimeModified { get; set; }
+        public bool IsFirstMessage { get; set; }
+        public string? LastActionKey { get; set; }
+        public bool IsAdmin { get; set; }
+        public bool EnableAdminError { get; set; }
+
+        public Guid SessionID { get; set; }
+    }
+
+    public class DBServiceStatusHistory
     {
         [Key]
         public int Id { get; set; }
@@ -70,8 +99,8 @@ namespace TutorBot.Core
         public string Message { get; set; } = string.Empty;
     }
 
-    [Index(nameof(ChatID), nameof(OrderID), nameof(SessionID))]
-    public class MessageHistory
+    [Index(nameof(ChatID), nameof(SessionID))]
+    public class DBMessageHistory
     {
         [Key]
         public int Id { get; set; }
@@ -81,9 +110,6 @@ namespace TutorBot.Core
 
         [Required]
         public long UserID { get; set; }
-
-        [Required]
-        public long OrderID { get; set; }
 
         [Required]
         public DateTime Timestamp { get; set; }
