@@ -4,7 +4,7 @@ public class DialogModel
 {
     public required StartNodeModel Start { get; set; }
     public required HandlersModel Handlers { get; set; }
-    public required List<MenuItem> Menus { get; set; }
+    public required MenuItem[] Menus { get; set; }
 
 
     public class StartNodeModel
@@ -16,8 +16,8 @@ public class DialogModel
     public class HandlersModel
     {
         public required WelcomeHandler Welcome { get; set; }
-        public required List<SimpleTextItem> SimpleText { get; set; }
-        public required List<YandexSearchTextItem> YandexSearchText { get; set; }
+        public required SimpleTextItem[] SimpleText { get; set; }
+        public required YandexSearchTextItem[] YandexSearchText { get; set; }
     }
 
     public class WelcomeHandler
@@ -34,7 +34,8 @@ public class DialogModel
     public class SimpleTextItem
     {
         public required string Key { get; set; }
-        public required string[] Text { get; set; }
+        public required string[] Text { get; set; } 
+        public string GetText() => Text.JoinString(Environment.NewLine);
     }
 
     public class YandexSearchTextItem
@@ -50,6 +51,6 @@ public class DialogModel
     {
         public required string Key { get; set; }
         public required string Text { get; set; }
-        public required List<string> Buttons { get; set; }
+        public required string[] Buttons { get; set; }
     }
 }

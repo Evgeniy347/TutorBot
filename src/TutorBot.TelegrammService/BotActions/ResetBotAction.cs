@@ -16,7 +16,7 @@ namespace TutorBot.TelegramService.BotActions
 
             await client.App.ChatService.Update(client.ChatEntry);
 
-            await client.SendMessage(welcomeText, replyMarkup: new ReplyKeyboardRemove());
+            await client.SendMessage(welcomeText, replyMarkup: new ReplyKeyboardRemove(), parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
         }
     }
 }

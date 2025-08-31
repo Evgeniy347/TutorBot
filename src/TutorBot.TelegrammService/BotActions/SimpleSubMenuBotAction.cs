@@ -1,4 +1,5 @@
 ﻿using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using static TutorBot.TelegramService.BotActions.DialogModel;
 
@@ -13,7 +14,7 @@ namespace TutorBot.TelegramService.BotActions
         {
             ReplyKeyboardMarkup replyMarkup = menu.Buttons.Select(x => new[] { new KeyboardButton(x) }).ToArray();
 
-            await client.SendMessage(menu.Text, replyMarkup: replyMarkup);
+            await client.SendMessage(menu.Text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
         }
     }
 }

@@ -13,5 +13,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<InternalsVisibleTo Include="TutorBot.App" />
+		<InternalsVisibleTo Include="TutorBot.Test" />
 	</ItemGroup>
 </Project>

@@ -6,6 +6,8 @@ namespace TutorBot.Abstractions
         IHistoryService HistoryService { get; }
         IChatService ChatService { get; }
         IALServiceService ALService { get; }
+
+        Task EnsureCreated();
     }
 
     public interface IALServiceService

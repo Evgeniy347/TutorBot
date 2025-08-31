@@ -9,6 +9,7 @@ using Org.BouncyCastle.Utilities;
 using System.Collections.Generic;
 using System.Reflection;
 using Telegram.Bot;
+using TutorBot.Abstractions;
 using TutorBot.App;
 using TutorBot.TelegramService;
 using TutorBot.Test.DevOps;
@@ -58,46 +59,15 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
     }
 
     internal async Task<HttpClient> CreateApplication(Action<IWebHostBuilder>? configure = null)
-    {
-        await Task.Yield();
-        //bool needRestore = false;
+    { 
         _webHostBuilderConfiguration = configure;
-
-        //XunitTestClass @class = TaskHelper.Current?.TestClass as XunitTestClass ??
-        //    throw new NullReferenceException("@class is null");
-
-        //DatabaseSnapshotGroupAttribute? snapshotGroup = @class.Class.GetCustomAttribute<DatabaseSnapshotGroupAttribute>() ??
-        //    throw new NullReferenceException("snapshotGroup is null");
-
-        //DBSnapshotData snapshot = containers.GetSnapshot(snapshotGroup.Snapshot);
-
-        //if (!DatabaseSnapshotGroupAttribute.Equals(snapshotGroup, _snapshotGroup))
-        //{
-        //    needRestore = snapshot.HasSnapshot;
-        //    _snapshotGroup = snapshotGroup;
-        //}
-
-        //if (!snapshot.HasSnapshot)
-        //{
-        //    await containers.RestoreSourceSnapshot(snapshotGroup.Snapshot);
-
-        //    HttpClient clientSnapShot = this.CreateClient();
-
-        //    ApplicationHelper.UpdateSchema();
-        //    await containers.CreateDatabaseSnapshot(snapshotGroup.Snapshot);
-
-        //    return clientSnapShot;
-        //}
-        //else if (needRestore)
-        //{
-        //    await containers.RestoreDatabaseSnapshot(snapshotGroup.Snapshot);
-        //    await containers.WaitForReady();
-
-        //    ApplicationHelper.ResetStorage();
-        //    ApplicationHelper.ResetLock();
-        //}
-
+         
         HttpClient client = this.CreateClient();
+
+        IApplication app = this.Services.GetRequiredService<IApplication>();
+
+        await app.EnsureCreated();
+
         return client;
     }
 
