@@ -28,4 +28,4 @@ jobs:
           context: src
           platforms: linux/arm64
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tutorbot:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tutorbot/develop:latest
