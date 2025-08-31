@@ -16,9 +16,9 @@ internal class BotActionHub
         try
         {
             IBotAction[] handlers = [
-                .. model.Handlers.SimpleText.Select(x => InitSimpleText  (model, x)),
+                .. model.Handlers.SimpleText.Select(x => InitSimpleText(model, x)),
                 .. model.Menus.Select(x => new SimpleSubMenuBotAction(x)),
-                .. model.Handlers.YandexSearchText.Select(x => new YandexSearchAction(x)),
+                .. model.Handlers.YandexSearchText.Select(x => InitYandexSearchText(model, x)),
                 ALBotAction.Instance,
                 new AdminBotAction(),
                 new ResetBotAction(model.Handlers.Welcome.WelcomeText)
@@ -38,7 +38,15 @@ internal class BotActionHub
     private static SimpleTextBotAction InitSimpleText(DialogModel model, SimpleTextItem simpleTextItem)
     {
         MenuItem menu = model.Menus.Single(x => x.Buttons.Contains(simpleTextItem.Key));
-        SimpleTextBotAction result = new SimpleTextBotAction(menu, simpleTextItem.Key, simpleTextItem.Text.JoinString(Environment.NewLine));
+        SimpleTextBotAction result = new SimpleTextBotAction(menu, simpleTextItem.Key, simpleTextItem.GetText());
+        return result;
+    }
+
+
+    private static YandexSearchAction InitYandexSearchText(DialogModel model, YandexSearchTextItem yandexSearchText)
+    {
+        MenuItem menu = model.Menus.Single(x => x.Buttons.Contains(yandexSearchText.Key));
+        YandexSearchAction result = new YandexSearchAction(menu, yandexSearchText);
         return result;
     }
 

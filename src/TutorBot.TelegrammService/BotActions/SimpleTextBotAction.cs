@@ -1,6 +1,7 @@
 ﻿using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using TutorBot.TelegramService.Helpers;
 using static TutorBot.TelegramService.BotActions.DialogModel;
 
 namespace TutorBot.TelegramService.BotActions
@@ -14,7 +15,9 @@ namespace TutorBot.TelegramService.BotActions
         {
             ReplyKeyboardMarkup replyMarkup = menu.Buttons.Select(x => new[] { new KeyboardButton(x) }).ToArray();
 
-            await client.SendMessage(text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
+            string resultText = StringHelpers.ReplaceUserName(text, client.ChatEntry.FullName); 
+
+            await client.SendMessage(resultText, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
         }
     }
 }
