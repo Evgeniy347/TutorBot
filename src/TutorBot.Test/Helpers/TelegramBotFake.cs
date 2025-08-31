@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using System.Collections.Concurrent; 
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -15,7 +16,7 @@ namespace TutorBot.Test.Helpers
         public OnMessageHandler? _onMessage;
         private readonly User _me = new User();
 
-        public List<SendMessageArgs> SendingMessage = [];
+        public ConcurrentStack<SendMessageArgs> SendingMessage = [];
 
         public TelegramBotFake(string token, CancellationToken cancellationToken)
         {
@@ -36,7 +37,7 @@ namespace TutorBot.Test.Helpers
 
         public async Task<Message> SendMessage(ChatId chatId, string text, ParseMode parseMode = ParseMode.None, ReplyParameters? replyParameters = null, ReplyMarkup? replyMarkup = null, LinkPreviewOptions? linkPreviewOptions = null, int? messageThreadId = null, IEnumerable<MessageEntity>? entities = null, bool disableNotification = false, bool protectContent = false, string? messageEffectId = null, string? businessConnectionId = null, bool allowPaidBroadcast = false, CancellationToken cancellationToken = default)
         {
-            SendingMessage.Add(new SendMessageArgs(
+            SendingMessage.Push(new SendMessageArgs(
             chatId: chatId,
             text: text,
             parseMode: parseMode,
@@ -61,4 +62,5 @@ namespace TutorBot.Test.Helpers
     }
 
     internal record SendMessageArgs(ChatId chatId, string text, ParseMode parseMode = ParseMode.None, ReplyParameters? replyParameters = null, ReplyMarkup? replyMarkup = null, LinkPreviewOptions? linkPreviewOptions = null, int? messageThreadId = null, IEnumerable<MessageEntity>? entities = null, bool disableNotification = false, bool protectContent = false, string? messageEffectId = null, string? businessConnectionId = null, bool allowPaidBroadcast = false, CancellationToken cancellationToken = default);
+    
 }

@@ -6,9 +6,10 @@ namespace TutorBot.Core
 {
     internal class ApplicationCore : IApplication
     {
+        private ServiceLocator _locator;
         public ApplicationCore(IServiceProvider serviceProvider)
         {
-            ServiceLocator locator = new ServiceLocator(serviceProvider, this);
+            ServiceLocator locator = _locator = new ServiceLocator(serviceProvider, this);
             HistoryService = new HistoryServiceCore(locator);
             ChatService = new ChatService(locator);
             ALService = new ALServiceService(locator);
@@ -19,6 +20,14 @@ namespace TutorBot.Core
         public IChatService ChatService { get; }
 
         public IALServiceService ALService { get; }
+
+        public async Task EnsureCreated()
+        {
+            await using (var scope = _locator.CreateAsyncScope())
+            {
+                scope.DBContext.Database.EnsureCreated();
+            }
+        } 
     }
 
     public class ServiceLocatorScope(IServiceScope scope) : IAsyncDisposable

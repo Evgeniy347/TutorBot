@@ -5,6 +5,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="DevOps\DialogDiagram.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="DevOps\DialogDiagram.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Docker.DotNet" Version="3.125.15" />
 		<PackageReference Include="Shouldly" Version="4.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.8" />

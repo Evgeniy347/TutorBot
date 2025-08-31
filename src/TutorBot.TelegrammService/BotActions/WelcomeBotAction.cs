@@ -23,6 +23,7 @@ namespace TutorBot.TelegramService.BotActions
                     parseMode: ParseMode.Html
                 );
                 client.ChatEntry.IsFirstMessage = false;
+                await client.App.ChatService.Update(client.ChatEntry);
             }
             else
             {
@@ -46,7 +47,9 @@ namespace TutorBot.TelegramService.BotActions
                     return;
                 }
 
-                if (welcomeHandler.GroupNumbers.Contains(message.Text?.Trim(), StringComparer.OrdinalIgnoreCase))
+                string[] expandNumbers = ExpandNumbers(welcomeHandler.GroupNumbers);
+
+                if (expandNumbers.Contains(message.Text?.Trim(), StringComparer.OrdinalIgnoreCase))
                 {
                     client.ChatEntry.GroupNumber = message.Text ?? string.Empty;
                     await client.App.ChatService.Update(client.ChatEntry);
@@ -74,6 +77,30 @@ namespace TutorBot.TelegramService.BotActions
                     );
                 }
             }
+        }
+
+        internal static string[] ExpandNumbers(string[] inputList)
+        {
+            List<string> outputList = new List<string>();
+
+            foreach (string str in inputList)
+            {
+                string[] parts = str.Split('/');
+
+                outputList.Add(parts[0]);
+
+                if (parts.Length > 1)
+                {
+                    string source = parts[0];
+                    foreach (string numPart in parts.Skip(1))
+                    {
+                        string group = source.Remove(source.Length - numPart.Length) + numPart;
+                        outputList.Add(group);
+                    }
+                }
+            }
+
+            return [.. outputList];
         }
     }
 }
