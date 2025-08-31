@@ -73,7 +73,7 @@ namespace TutorBot.TelegramService
                     await resetBotAction.ExecuteAsync(message, context);
                 }
 
-                isWelcome = IsWelcome(context, model);
+                isWelcome = isWelcome && IsWelcome(context, model);
 
                 if (!isWelcome)
                 {
@@ -82,13 +82,15 @@ namespace TutorBot.TelegramService
                     if (action != null)
                     {
                         context.ChatEntry.LastActionKey = action.Key;
-                        await action.ExecuteAsync(message, context);
+                        await action.ExecuteAsync(message, context); 
+                        await context.App.ChatService.Update(context.ChatEntry);
                     }
                     else
                     {
-                        model = _dialogLoader.GetModel();
                         IBotAction startAction = BotActionHub.FindHandler(model, model.Start.NextStep, true)!;
                         await startAction.ExecuteAsync(message, context);
+                        context.ChatEntry.LastActionKey = startAction.Key;
+                        await context.App.ChatService.Update(context.ChatEntry);
                     }
                 }
             }

@@ -1,10 +1,19 @@
-﻿using Shouldly; 
-using TutorBot.TelegramService.BotActions;
+﻿using Shouldly;
+using TutorBot.TelegramService.Helpers;
 
 namespace TutorBot.Test.Common
 {
-    public class WelcomeBotActionTest
+    public class StringHelpersTest
     {
+        [Fact]
+        public void ReplaceUserName()
+        {
+            StringHelpers.ReplaceUserName("Отлично, {UserName}!", "иванов иван иванович").ShouldBe("Отлично, иван!");
+            StringHelpers.ReplaceUserName("Отлично, {UserName}!", "иванов  иванович").ShouldBe("Отлично, иванович!");
+            StringHelpers.ReplaceUserName("Отлично, {UserName}!", "иванов  ").ShouldBe("Отлично, иванов!");
+            StringHelpers.ReplaceUserName("Отлично, {UserName}!", "  ").ShouldBe("Отлично, неизвестный пользователь!");
+        }
+
         [Fact]
         public void ExpandNumbers()
         {
@@ -37,7 +46,7 @@ namespace TutorBot.Test.Common
             ];
 
             // Формирование полного списка номеров
-            var resultList = WelcomeBotAction.ExpandNumbers(inputList);
+            var resultList = StringHelpers.ExpandNumbers(inputList);
 
             string lineResult = resultList.OrderBy(x => x).JoinString(", ");
             string lineOut = outList.OrderBy(x => x).JoinString(", ");

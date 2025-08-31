@@ -44,7 +44,8 @@ public class DialogModel
         public required string Descriptions { get; set; }
         public string? Pattern { get; set; }
         public string? InvalidPatternMessage { get; set; }
-        public required string Text { get; set; }
+        public required string[] Text { get; set; }
+        public string GetText() => Text.JoinString(Environment.NewLine);
     }
 
     public class MenuItem

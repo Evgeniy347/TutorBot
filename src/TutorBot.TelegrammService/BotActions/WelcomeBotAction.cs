@@ -2,6 +2,7 @@
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using TutorBot.TelegramService.Helpers;
 using static TutorBot.TelegramService.BotActions.DialogModel;
 
 namespace TutorBot.TelegramService.BotActions
@@ -15,7 +16,7 @@ namespace TutorBot.TelegramService.BotActions
         {
             WelcomeHandler welcomeHandler = model.Handlers.Welcome;
 
-            if (client.ChatEntry.IsFirstMessage)
+            if (client.ChatEntry.IsFirstMessage || message.Text == "/start")
             {
                 await client.SendMessage(
                     text: welcomeHandler.WelcomeText,
@@ -47,7 +48,7 @@ namespace TutorBot.TelegramService.BotActions
                     return;
                 }
 
-                string[] expandNumbers = ExpandNumbers(welcomeHandler.GroupNumbers);
+                string[] expandNumbers = StringHelpers.ExpandNumbers(welcomeHandler.GroupNumbers);
 
                 if (expandNumbers.Contains(message.Text?.Trim(), StringComparer.OrdinalIgnoreCase))
                 {
@@ -77,30 +78,6 @@ namespace TutorBot.TelegramService.BotActions
                     );
                 }
             }
-        }
-
-        internal static string[] ExpandNumbers(string[] inputList)
-        {
-            List<string> outputList = new List<string>();
-
-            foreach (string str in inputList)
-            {
-                string[] parts = str.Split('/');
-
-                outputList.Add(parts[0]);
-
-                if (parts.Length > 1)
-                {
-                    string source = parts[0];
-                    foreach (string numPart in parts.Skip(1))
-                    {
-                        string group = source.Remove(source.Length - numPart.Length) + numPart;
-                        outputList.Add(group);
-                    }
-                }
-            }
-
-            return [.. outputList];
-        }
+        } 
     }
 }
