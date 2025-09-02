@@ -39,7 +39,7 @@ namespace TutorBot.Abstractions
     {
         public long ID { get; set; }
         public long ChatID { get; set; }
-        public long Version { get; set; } 
+        public long Version { get; set; }
         public long UserID { get; set; }
         public string LastName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
@@ -55,7 +55,7 @@ namespace TutorBot.Abstractions
         public Guid SessionID { get; set; }
 
         public bool IsAdmin { get; set; }
-        public bool EnableAdminError { get; set; } 
+        public bool EnableAdminError { get; set; }
     }
 
     public record MessageHistory(long ChatID, DateTime Timestamp, string MessageText, MessageHistoryRole Type, long UserID, Guid SessionID, int ID = -1);

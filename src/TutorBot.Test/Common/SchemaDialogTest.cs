@@ -4,10 +4,7 @@ using Shouldly;
 using System.Runtime.CompilerServices;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using TutorBot.Abstractions;
-using TutorBot.TelegramService;
 using TutorBot.TelegramService.BotActions;
-using TutorBot.TelegramService.Helpers;
 using TutorBot.Test.Helpers;
 using TutorBot.Test.TestFramework;
 using static TutorBot.TelegramService.BotActions.DialogModel;
@@ -185,7 +182,7 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
 
         // Act & Assert - Restart and verify welcome text
         await chatHelper.SentTextWithCheck("Перезапустить", model.Handlers.Welcome.WelcomeText, []);
-        await chatHelper.SentTextWithCheck("РИ-421056", model.Handlers.Welcome.FullNameQuestion!, []); 
+        await chatHelper.SentTextWithCheck("РИ-421056", model.Handlers.Welcome.FullNameQuestion!, []);
         await chatHelper.SentTextWithCheck(fullName, menuText, menu.Buttons);
     }
 
@@ -206,7 +203,7 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     }
 
     private async Task TestFullScenario(string firstName)
-    { 
+    {
         DialogModel model = GetModel();
 
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");

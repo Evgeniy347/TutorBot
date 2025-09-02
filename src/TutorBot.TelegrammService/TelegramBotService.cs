@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using System.Reflection;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -82,7 +81,7 @@ namespace TutorBot.TelegramService
                     if (action != null)
                     {
                         context.ChatEntry.LastActionKey = action.Key;
-                        await action.ExecuteAsync(message, context); 
+                        await action.ExecuteAsync(message, context);
                         await context.App.ChatService.Update(context.ChatEntry);
                     }
                     else

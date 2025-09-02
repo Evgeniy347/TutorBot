@@ -44,7 +44,7 @@ namespace TutorBot.Core
         public string FullName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty; 
+        public string FirstName { get; set; } = string.Empty;
         public string GroupNumber { get; set; } = string.Empty;
         [Required]
         public DateTime TimeCreate { get; set; }
@@ -66,11 +66,11 @@ namespace TutorBot.Core
         public long Id { get; set; }
         public long Version { get; set; }
         public long ChatID { get; set; }
-        public long UserID { get; set; } 
+        public long UserID { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty; 
+        public string FirstName { get; set; } = string.Empty;
         public string GroupNumber { get; set; } = string.Empty;
         [Required]
         public DateTime TimeCreate { get; set; }

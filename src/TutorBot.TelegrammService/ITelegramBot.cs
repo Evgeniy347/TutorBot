@@ -26,6 +26,6 @@ namespace TutorBot.TelegramService
             bool allowPaidBroadcast = default,
             CancellationToken cancellationToken = default
         );
-        Task Close(CancellationToken stoppingToken); 
-    } 
+        Task Close(CancellationToken stoppingToken);
+    }
 }

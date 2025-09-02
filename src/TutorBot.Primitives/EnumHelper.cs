@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions; 
+﻿using System.Linq.Expressions;
 
 namespace WSS.Cryptography.Primitives.SYS.Lib.Primitives
 {
@@ -18,7 +18,7 @@ namespace WSS.Cryptography.Primitives.SYS.Lib.Primitives
                 Expression.Convert(parameters[0], underlyingType),
                 Expression.Convert(parameters[1], underlyingType)
             ), typeofT), parameters).Compile();
-          
+
         public static Func<T, T, T> OrFunction { get { return _orFunc; } }
 
 
@@ -30,22 +30,22 @@ namespace WSS.Cryptography.Primitives.SYS.Lib.Primitives
         public static T[] ToEnumFlag(T value)
         {
             Type baseType = Enum.GetUnderlyingType(typeof(T));
-            List<T> flags = new List<T>(); 
+            List<T> flags = new List<T>();
             if (baseType == typeof(int))
             {
                 int x = (int)(object)value;
 
                 for (int i = 1; i < (1 << 30); i = i << 1)
                     if ((x & i) != 0)
-                        flags.Add((T)(object)i); 
+                        flags.Add((T)(object)i);
             }
             else if (baseType == typeof(long))
             {
-                long x = (long)(object)value; 
+                long x = (long)(object)value;
 
                 for (long i = 1; i < (1 << 30); i = i << 1)
                     if ((x & i) != 0)
-                        flags.Add((T)(object)i); 
+                        flags.Add((T)(object)i);
             }
             else if (baseType == typeof(ulong))
             {
@@ -72,7 +72,7 @@ namespace WSS.Cryptography.Primitives.SYS.Lib.Primitives
                         flags.Add((T)(object)i);
             }
             else throw new NotImplementedException(baseType.Name);
-             
+
             return flags.ToArray();
         }
 

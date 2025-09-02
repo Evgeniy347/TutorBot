@@ -11,7 +11,7 @@ namespace TutorBot.Core
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
-             
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 string? connectionString = configuration.GetConnectionString("DefaultConnection");

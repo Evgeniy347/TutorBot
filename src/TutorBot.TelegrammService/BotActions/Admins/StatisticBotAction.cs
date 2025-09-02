@@ -14,9 +14,9 @@ namespace TutorBot.TelegramService.BotActions.Admins
 
             StringBuilder sb = new StringBuilder();
 
-//            sb.AppendLine(@$"ChatsCount:{chats.Length}
-//MessagesCount:{chats.Select(x => x.MessagesCount).Sum()}
-//");
+            //            sb.AppendLine(@$"ChatsCount:{chats.Length}
+            //MessagesCount:{chats.Select(x => x.MessagesCount).Sum()}
+            //");
 
             await client.SendMessage(sb.ToString());
         }

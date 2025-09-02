@@ -2,19 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D1635BD8-9FF1-4C2C-9848-322EC1A2017D}"
-	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
-		..\.gitignore = ..\.gitignore
-		BuildInfo.Build.props = BuildInfo.Build.props
-		Directory.Build.props = Directory.Build.props
-		..\.github\workflows\docker-build-push.yml = ..\.github\workflows\docker-build-push.yml
-		docker-compose.yml = docker-compose.yml
-		Dockerfile = Dockerfile
-		..\LICENSE = ..\LICENSE
-		NuGet.Config = NuGet.Config
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.App", "TutorBot.App\TutorBot.App.csproj", "{2E150D9C-05EB-4096-B54B-2CF245BAAA5F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Authentication", "TutorBot.Authentication\TutorBot.Authentication.csproj", "{335C8DD0-933C-4E68-A5EA-94172BEBB1E9}"
@@ -31,18 +18,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Abstractions", "Tu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.Test", "TutorBot.Test\TutorBot.Test.csproj", "{EE5DEF33-FC3F-4494-A45B-2008FE351AF9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{5C17F5CF-BBF7-4928-A863-20A8F105524B}"
-	ProjectSection(SolutionItems) = preProject
-		..\docs\1.General.md = ..\docs\1.General.md
-		..\docs\2.Software_Installation.md = ..\docs\2.Software_Installation.md
-		..\docs\3.Bot_registration.md = ..\docs\3.Bot_registration.md
-		..\docs\4.StartApp.md = ..\docs\4.StartApp.md
-		..\docs\5.DBMigration.md = ..\docs\5.DBMigration.md
-		..\docs\6.DialogDiagram.md = ..\docs\6.DialogDiagram.md
-		..\README.md = ..\README.md
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TutorBot.TelegramService", "TutorBot.TelegrammService\TutorBot.TelegramService.csproj", "{C8CCB451-43E0-4B70-BDEF-16B1BDBA66B1}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SolutionItems", "..\SolutionItems.shproj", "{80C86D34-A406-4F9B-848C-12C77FBBEF43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -92,5 +70,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0BB81D92-8121-4C9E-A8A1-2F9EE6F9ABC6}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\SolutionItems.projitems*{80c86d34-a406-4f9b-848c-12c77fbbef43}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

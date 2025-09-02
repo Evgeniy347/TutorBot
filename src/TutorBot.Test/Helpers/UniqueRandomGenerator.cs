@@ -1,4 +1,4 @@
-﻿ 
+﻿
 namespace TutorBot.Test.Helpers
 {
     internal class UniqueRandomGenerator

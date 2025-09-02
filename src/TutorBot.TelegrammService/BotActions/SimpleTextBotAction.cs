@@ -15,7 +15,7 @@ namespace TutorBot.TelegramService.BotActions
         {
             ReplyKeyboardMarkup replyMarkup = menu.Buttons.Select(x => new[] { new KeyboardButton(x) }).ToArray();
 
-            string resultText = StringHelpers.ReplaceUserName(text, client.ChatEntry.FullName); 
+            string resultText = StringHelpers.ReplaceUserName(text, client.ChatEntry.FullName);
 
             await client.SendMessage(resultText, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
         }

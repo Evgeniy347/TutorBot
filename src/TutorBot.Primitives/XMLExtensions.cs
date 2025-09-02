@@ -1,4 +1,4 @@
-﻿using System.Globalization; 
+﻿using System.Globalization;
 using System.Xml;
 
 namespace WSS.Cryptography.Primitives.SYS.Lib.Primitives

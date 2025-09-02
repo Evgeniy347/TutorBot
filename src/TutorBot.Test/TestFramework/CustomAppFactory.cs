@@ -1,14 +1,9 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Testing.Platform.Configurations;
-using Org.BouncyCastle.Utilities;
-using System.Collections.Generic;
 using System.Reflection;
-using Telegram.Bot;
 using TutorBot.Abstractions;
 using TutorBot.App;
 using TutorBot.TelegramService;
@@ -59,9 +54,9 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
     }
 
     internal async Task<HttpClient> CreateApplication(Action<IWebHostBuilder>? configure = null)
-    { 
+    {
         _webHostBuilderConfiguration = configure;
-         
+
         HttpClient client = this.CreateClient();
 
         IApplication app = this.Services.GetRequiredService<IApplication>();

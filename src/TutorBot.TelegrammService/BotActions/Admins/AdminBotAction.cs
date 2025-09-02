@@ -15,13 +15,13 @@ namespace TutorBot.TelegramService.BotActions.Admins
             {
                 _attemptsCont.TryGetValue(client.ChatEntry.UserID, out int count);
                 count++;
-                 
+
                 if (count > 10)
                 {
                     await client.SendMessage("Вам запрещено вводить код доступа");
                 }
                 else
-                { 
+                {
                     if (message.Text == Key)
                     {
                         await client.SendMessage("Введите код доступа");

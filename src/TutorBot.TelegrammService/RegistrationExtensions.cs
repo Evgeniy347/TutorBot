@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading;
-using Telegram.Bot;
 
 namespace TutorBot.TelegramService;
 

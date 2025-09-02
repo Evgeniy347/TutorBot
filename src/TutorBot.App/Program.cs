@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using TutorBot.Authentication;
-using TutorBot.Abstractions;
+﻿using TutorBot.Authentication;
 using TutorBot.Core;
 using TutorBot.Frontend;
 using TutorBot.TelegramService;
@@ -24,7 +22,9 @@ public class Program
         if (!AppContext.TryGetSwitch("DisableLoadConfig", out bool isDisableLoadConfig) || !isDisableLoadConfig)
         {
             builder.Configuration.AddJsonFile("appsettings.json");
-            builder.Configuration.AddJsonFile("appsettings.private.json");
+
+            if (File.Exists("appsettings.private.json"))
+                builder.Configuration.AddJsonFile("appsettings.private.json");
         }
 
         builder.AddServiceDefaults();
@@ -40,7 +40,6 @@ public class Program
 
         app.MapDefaultEndpoints();
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
         }

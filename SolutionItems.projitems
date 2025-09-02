@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>80c86d34-a406-4f9b-848c-12c77fbbef43</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>SolutionItems</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory).dockerignore" />
+    <None Include="$(MSBuildThisFileDirectory)docs\Helpers.md" />
+    <None Include="$(MSBuildThisFileDirectory)scripts\build-push.sh" />
+    <None Include="$(MSBuildThisFileDirectory).gitignore" />
+    <None Include="$(MSBuildThisFileDirectory)\src\BuildInfo.Build.props" />
+    <None Include="$(MSBuildThisFileDirectory)\src\Directory.Build.props" />
+    <None Include="$(MSBuildThisFileDirectory)\src\docker-compose.yml" />
+    <None Include="$(MSBuildThisFileDirectory)\src\Dockerfile" />
+    <None Include="$(MSBuildThisFileDirectory)\src\NuGet.Config" />
+    <None Include="$(MSBuildThisFileDirectory)LICENSE" />
+    <None Include="$(MSBuildThisFileDirectory)README.md" />
+    <None Include="$(MSBuildThisFileDirectory)docs\1.General.md" />
+    <None Include="$(MSBuildThisFileDirectory)docs\2.Software_Installation.md" />
+    <None Include="$(MSBuildThisFileDirectory)docs\3.Bot_registration.md" />
+    <None Include="$(MSBuildThisFileDirectory)docs\4.StartApp.md" />
+    <None Include="$(MSBuildThisFileDirectory)docs\5.DBMigration.md" />
+    <None Include="$(MSBuildThisFileDirectory)docs\6.DialogDiagram.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)\src\testenvironments.json" />
+    <Content Include="$(MSBuildThisFileDirectory)\src\TutorBot.App.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)src\" />
+  </ItemGroup>
+</Project>

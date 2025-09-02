@@ -46,13 +46,13 @@ namespace TutorBot.Core
 
                 if (message.StartsWith("принято", StringComparison.OrdinalIgnoreCase))
                 {
-                    await locator.Application.HistoryService.AddHistory(new Abstractions.MessageHistory(chatID, DateTime.Now, message, MessageHistoryRole.Bot, 0,  sessionID));
+                    await locator.Application.HistoryService.AddHistory(new Abstractions.MessageHistory(chatID, DateTime.Now, message, MessageHistoryRole.Bot, 0, sessionID));
                     return string.Empty;
                 }
 
                 if (message.StartsWith("не знаю", StringComparison.OrdinalIgnoreCase))
                 {
-                    await locator.Application.HistoryService.AddHistory(new Abstractions.MessageHistory(chatID, DateTime.Now, message, MessageHistoryRole.Bot, 0,  sessionID));
+                    await locator.Application.HistoryService.AddHistory(new Abstractions.MessageHistory(chatID, DateTime.Now, message, MessageHistoryRole.Bot, 0, sessionID));
                     return string.Empty;
                 }
 
@@ -200,7 +200,7 @@ namespace TutorBot.Core
     }
 
     internal class GigaChatOptions
-    { 
+    {
         public required bool Enable { get; init; }
         public required string SecretKey { get; init; }
         public required bool IsCommercial { get; init; }

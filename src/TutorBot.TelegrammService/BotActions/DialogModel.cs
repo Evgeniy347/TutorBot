@@ -34,7 +34,7 @@ public class DialogModel
     public class SimpleTextItem
     {
         public required string Key { get; set; }
-        public required string[] Text { get; set; } 
+        public required string[] Text { get; set; }
         public string GetText() => Text.JoinString(Environment.NewLine);
     }
 

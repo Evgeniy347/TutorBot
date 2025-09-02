@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace System.Collections.Generic
 {
     /// <summary>
@@ -256,7 +254,7 @@ namespace System.Collections.Generic
         }
 
         #endregion
-         
+
 
     }
 }

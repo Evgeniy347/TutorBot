@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace System
@@ -180,7 +179,7 @@ namespace System
                 fullExceptionStack.Add(currentException);
                 currentException = currentException.InnerException;
             }
-            return fullExceptionStack.AsReadOnly(); 
+            return fullExceptionStack.AsReadOnly();
         }
 
         /// <summary>

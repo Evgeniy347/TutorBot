@@ -27,7 +27,7 @@ namespace TutorBot.Core
             {
                 scope.DBContext.Database.EnsureCreated();
             }
-        } 
+        }
     }
 
     public class ServiceLocatorScope(IServiceScope scope) : IAsyncDisposable
