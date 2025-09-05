@@ -1,8 +1,11 @@
-﻿ 
+﻿
 namespace TutorBot.Test.Helpers
 {
     internal class UniqueRandomGenerator
     {
+        public static UniqueRandomGenerator Instance { get; } = new UniqueRandomGenerator();
+
+
         // Хранит список уникальных выданных случайных чисел
         private HashSet<long> _generatedNumbers = new HashSet<long>();
 

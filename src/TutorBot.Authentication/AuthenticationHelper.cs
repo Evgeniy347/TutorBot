@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection; 
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace TutorBot.Authentication;
 
@@ -8,6 +8,6 @@ namespace TutorBot.Authentication;
 public static class AuthenticationExtensions
 {
     public static void AddFrontendAuthentication(this IServiceCollection serviceCollection)
-    { 
+    {
     }
-} 
+}

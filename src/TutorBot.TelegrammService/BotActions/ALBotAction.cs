@@ -1,17 +1,17 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using System.Text;
 
 namespace TutorBot.TelegramService.BotActions
 {
-    internal class ALBotAction : IBotAction 
+    internal class ALBotAction : IBotAction
     {
         public static ALBotAction Instance = new ALBotAction();
         public bool EnableProlongated => true;
 
         public string Key => "Спросить нейросеть";
-         
+
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {
             if (message.Text == Key)

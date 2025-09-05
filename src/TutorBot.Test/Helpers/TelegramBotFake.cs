@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent; 
+﻿using System.Collections.Concurrent;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -62,5 +62,5 @@ namespace TutorBot.Test.Helpers
     }
 
     internal record SendMessageArgs(ChatId chatId, string text, ParseMode parseMode = ParseMode.None, ReplyParameters? replyParameters = null, ReplyMarkup? replyMarkup = null, LinkPreviewOptions? linkPreviewOptions = null, int? messageThreadId = null, IEnumerable<MessageEntity>? entities = null, bool disableNotification = false, bool protectContent = false, string? messageEffectId = null, string? businessConnectionId = null, bool allowPaidBroadcast = false, CancellationToken cancellationToken = default);
-    
+
 }

@@ -1,14 +1,9 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Testing.Platform.Configurations;
-using Org.BouncyCastle.Utilities;
-using System.Collections.Generic;
 using System.Reflection;
-using Telegram.Bot;
 using TutorBot.Abstractions;
 using TutorBot.App;
 using TutorBot.TelegramService;
@@ -37,17 +32,16 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
 
         builder.UseSetting("ConnectionStrings:DefaultConnection", containers.PostgresConnectionString);
         builder.UseSetting("DefaultConnection", containers.PostgresConnectionString);
-
+         
         _webHostBuilderConfiguration?.Invoke(builder);
-
-
+         
         builder.ConfigureServices(services =>
         {
             services.AddTransient<Func<string, CancellationToken, ITelegramBot>>(provider =>
                 (token, cancellationToken) => new TelegramBotFake(token, cancellationToken: cancellationToken));
 
             services.AddControllers().AddApplicationPart(typeof(CustomAppFactory).Assembly);
-        });
+        }); 
     }
 
     protected override IHost CreateHost(IHostBuilder builder)
@@ -59,9 +53,9 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
     }
 
     internal async Task<HttpClient> CreateApplication(Action<IWebHostBuilder>? configure = null)
-    { 
+    {
         _webHostBuilderConfiguration = configure;
-         
+
         HttpClient client = this.CreateClient();
 
         IApplication app = this.Services.GetRequiredService<IApplication>();

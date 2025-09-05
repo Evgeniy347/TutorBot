@@ -10,8 +10,8 @@ public class TestContainersFixture : IAsyncLifetime
     public static readonly bool UseCachedContainers = Environment.GetEnvironmentVariable("TutorBot_UseCachedContainers") == "true";
 
     private readonly INetwork _network;
-    private readonly PostgreSqlContainer _postgresContainer; 
-      
+    private readonly PostgreSqlContainer _postgresContainer;
+
     private readonly DockerResourceName _resourceName;
     private string? _PostgresConnectionString;
 
@@ -44,11 +44,11 @@ public class TestContainersFixture : IAsyncLifetime
     }
 
     public string PostgresConnectionString => Check.NotEmpty(_PostgresConnectionString);
-     
+
     public async ValueTask InitializeAsync()
-    { 
+    {
         await _network.CreateAsync();
-        await _postgresContainer.StartAsync(TestContext.Current.CancellationToken); 
+        await _postgresContainer.StartAsync(TestContext.Current.CancellationToken);
         _PostgresConnectionString = _postgresContainer.GetConnectionString();
     }
 
@@ -59,8 +59,8 @@ public class TestContainersFixture : IAsyncLifetime
             await _postgresContainer.StopAsync(TestContext.Current.CancellationToken);
             await _network.DeleteAsync(TestContext.Current.CancellationToken);
         }
-    } 
-     
+    }
+
     private static string GetRandomPrefix()
     {
         if (UseCachedContainers)
@@ -76,4 +76,3 @@ public class TestContainersFixture : IAsyncLifetime
 
     internal record struct DockerResourceName(string Prefix, string NetworkName, string PGName);
 }
- 

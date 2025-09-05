@@ -4,6 +4,7 @@
 		<ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.8.0" />
 		<PackageReference Include="Telegram.Bot" Version="22.5.2-dev.5" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
 		<PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.5">

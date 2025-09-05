@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -6,13 +7,21 @@ using static TutorBot.TelegramService.BotActions.DialogModel;
 
 namespace TutorBot.TelegramService.BotActions
 {
-    internal class YandexSearchAction(MenuItem menu, YandexSearchTextItem item) : IBotAction
+    internal class YandexSearchAction(DialogModel model, YandexSearchTextItem item) : IBotAction
     {
         public string Key => item.Key;
         public bool EnableProlongated => true;
 
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {
+            MenuItem? menu = model.Menus.FirstOrDefault(x => x.Buttons.Contains(Key));
+
+            if (menu == null)
+            {
+                await client.WriteError($"not found menu '{Key}'");
+                return;
+            }
+
             ReplyKeyboardMarkup replyMarkup = menu.Buttons.Select(x => new[] { new KeyboardButton(x) }).ToArray();
 
             if (message.Text == Key || string.IsNullOrEmpty(message.Text))

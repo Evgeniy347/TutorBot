@@ -32,7 +32,7 @@ namespace TutorBot.TelegramService.BotActions
                     string.IsNullOrEmpty(client.ChatEntry.FullName) &&
                     !string.IsNullOrEmpty(welcomeHandler.FullNameQuestion))
                 {
-                    bool isValid = Regex.IsMatch(message.Text!, "^[а-яА-Я\\s]+$");
+                    bool isValid = Regex.IsMatch(message.Text!, "^[а-яА-ЯёЁ\\-\\s]+$");
 
                     if (!isValid)
                     {
@@ -78,6 +78,6 @@ namespace TutorBot.TelegramService.BotActions
                     );
                 }
             }
-        } 
+        }
     }
 }

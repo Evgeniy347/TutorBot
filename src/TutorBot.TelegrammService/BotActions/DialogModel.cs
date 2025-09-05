@@ -5,8 +5,7 @@ public class DialogModel
     public required StartNodeModel Start { get; set; }
     public required HandlersModel Handlers { get; set; }
     public required MenuItem[] Menus { get; set; }
-
-
+     
     public class StartNodeModel
     {
         public required string Handler { get; set; }
@@ -16,12 +15,15 @@ public class DialogModel
     public class HandlersModel
     {
         public required WelcomeHandler Welcome { get; set; }
+        public required ScheduleItem Schedule { get; set; }
         public required SimpleTextItem[] SimpleText { get; set; }
         public required YandexSearchTextItem[] YandexSearchText { get; set; }
     }
 
     public class WelcomeHandler
     {
+        public required string Key { get; set; }
+
         public required string WelcomeText { get; set; }
         public required string ErrorText { get; set; }
 
@@ -31,10 +33,17 @@ public class DialogModel
         public required string[] GroupNumbers { get; set; }
     }
 
+    public class ScheduleItem
+    {
+        public required string Key { get; set; }
+        public required string[] Text { get; set; }
+        public string GetText() => Text.JoinString(Environment.NewLine);
+    }
+
     public class SimpleTextItem
     {
         public required string Key { get; set; }
-        public required string[] Text { get; set; } 
+        public required string[] Text { get; set; }
         public string GetText() => Text.JoinString(Environment.NewLine);
     }
 

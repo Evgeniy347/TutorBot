@@ -1,11 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Shouldly;
-using System.Runtime.CompilerServices;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
-using TutorBot.Abstractions;
-using TutorBot.TelegramService;
+﻿using System.Buffers.Text;
 using TutorBot.TelegramService.BotActions;
 using TutorBot.TelegramService.Helpers;
 using TutorBot.Test.Helpers;
@@ -17,7 +10,7 @@ namespace TutorBot.Test.Common;
 [DatabaseSnapshotGroup]
 public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
 {
-    private readonly UniqueRandomGenerator _random = new UniqueRandomGenerator();
+    private readonly TestHelper _helper = new TestHelper(factory);
 
     [Fact]
     public async Task App_Welcome_StressTest()
@@ -46,8 +39,8 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
-        UserChatHelper chatHelper = CreateRandomUser("test user");
+        DialogModel model = _helper.Model;
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
 
         // Act & Assert
         await chatHelper.SentTextWithCheck("/start", model.Handlers.Welcome.WelcomeText, []);
@@ -58,8 +51,8 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
-        UserChatHelper chatHelper = CreateRandomUser("test user");
+        DialogModel model = _helper.Model;
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
 
         // Act & Assert
         await chatHelper.SentTextWithCheck("/start", model.Handlers.Welcome.WelcomeText, []);
@@ -71,8 +64,8 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
-        UserChatHelper chatHelper = CreateRandomUser("test user");
+        DialogModel model = _helper.Model;
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
 
         // Act & Assert
         await chatHelper.SentTextWithCheck("/start", model.Handlers.Welcome.WelcomeText, []);
@@ -84,8 +77,8 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
-        UserChatHelper chatHelper = CreateRandomUser("test user");
+        DialogModel model = _helper.Model;
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
 
         // Act & Assert
         await chatHelper.SentTextWithCheck("/start", model.Handlers.Welcome.WelcomeText, []);
@@ -97,8 +90,8 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
-        UserChatHelper chatHelper = CreateRandomUser("test user");
+        DialogModel model = _helper.Model;
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
 
         // Act & Assert
         await chatHelper.SentTextWithCheck("/start", model.Handlers.Welcome.WelcomeText, []);
@@ -111,10 +104,10 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
+        DialogModel model = _helper.Model;
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
-        UserChatHelper chatHelper = CreateRandomUser("test user");
-        string fullName = "иванов иван иванович";
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
+        string fullName = "иванов иван иванович йцукенгшщзхъэждлорпавыфячсмитьбюё-";
         string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
 
         // Act & Assert
@@ -128,16 +121,16 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
+        DialogModel model = _helper.Model;
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
         YandexSearchTextItem yandexSearchText = model.Handlers.YandexSearchText.Single(x => x.Key == "👨‍🏫 Найти преподавателя");
-        UserChatHelper chatHelper = CreateRandomUser("test user");
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
         string name = "иванов иван иванович";
 
         string text = yandexSearchText.GetText().Replace("{Text}", name).Replace("{Text:URI}", name.Replace(" ", "+"));
 
         // Act & Assert - Complete initial flow
-        await CompleteWelcomeFlow(chatHelper, model);
+        await _helper.CompleteWelcomeFlow(chatHelper, model);
 
         // Act & Assert
         await chatHelper.SentTextWithCheck("👨‍🏫 Найти преподавателя", yandexSearchText.Descriptions, menu.Buttons);
@@ -150,16 +143,16 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
+        DialogModel model = _helper.Model;
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
         MenuItem subMenu = model.Menus.Single(x => x.Key == "📚 Ликвидации академических задолженностей");
         SimpleTextItem simpleTextSubMenu = model.Handlers.SimpleText.Single(x => x.Key == "❓ Сколько у меня долгов?");
-        UserChatHelper chatHelper = CreateRandomUser("test user");
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
         string fullName = "иванов иван иванович";
         string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
 
         // Act & Assert - Navigate to submenu
-        await CompleteWelcomeFlow(chatHelper, model);
+        await _helper.CompleteWelcomeFlow(chatHelper, model);
         await chatHelper.SentTextWithCheck("📚 Ликвидации академических задолженностей", subMenu.Text, subMenu.Buttons);
 
         // Act & Assert - Use submenu item
@@ -174,124 +167,88 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
     {
         // Arrange
         using HttpClient client = await factory.CreateApplication();
-        DialogModel model = GetModel();
-        UserChatHelper chatHelper = CreateRandomUser("test user");
+        DialogModel model = _helper.Model;
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
         string fullName = "иванов иван иванович";
         string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
 
         // Act & Assert - Complete initial flow
-        await CompleteWelcomeFlow(chatHelper, model);
+        await _helper.CompleteWelcomeFlow(chatHelper, model);
 
         // Act & Assert - Restart and verify welcome text
         await chatHelper.SentTextWithCheck("Перезапустить", model.Handlers.Welcome.WelcomeText, []);
-        await chatHelper.SentTextWithCheck("РИ-421056", model.Handlers.Welcome.FullNameQuestion!, []); 
+        await chatHelper.SentTextWithCheck("РИ-421056", model.Handlers.Welcome.FullNameQuestion!, []);
         await chatHelper.SentTextWithCheck(fullName, menuText, menu.Buttons);
+    }
+
+    [Fact]
+    public async Task Should_Schedule_FindSuccess()
+    {
+        // Arrange
+        using HttpClient client = await factory.CreateApplication();
+        ScheduleAction.Client = client;
+        ScheduleAction.BaseUrl = client.BaseAddress!.ToString();
+        DialogModel model = _helper.Model;
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
+        MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
+        string fullName = "иванов иван иванович";
+        string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
+
+        // Act & Assert - Complete initial flow
+        await _helper.CompleteWelcomeFlow(chatHelper, model, "РИМ-151001");
+
+        // Act & Assert - Restart and verify welcome text
+
+        string resultText = model.Handlers.Schedule.GetText().Replace("#URL#", $"{client.BaseAddress}ru/students/study/schedule/#/groups/{62140}");
+        await chatHelper.SentTextWithCheck("📅 Расписание группы", resultText, menu.Buttons);
+        await chatHelper.SentTextWithCheck("📅 Расписание группы", resultText, menu.Buttons);
+    }
+
+    [Fact]
+    public async Task Should_Schedule_NotFind()
+    {
+        // Arrange
+        using HttpClient client = await factory.CreateApplication();
+        ScheduleAction.Client = client;
+        ScheduleAction.BaseUrl = client.BaseAddress!.ToString();
+        DialogModel model = _helper.Model;
+        UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
+        MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
+        string fullName = "иванов иван иванович";
+        string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
+
+        // Act & Assert - Complete initial flow
+        await _helper.CompleteWelcomeFlow(chatHelper, model, "РИ-421056");
+
+        // Act & Assert - Restart and verify welcome text
+
+        string resultText = model.Handlers.Schedule.GetText().Replace("#URL#", $"{client.BaseAddress}ru/students/study/schedule/");
+        await chatHelper.SentTextWithCheck("📅 Расписание группы", resultText, menu.Buttons);
+        await chatHelper.SentTextWithCheck("📅 Расписание группы", resultText, menu.Buttons);
     }
 
     #endregion
 
     #region Helper Methods
 
-    private async Task CompleteWelcomeFlow(UserChatHelper chatHelper, DialogModel model)
-    {
-        MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
-        string fullName = "иванов иван иванович";
-        string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
-
-        await chatHelper.SentTextWithCheck("/start", model.Handlers.Welcome.WelcomeText, []);
-        await chatHelper.SentTextWithCheck("РИ-421056", model.Handlers.Welcome.FullNameQuestion!, []);
-
-        await chatHelper.SentTextWithCheck(fullName, menuText, menu.Buttons);
-    }
-
     private async Task TestFullScenario(string firstName)
-    { 
-        DialogModel model = GetModel();
+    {
+        DialogModel model = _helper.Model;
 
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
         MenuItem subMenu = model.Menus.Single(x => x.Key == "📚 Ликвидации академических задолженностей");
-        SimpleTextItem simpleTextMenu = model.Handlers.SimpleText.Single(x => x.Key == "📅 Расписание группы");
         SimpleTextItem simpleTextSubMenu = model.Handlers.SimpleText.Single(x => x.Key == "❓ Сколько у меня долгов?");
         string fullName = "иванов иван иванович";
         string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
 
-        UserChatHelper chatHelper = CreateRandomUser(firstName);
+        UserChatHelper chatHelper = _helper.CreateRandomUser(firstName);
 
-        await CompleteWelcomeFlow(chatHelper, model);
+        await _helper.CompleteWelcomeFlow(chatHelper, model);
         await chatHelper.SentTextWithCheck("📚 Ликвидации академических задолженностей", subMenu.Text, subMenu.Buttons);
         await chatHelper.SentTextWithCheck("❓ Сколько у меня долгов?", simpleTextSubMenu.GetText(), subMenu.Buttons);
         await chatHelper.SentTextWithCheck("↩️ В главное меню", menuText, menu.Buttons);
-        await chatHelper.SentTextWithCheck("📅 Расписание группы", simpleTextMenu.GetText(), menu.Buttons);
         await chatHelper.SentTextWithCheck("Перезапустить", model.Handlers.Welcome.WelcomeText, []);
-    }
-
-    internal class UserChatHelper
-    {
-        public required Chat Chat { get; init; }
-        public required User From { get; init; }
-
-        public async Task SentText(string text)
-        {
-            if (TelegramBotFake.Instance._onMessage == null)
-                throw new NullReferenceException("TelegramBotFake.Instance._onMessage");
-
-            Message message = new Message()
-            {
-                Text = text,
-                From = From,
-                Chat = Chat,
-            };
-
-            await TelegramBotFake.Instance._onMessage.Invoke(message, Telegram.Bot.Types.Enums.UpdateType.Message);
-        }
-
-        public async Task SentTextWithCheck(string text, string textResult, string[]? buttons = null, [CallerArgumentExpression(nameof(textResult))] string valueTitle = "")
-        {
-            await SentText(text);
-            SendMessageArgs sendResult = TelegramBotFake.Instance.SendingMessage.First(x => x.chatId == Chat.Id);
-
-            string comment = $@"text:{text} 
-{valueTitle}:{textResult}";
-
-            sendResult.text.ShouldBe(textResult, comment);
-            sendResult.parseMode.ShouldBe(Telegram.Bot.Types.Enums.ParseMode.Html, comment);
-
-            if (buttons == null)
-                sendResult.replyMarkup.ShouldBeNull(comment);
-            else if (buttons.Length == 0)
-                sendResult.replyMarkup.ShouldBeOfType<ReplyKeyboardRemove>(comment);
-            else
-            {
-                string[] sendButtons = ((ReplyKeyboardMarkup)Check.NotNull(sendResult.replyMarkup, valueTitle)).Keyboard.SelectMany(x => x).Select(x => x.Text).ToArray();
-                sendButtons.ShouldBeEquivalentTo(buttons!, comment);
-            }
-        }
-    }
-
-    private UserChatHelper CreateRandomUser(string firstName)
-    {
-        User from = new User()
-        {
-            Id = _random.NextUniqueInt64(),
-            FirstName = firstName,
-            LastName = "test LastName"
-        };
-
-        Chat chat = new Chat() { Id = _random.NextUniqueInt64() };
-
-        return new UserChatHelper()
-        {
-            Chat = chat,
-            From = from,
-        };
-    }
-
-    private DialogModel GetModel()
-    {
-        IOptions<TgBotServiceOptions> opt = factory.Services.GetRequiredService<IOptions<TgBotServiceOptions>>();
-        DialogModelLoader dialogLoader = new DialogModelLoader(opt.Value.DialogModelPath);
-        return dialogLoader.GetModel();
     }
 
     #endregion
