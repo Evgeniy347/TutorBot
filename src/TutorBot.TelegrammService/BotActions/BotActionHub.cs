@@ -1,6 +1,5 @@
 ﻿using Telegram.Bot.Types.ReplyMarkups;
-using TutorBot.TelegramService.BotActions.Admins;
-using static TutorBot.TelegramService.BotActions.DialogModel;
+using TutorBot.TelegramService.BotActions.Admins; 
 
 namespace TutorBot.TelegramService.BotActions;
 
@@ -16,9 +15,10 @@ internal class BotActionHub
         try
         {
             IBotAction[] handlers = [
-                .. model.Handlers.SimpleText.Select(x => InitSimpleText(model, x)),
+                .. model.Handlers.SimpleText.Select(x => new SimpleTextBotAction(model, x)),
                 .. model.Menus.Select(x => new SimpleSubMenuBotAction(x)),
-                .. model.Handlers.YandexSearchText.Select(x => InitYandexSearchText(model, x)),
+                .. model.Handlers.YandexSearchText.Select(x => new YandexSearchAction(model, x) ),
+                new ScheduleAction(model),
                 ALBotAction.Instance,
                 new AdminBotAction(),
                 new ResetBotAction(model.Handlers.Welcome.WelcomeText)
@@ -35,28 +35,13 @@ internal class BotActionHub
         }
     }
 
-    private static SimpleTextBotAction InitSimpleText(DialogModel model, SimpleTextItem simpleTextItem)
-    {
-        MenuItem menu = model.Menus.Single(x => x.Buttons.Contains(simpleTextItem.Key));
-        SimpleTextBotAction result = new SimpleTextBotAction(menu, simpleTextItem.Key, simpleTextItem.GetText());
-        return result;
-    }
-
-
-    private static YandexSearchAction InitYandexSearchText(DialogModel model, YandexSearchTextItem yandexSearchText)
-    {
-        MenuItem menu = model.Menus.Single(x => x.Buttons.Contains(yandexSearchText.Key));
-        YandexSearchAction result = new YandexSearchAction(menu, yandexSearchText);
-        return result;
-    }
-
     public static ReplyKeyboardMarkup GetAdminMenuKeyboard()
     {
         return new ReplyKeyboardMarkup(
         [
             [ new KeyboardButton("Получить статистику") ],
             [ new KeyboardButton("Оповещения об ошибках") ],
-            [ new KeyboardButton("На главную") ]
+            [ new KeyboardButton("↩️ В главное меню") ]
         ]);
     }
 }

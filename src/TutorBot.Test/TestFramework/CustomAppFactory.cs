@@ -32,17 +32,16 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
 
         builder.UseSetting("ConnectionStrings:DefaultConnection", containers.PostgresConnectionString);
         builder.UseSetting("DefaultConnection", containers.PostgresConnectionString);
-
+         
         _webHostBuilderConfiguration?.Invoke(builder);
-
-
+         
         builder.ConfigureServices(services =>
         {
             services.AddTransient<Func<string, CancellationToken, ITelegramBot>>(provider =>
                 (token, cancellationToken) => new TelegramBotFake(token, cancellationToken: cancellationToken));
 
             services.AddControllers().AddApplicationPart(typeof(CustomAppFactory).Assembly);
-        });
+        }); 
     }
 
     protected override IHost CreateHost(IHostBuilder builder)

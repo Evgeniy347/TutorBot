@@ -54,15 +54,20 @@ internal class DialogModelLoader(string filePath)
                 throw new InvalidOperationException($"duplicate key '{menu.Key}'");
         }
 
+        HashSet<string> keys = [
+            ..model.Handlers.SimpleText.Select(x=>x.Key),
+            ..model.Handlers.YandexSearchText.Select(x=>x.Key),
+            ..model.Menus.Select(x=>x.Key),
+            model.Handlers.Schedule.Key,
+            model.Handlers.Welcome.Key
+            ];
+
         // Проверяем наличие ключей для кнопок
         foreach (var menu in model.Menus)
         {
             foreach (var button in menu.Buttons)
             {
-                if (!model.Handlers.SimpleText.Any(x => x.Key == button) &&
-                    !model.Handlers.YandexSearchText.Any(x => x.Key == button) &&
-                    !model.Menus.Any(x => x.Key == button) &&
-                    button != "Перезапустить")
+                if (!keys.Contains(button))
                 {
                     throw new KeyNotFoundException(button);
                 }

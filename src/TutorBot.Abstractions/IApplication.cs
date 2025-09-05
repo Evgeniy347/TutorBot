@@ -31,6 +31,7 @@ namespace TutorBot.Abstractions
         Task<ChatEntry> Create(long userID, string firstName, string lastName, string username, long chatID);
         Task<ChatEntry[]> GetChats(GetChatsFilter? filter = null);
         Task Update(ChatEntry chat);
+        Task<ChatSummaryReport> GetSummaryInfo();
     }
 
     public record GetChatsFilter(bool IsAdmin = false, bool EnableAdminError = false);
@@ -67,4 +68,37 @@ namespace TutorBot.Abstractions
         Bot,
         Error
     }
+    public class ChatSummaryReport
+    {
+        public int NumberOfChats { get; set; }
+        public int NumberOfMessages { get; set; }
+        public List<GroupSummary> GroupSummaries { get; set; } = new();
+        public List<UserMessageCount> TopUsers { get; set; } = new();
+        public List<HourlyAverage> HourlyAverages { get; set; } = new();
+    }
+
+    public class GroupSummary
+    {
+        public string GroupNumber { get; set; } = string.Empty;
+        public int UserCount { get; set; }
+        public int MessageCount { get; set; }
+    }
+
+    public class UserMessageCount
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string GroupNumber { get; set; } = string.Empty;
+        public int MessageCount { get; set; }
+    }
+
+    public class HourlyAverage
+    {
+        public string GroupNumber { get; set; } = string.Empty;
+        public int Hour { get; set; }
+        public int MessageCount { get; set; }
+        public double AverageMessages { get; set; }
+    }
+
+    public record SummaryInfoChat(long ChatID, string UserName, int NumberOfMessages);
+
 }

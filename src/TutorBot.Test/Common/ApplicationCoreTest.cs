@@ -9,7 +9,7 @@ namespace TutorBot.Test.Common;
 [DatabaseSnapshotGroup]
 public class ApplicationCoreTest(CustomAppFactory factory, ITestOutputHelper output) : IntegrationTestsBase
 {
-    private readonly UniqueRandomGenerator _random = new UniqueRandomGenerator();
+    private readonly TestHelper _helper = new TestHelper(factory);
 
     [Fact]
     public async Task App_Health()
@@ -41,7 +41,7 @@ public class ApplicationCoreTest(CustomAppFactory factory, ITestOutputHelper out
             if (TelegramBotFake.Instance._onError == null)
                 throw new NullReferenceException("TelegramBotFake.Instance._onError");
 
-            long adminChatID = _random.NextUniqueInt64(), alternativeAdminChatID = _random.NextUniqueInt64(), userChatID = _random.NextUniqueInt64();
+            long adminChatID = UniqueRandomGenerator.Instance.NextUniqueInt64(), alternativeAdminChatID = UniqueRandomGenerator.Instance.NextUniqueInt64(), userChatID = UniqueRandomGenerator.Instance.NextUniqueInt64();
 
             await EnsureChat(app, userChatID, "user");
             await EnsureChat(app, adminChatID, "admin", x => { x.IsAdmin = true; x.EnableAdminError = true; });
@@ -66,7 +66,6 @@ public class ApplicationCoreTest(CustomAppFactory factory, ITestOutputHelper out
                 Assert.Fail("found fake exception");
         }
     }
-
 
     private async Task<ChatEntry> EnsureChat(IApplication app, long chatID, string name, Action<ChatEntry>? update = null)
     {

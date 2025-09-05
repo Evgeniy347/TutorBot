@@ -21,8 +21,8 @@ namespace TutorBot.TelegramService
             {
                 User bot = await botClient.GetMe();
 
-                botClient.AddErrorHandler((exception, source) => ErrorHandle(exception, source, bot.Id, botClient));
-                botClient.AddMessageHandler((message, type) => MessageHandle(message, type, bot.Id, botClient));
+                botClient.AddErrorHandler((exception, source) => ErrorHandle(exception, source, bot.Id, botClient, stoppingToken));
+                botClient.AddMessageHandler((message, type) => MessageHandle(message, type, bot.Id, botClient, stoppingToken));
 
                 await app.HistoryService.AddStatusService("Start", $"bot.Id:{bot.Id} FirstName:{bot.FirstName}");
 
@@ -35,19 +35,19 @@ namespace TutorBot.TelegramService
             }
         }
 
-        private async Task MessageHandle(Message message, UpdateType type, long botID, ITelegramBot client)
+        private async Task MessageHandle(Message message, UpdateType type, long botID, ITelegramBot client, CancellationToken stoppingToken)
         {
-            TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID);
+            TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID, stoppingToken);
 
             if (message.From == null)
             {
-                _ = WriteError("From is null", botID);
+                _ = context.WriteError("From is null");
                 return;
             }
 
             if (message.Chat == null)
             {
-                _ = WriteError("Chat is null", botID);
+                _ = context.WriteError("Chat is null");
                 return;
             }
 
@@ -131,20 +131,6 @@ namespace TutorBot.TelegramService
             return action;
         }
 
-        private async Task WriteError(string message, long botID)
-        {
-            ChatEntry chat = await GetErrorChat();
-            await app.HistoryService.AddHistory(new MessageHistory(chat.UserID, DateTime.Now, message, MessageHistoryRole.Error, botID, new Guid()));
-        }
-
-        private async Task<ChatEntry> GetErrorChat()
-        {
-            ChatEntry? chatEntry = await app.ChatService.Find(-1) ??
-                await app.ChatService.Create(-1, "Error Service", string.Empty, string.Empty, -1);
-
-            return chatEntry;
-        }
-
         private async Task<ChatEntry> EnsureChat(Message message)
         {
             Chat chat = Check.NotNull(message.Chat);
@@ -160,30 +146,10 @@ namespace TutorBot.TelegramService
             return chatEntry!;
         }
 
-        public async Task ErrorHandle(Exception exception, HandleErrorSource source, long botID, ITelegramBot client)
+        public async Task ErrorHandle(Exception exception, HandleErrorSource source, long botID, ITelegramBot client, CancellationToken token)
         {
-            Console.WriteLine(exception);
-            _ = WriteError(exception.ToString(), botID);
-
-            try
-            {
-                ChatEntry[] adminChats = await app.ChatService.GetChats(new GetChatsFilter(false, true));
-
-                foreach (ChatEntry adminChat in adminChats)
-                {
-                    try
-                    {
-                        TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID);
-
-                        context.ChatEntry = adminChat;
-                        await context.SendMessage($"Произошла ошибка:{exception}");
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-
-            await Task.CompletedTask;
+            TutorBotContext context = new TutorBotContext(client, opt.Value, app, botID, token);
+            await context.ErrorHandle(exception, source.ToString());
         }
     }
 }

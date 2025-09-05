@@ -1,4 +1,5 @@
-﻿using Shouldly;
+﻿using TutorBot.TelegramService.Helpers;
+using Shouldly;
 
 namespace TutorBot.Test.Common
 {

@@ -36,6 +36,8 @@ public class Program
 
         services.AddTelegramService(builder.Configuration);
 
+        services.AddControllers();
+         
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
@@ -43,6 +45,8 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
         }
+
+        app.MapControllers();
 
         app.AddFrontend<TutorBot.App.Components.App>();
 
