@@ -8,3 +8,4 @@ docker buildx build --platform linux/arm64 -t tutorbot:$CURRENT_BRANCH -t tutorb
 
 docker save tutorbot:$CURRENT_BRANCH tutorbot:$CURRENT_BRANCH.$TIME | bash -c "dd bs=4M status=progress" | ssh gtr@192.168.0.221 "docker load"  || exit 1
  
+ 
