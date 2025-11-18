@@ -35,7 +35,7 @@
 	  <ProjectReference Include="..\TutorBot.App\TutorBot.App.csproj" />
 	  <ProjectReference Include="..\TutorBot.Core\TutorBot.Core.csproj" />
 	  <ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />
-	  <ProjectReference Include="..\TutorBot.TelegrammService\TutorBot.TelegramService.csproj" />
+	  <ProjectReference Include="..\TutorBot.TelegramService\TutorBot.TelegramService.csproj" />
 	</ItemGroup>
 
 </Project>

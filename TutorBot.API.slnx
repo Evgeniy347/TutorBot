@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="SolutionItems.shproj" />
+  <Project Path="src/TutorBot.Abstractions/TutorBot.Abstractions.csproj" />
+  <Project Path="src/TutorBot.App/TutorBot.App.csproj" />
+  <Project Path="src/TutorBot.Authentication/TutorBot.Authentication.csproj" />
+  <Project Path="src/TutorBot.Core/TutorBot.Core.csproj" />
+  <Project Path="src/TutorBot.Frontend/TutorBot.Frontend.csproj" />
+  <Project Path="src/TutorBot.Primitives/TutorBot.Primitives.csproj" />
+  <Project Path="src/TutorBot.ServiceDefaults/TutorBot.ServiceDefaults.csproj" />
+  <Project Path="src/TutorBot.TelegramService/TutorBot.TelegramService.csproj" />
+  <Project Path="src/TutorBot.Test/TutorBot.Test.csproj" />
+</Solution>
