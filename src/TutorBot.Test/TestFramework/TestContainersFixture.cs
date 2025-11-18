@@ -37,7 +37,7 @@ public class TestContainersFixture : IAsyncLifetime
         postgresBuilder = postgresBuilder
             .WithTmpfsMount("/var/lib/postgresql/data", AccessMode.ReadWrite)
             .WithWaitStrategy(Wait.ForUnixContainer()
-                .UntilPortIsAvailable(5432)
+                .UntilInternalTcpPortIsAvailable(5432)
                 .UntilCommandIsCompleted("pg_isready -U postgres"));
 
         _postgresContainer = postgresBuilder.Build();
