@@ -21,6 +21,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\TutorBot.Abstractions\TutorBot.Abstractions.csproj" />
+	  <ProjectReference Include="..\TutorBot.Core\TutorBot.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
