@@ -1,6 +1,405 @@
-﻿@page "/Statistics"
+﻿@page "/statistics"
+@using Microsoft.EntityFrameworkCore
+@using Radzen.Blazor
+@using Radzen
+@using Radzen.Blazor.Rendering
+@using TutorBot.Core
+@inject ApplicationDbContext DbContext
+@rendermode InteractiveServer
 
-<PageTitle>Statistics</PageTitle>
+<PageTitle>Статистика активности</PageTitle>
 
-<h1>Statistics</h1>
+<h3>Статистика активности чатов</h3>
+@if (isLoading)
+{
+    <div class="text-center p-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <div class="mt-2">Загрузка статистики...</div>
+    </div>
+}
+else
+{
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <RadzenCard>
+                <RadzenChart Style="height: 350px;">
+                    <RadzenCategoryAxis Padding="50" />
+                    <RadzenValueAxis Min="0" />
+                    <RadzenColumnSeries Data="@dailyData"
+                                        CategoryProperty="Day"
+                                        Title="Сообщений в день"
+                                        ValueProperty="MessageCount">
+                    </RadzenColumnSeries>
+                </RadzenChart>
+            </RadzenCard>
+        </div>
+        <div class="col-md-6">
 
+            <RadzenCard>
+                <RadzenChart Style="height: 350px;">
+                    <RadzenCategoryAxis Padding="50" />
+                    <RadzenValueAxis Min="0" />
+                    <RadzenBarSeries Data="@userActivityData"
+                                     CategoryProperty="UserName" Title="Топ пользователей"
+                                     ValueProperty="MessageCount">
+                    </RadzenBarSeries>
+                </RadzenChart>
+            </RadzenCard>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <RadzenCard>
+                <div class="card-header">
+                    <h6>Топ-10 пользователей по сообщениям</h6>
+                </div>
+                <div class="card-body">
+                    <RadzenDataList Data="@topUsers" Count="topUsers.Count">
+                        <Template>
+                            <div class="row align-items-center py-2 border-bottom">
+                                <div class="col-8">
+                                    <strong>@context.UserName</strong>
+                                    <div class="text-muted small">ID: @context.UserId</div>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <span class="badge bg-secondary">@context.MessageCount</span>
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataList>
+                </div>
+            </RadzenCard>
+        </div>
+
+        <div class="col-md-6">
+            <RadzenCard>
+                <div class="card-header">
+                    <h6>Топ-10 групп по активности</h6>
+                </div>
+                <div class="card-body">
+                    <RadzenDataList Data="@topGroups" Count="topGroups.Count">
+                        <Template>
+                            <div class="row align-items-center py-2 border-bottom">
+                                <div class="col-8">
+                                    <strong>@context.GroupNumber</strong>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <span class="badge bg-primary">@context.UserCount</span>
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataList>
+                </div>
+            </RadzenCard>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <RadzenCard>
+                <div class="card-header">
+                    <h6>
+                        Время активности/простоя
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <RadzenChart>
+                        <RadzenPieSeries Data="@serviceStatusData"
+                                         CategoryProperty="Status"
+                                         ValueProperty="Count" />
+                        <RadzenLegend Position="LegendPosition.Right" />
+                    </RadzenChart>
+                </div>
+            </RadzenCard>
+        </div>
+    </div>
+}
+
+
+@code {
+
+    private List<DailyData> dailyData = new();
+    private List<UserStats> topUsers = new();
+    private List<GroupStats> topGroups = new();
+    private List<UserActivity> userActivityData = new();
+    private List<ServiceStatusData> serviceStatusData = new();
+
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadAllStatistics();
+        isLoading = false;
+    }
+
+    private async Task LoadAllStatistics()
+    {
+        await LoadDailyData();
+        await LoadTopUsers();
+        await LoadTopGroups();
+        await LoadUserActivity();
+        await LoadServiceStatus();
+
+        StateHasChanged();
+    }
+
+    private async Task LoadTopUsers()
+    {
+        // Сначала получаем топ пользователей по количеству сообщений
+        var topUserIds = await DbContext.MessageHistories
+            .Where(x => x.UserID > 0)
+            .GroupBy(m => m.UserID)
+            .Select(g => new
+            {
+                UserID = g.Key,
+                MessageCount = g.Count()
+            })
+            .OrderByDescending(x => x.MessageCount)
+            .Take(10)
+            .ToListAsync();
+
+        // Затем получаем информацию о пользователях из Chats
+        var userIds = topUserIds.Select(x => x.UserID).ToList();
+
+        var userInfo = await DbContext.Chats
+            .Where(c => userIds.Contains(c.UserID))
+            .GroupBy(c => c.UserID)
+            .Select(g => new
+            {
+                UserID = g.Key,
+                FullName = g.Max(c => c.FullName),
+                LastName = g.Max(c => c.LastName),
+                UserName = g.Max(c => c.UserName),
+                FirstName = g.Max(c => c.FirstName)
+            })
+            .ToDictionaryAsync(x => x.UserID, x => x);
+
+        // Объединяем данные
+        topUsers = topUserIds.Select(stat =>
+        {
+            var userName = "Неизвестный пользователь";
+
+            if (userInfo.TryGetValue(stat.UserID, out var info))
+            {
+                // Выбираем наиболее информативное имя в порядке приоритета
+                userName = !string.IsNullOrEmpty(info.FullName) ? info.FullName
+                          : !string.IsNullOrEmpty(info.FirstName) && !string.IsNullOrEmpty(info.LastName)
+                            ? $"{info.FirstName} {info.LastName}"
+                          : !string.IsNullOrEmpty(info.FirstName) ? info.FirstName
+                          : !string.IsNullOrEmpty(info.LastName) ? info.LastName
+                          : $"User {stat.UserID}";
+
+                if (!string.IsNullOrEmpty(info.UserName))
+                    userName += $" @{info.UserName}";
+            }
+            else
+            {
+                userName = $"User {stat.UserID}";
+            }
+
+            return new UserStats
+            {
+                UserId = stat.UserID,
+                UserName = userName,
+                MessageCount = stat.MessageCount
+            };
+        })
+        .OrderByDescending(x => x.MessageCount)
+        .ToList();
+    }
+
+    private async Task LoadTopGroups()
+    {
+        topGroups = await DbContext.Chats
+            .Where(c => !string.IsNullOrEmpty(c.GroupNumber))
+            .GroupBy(c => c.GroupNumber)
+            .Select(g => new GroupStats
+            {
+                GroupNumber = string.IsNullOrEmpty(g.Key) ? "Без группы" : g.Key,
+                UserCount = g.Count()
+            })
+            .OrderByDescending(x => x.UserCount)
+            .Take(10)
+            .ToListAsync();
+    }
+
+    private async Task LoadDailyData()
+    {
+        int n = 90;
+        var last30Days = DateTime.Now.AddDays(-n);
+
+        var dailyDataRaw = await DbContext.MessageHistories
+            .Where(m => m.Timestamp >= last30Days)
+            .GroupBy(m => m.Timestamp.Date)
+            .Select(g => new { Date = g.Key, MessageCount = g.Count() })
+            .ToListAsync();
+
+        // Берем только ключевые дни
+        dailyData = new List<DailyData>();
+        for (int i = 0; i < n; i += n / 10) // Каждые 3 дня
+        {
+            var date = DateTime.Now.AddDays(-n - 1 + i);
+            dailyData.Add(new DailyData
+            {
+                Day = date.ToString("dd.MM"),
+                MessageCount = dailyDataRaw.FirstOrDefault(x => x.Date == date.Date)?.MessageCount ?? 0
+            });
+        }
+    }
+
+    private async Task LoadUserActivity()
+    {
+        userActivityData = await DbContext.MessageHistories
+            .Where(x => x.UserID > 0)
+            .GroupBy(m => m.UserID)
+            .Select(g => new UserActivity
+            {
+                UserName = $"User {g.Key}",
+                MessageCount = g.Count()
+            })
+            .OrderByDescending(x => x.MessageCount)
+            .Take(6) // Ограничиваем до 6 элементов
+            .ToListAsync();
+    }
+
+
+    private async Task LoadServiceStatus()
+    {
+        var statusRecords = await DbContext.ServiceHistories
+            .OrderBy(s => s.Timestamp)
+            .ToListAsync();
+
+        if (!statusRecords.Any())
+        {
+            serviceStatusData = new List<ServiceStatusData>
+        {
+            new ServiceStatusData { Status = "No Data", Count = 1 }
+        };
+            return;
+        }
+
+        var statusDurations = new List<ServiceStatusData>();
+        TimeSpan totalUptime = TimeSpan.Zero;
+        TimeSpan totalDowntime = TimeSpan.Zero;
+
+        for (int i = 0; i < statusRecords.Count - 1; i++)
+        {
+            var current = statusRecords[i];
+            var next = statusRecords[i + 1];
+            var duration = next.Timestamp - current.Timestamp;
+
+            if (current.Status == "Start")
+            {
+                totalUptime += duration;
+            }
+            else if (current.Status == "Stop")
+            {
+                totalDowntime += duration;
+            }
+        }
+
+        // Добавляем время до текущего момента для последней записи
+        var lastRecord = statusRecords.Last();
+        var timeSinceLastRecord = DateTime.Now - lastRecord.Timestamp;
+
+        if (lastRecord.Status == "Start")
+        {
+            totalUptime += timeSinceLastRecord;
+        }
+        else if (lastRecord.Status == "Stop")
+        {
+            totalDowntime += timeSinceLastRecord;
+        }
+
+        // Форматируем результат
+        statusDurations.Add(new ServiceStatusData
+        {
+            Status = $"Uptime: {FormatTimeSpan(totalUptime)}",
+            Count = (int)totalUptime.TotalHours
+        });
+
+        statusDurations.Add(new ServiceStatusData
+        {
+            Status = $"Downtime: {FormatTimeSpan(totalDowntime)}",
+            Count = (int)totalDowntime.TotalHours
+        });
+
+        var totalTime = totalUptime + totalDowntime;
+        if (totalTime.TotalHours > 0)
+        {
+            var availabilityPercent = (totalUptime.TotalHours / totalTime.TotalHours) * 100;
+            statusDurations.Add(new ServiceStatusData
+            {
+                Status = $"Availability: {availabilityPercent:F1}%",
+                Count = (int)availabilityPercent
+            });
+        }
+
+        serviceStatusData = statusDurations;
+    }
+
+    private string FormatTimeSpan(TimeSpan timeSpan)
+    {
+        if (timeSpan.TotalDays >= 1)
+        {
+            return $"{(int)timeSpan.TotalDays}d {timeSpan.Hours}h";
+        }
+        else if (timeSpan.TotalHours >= 1)
+        {
+            return $"{timeSpan.Hours}h {timeSpan.Minutes}m";
+        }
+        else
+        {
+            return $"{timeSpan.Minutes}m {timeSpan.Seconds}s";
+        }
+    }
+
+    // Модели данных
+    private class HourlyData
+    {
+        public string Hour { get; set; } = "";
+        public int MessageCount { get; set; }
+    }
+
+    private class DailyData
+    {
+        public string Day { get; set; } = "";
+        public int MessageCount { get; set; }
+    }
+
+    private class UserStats
+    {
+        public long UserId { get; set; }
+        public long ChatId { get; set; }
+        public string UserName { get; set; } = "";
+        public int MessageCount { get; set; }
+    }
+
+    private class GroupStats
+    {
+        public string GroupNumber { get; set; } = "";
+        public int UserCount { get; set; }
+    }
+
+    private class UserActivity
+    {
+        public string UserName { get; set; } = "";
+        public int MessageCount { get; set; }
+    }
+
+    private class ServiceStatusData
+    {
+        public string Status { get; set; } = "";
+        public int Count { get; set; }
+    }
+
+    private class AdminActivity
+    {
+        public string Date { get; set; } = "";
+        public int AdminCount { get; set; }
+    }
+}
