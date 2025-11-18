@@ -12,26 +12,31 @@ FROM base AS setup
 # This stage is used to build the service project
 #FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build 
-WORKDIR /src
  
 ARG VERSION_PREFIX
 ARG VERSION_SUFFIX
  
-COPY ["src/Directory.Build.props","src/NuGet.Config", "./"]
+WORKDIR /build
 
-COPY src/TutorBot.API.sln .
-COPY src/TutorBot.Abstractions/*.csproj ./TutorBot.Abstractions/
-COPY src/TutorBot.API/*.csproj ./TutorBot.API/
-COPY src/TutorBot.App/*.csproj ./TutorBot.App/
-COPY src/TutorBot.Authentication/*.csproj ./TutorBot.Authentication/
-COPY src/TutorBot.Core/*.csproj ./TutorBot.Core/
-COPY src/TutorBot.Frontend/*.csproj ./TutorBot.Frontend/
-COPY src/TutorBot.Primitives/*.csproj ./TutorBot.Primitives/
-COPY src/TutorBot.ServiceDefaults/*.csproj ./TutorBot.ServiceDefaults/
-COPY src/TutorBot.TelegrammService/*.csproj ./TutorBot.TelegrammService/
-COPY src/TutorBot.Test/*.csproj ./TutorBot.Test/
+COPY BuildInfo.Build.props ./
+COPY Directory.Build.props ./
+ 
+COPY NuGet.Config . 
+COPY TutorBot.API.slnx .
+
+COPY src/TutorBot.Abstractions/TutorBot.Abstractions.csproj ./src/TutorBot.Abstractions/
+COPY src/TutorBot.API/TutorBot.API.csproj ./src/TutorBot.API/
+COPY src/TutorBot.App/TutorBot.App.csproj ./src/TutorBot.App/
+COPY src/TutorBot.Authentication/TutorBot.Authentication.csproj ./src/TutorBot.Authentication/
+COPY src/TutorBot.Core/TutorBot.Core.csproj ./src/TutorBot.Core/
+COPY src/TutorBot.Frontend/TutorBot.Frontend.csproj ./src/TutorBot.Frontend/
+COPY src/TutorBot.Primitives/TutorBot.Primitives.csproj ./src/TutorBot.Primitives/
+COPY src/TutorBot.ServiceDefaults/TutorBot.ServiceDefaults.csproj ./src/TutorBot.ServiceDefaults/
+COPY src/TutorBot.TelegramService/TutorBot.TelegramService.csproj ./src/TutorBot.TelegramService/
+COPY src/TutorBot.Test/TutorBot.Test.csproj ./src/TutorBot.Test/
+
 ARG TARGETARCH
-
+ 
 #RUN dotnet restore
 RUN \
     --mount=type=cache,id=nuget-arm,target=/root/.nuget/packages \
@@ -40,7 +45,7 @@ RUN \
 #WORKDIR /src
 
 # Copy all the files
-COPY src .
+COPY src ./src
  
 # Publish project
 # This stage is used to publish the service project to be copied to the final stage
@@ -49,7 +54,7 @@ FROM build AS publish
 ARG BUILD_VERSION=1.0.0
 ARG VERSION_SUFFIX=alpha 
 
-WORKDIR "/src/TutorBot.App"
+WORKDIR /build/src/TutorBot.App
 RUN \
     --mount=type=cache,id=nuget-arm,target=/root/.nuget/packages \
     dotnet publish "TutorBot.App.csproj" \
