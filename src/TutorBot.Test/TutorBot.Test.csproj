@@ -7,11 +7,11 @@
 	<ItemGroup>
 		<PackageReference Include="Docker.DotNet" Version="3.125.15" />
 		<PackageReference Include="Shouldly" Version="4.3.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.8" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
   
-		<PackageReference Include="xunit.v3" Version="2.0.1" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+		<PackageReference Include="xunit.v3" Version="3.2.0" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -20,10 +20,10 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.4.25258.110" />
-		<PackageReference Include="Testcontainers" Version="4.3.0" />
-		<PackageReference Include="Testcontainers.PostgreSql" Version="4.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+		<PackageReference Include="Testcontainers" Version="4.8.1" />
+		<PackageReference Include="Testcontainers.PostgreSql" Version="4.8.1" />
 	</ItemGroup>
 
 	<ItemGroup>

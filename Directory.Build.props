@@ -4,7 +4,7 @@
 	<PropertyGroup Condition="'$(DisableDefaultPropertyGroup)'==''">
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 	</PropertyGroup>
 
 	<!-- Version info -->
@@ -25,7 +25,7 @@
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<!-- NU1900 blocks SFA publish (Nexus-related) -->
 		<!-- NU1603 blocks package version mismatch -->
-		<WarningsNotAsErrors>NU1900;NU1603</WarningsNotAsErrors>
+		<WarningsNotAsErrors>NU1900;NU1603;NU1608</WarningsNotAsErrors>
 	</PropertyGroup>
 
 	<PropertyGroup>
