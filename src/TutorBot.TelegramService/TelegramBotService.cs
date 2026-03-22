@@ -9,13 +9,13 @@ using TutorBot.TelegramService.BotActions;
 namespace TutorBot.TelegramService
 {
     internal class TelegramBotService(IApplication app, IOptions<TgBotServiceOptions> opt,
-        Func<string, CancellationToken, ITelegramBot> clientFactory) : BackgroundService
+        IBotFactory clientFactory) : BackgroundService
     {
         private DialogModelLoader _dialogLoader = new DialogModelLoader(opt.Value.DialogModelPath);
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            ITelegramBot botClient = clientFactory(opt.Value.Token, stoppingToken);
+            ITelegramBot botClient = clientFactory.CreateBot(stoppingToken);
 
             try
             {

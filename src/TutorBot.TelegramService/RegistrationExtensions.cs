@@ -11,8 +11,7 @@ public static class RegistrationExtensions
         services.Configure<TgBotServiceOptions>(section);
         TgBotServiceOptions? tgBotConfig = section.Get<TgBotServiceOptions>();
 
-        services.AddTransient<Func<string, CancellationToken, ITelegramBot>>(provider =>
-            (token, cancellationToken) => new TelegramBot(token, cancellationToken: cancellationToken));
+        services.AddSingleton<IBotFactory, BotFactory>(x => new BotFactory(Check.NotNull(tgBotConfig)));
 
         if (tgBotConfig != null && tgBotConfig.Enable)
         {
