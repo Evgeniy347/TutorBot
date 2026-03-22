@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Moq;
 using System.Reflection;
 using TutorBot.Abstractions;
 using TutorBot.App;
@@ -32,16 +33,15 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
 
         builder.UseSetting("ConnectionStrings:DefaultConnection", containers.PostgresConnectionString);
         builder.UseSetting("DefaultConnection", containers.PostgresConnectionString);
-         
-        _webHostBuilderConfiguration?.Invoke(builder);
-         
-        builder.ConfigureServices(services =>
-        {
-            services.AddTransient<Func<string, CancellationToken, ITelegramBot>>(provider =>
-                (token, cancellationToken) => new TelegramBotFake(token, cancellationToken: cancellationToken));
+        builder.UseSetting("TelegramService:Enable", "true");
 
+        _webHostBuilderConfiguration?.Invoke(builder);
+
+        builder.ConfigureServices(services =>
+        { 
             services.AddControllers().AddApplicationPart(typeof(CustomAppFactory).Assembly);
-        }); 
+            services.AddSingleton<IBotFactory, TestBotFactory>(x => new TestBotFactory("fake-token"));
+        });
     }
 
     protected override IHost CreateHost(IHostBuilder builder)
@@ -77,6 +77,13 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
     }
 }
 
+public class TestBotFactory(string token) : IBotFactory
+{ 
+    ITelegramBot IBotFactory.CreateBot(CancellationToken cancellationToken)
+    {
+        return new TelegramBotFake(token, cancellationToken); 
+    } 
+}
 
 
 [Collection("TestContainerCollection")]

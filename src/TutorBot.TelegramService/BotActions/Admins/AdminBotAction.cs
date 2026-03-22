@@ -1,4 +1,4 @@
-﻿//using Microsoft.CodeAnalysis.CSharp.Scripting;
+﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.Collections.Concurrent;
 using Telegram.Bot.Types;
 
@@ -30,17 +30,16 @@ namespace TutorBot.TelegramService.BotActions.Admins
                     }
                     else
                     {
-                        throw new NotImplementedException();
-                        //object resultKey = await CSharpScript.EvaluateAsync(client.Opt.EvaluateKey);
+                        object resultKey = await CSharpScript.EvaluateAsync(client.Opt.EvaluateKey);
 
-                        //if (resultKey?.ToString() == message.Text)
-                        //{
-                        //    await client.SendMessage("Теперь вы администратор", replyMarkup: BotActionHub.GetAdminMenuKeyboard());
-                        //    client.ChatEntry.IsAdmin = true;
-                        //    count = 0;
-                        //}
-                        //else
-                        //    await client.SendMessage("Код доступа введен с ошибкой");
+                        if (resultKey?.ToString() == message.Text)
+                        {
+                            await client.SendMessage("Теперь вы администратор", replyMarkup: BotActionHub.GetAdminMenuKeyboard());
+                            client.ChatEntry.IsAdmin = true;
+                            count = 0;
+                        }
+                        else
+                            await client.SendMessage("Код доступа введен с ошибкой");
                     }
                 }
             }

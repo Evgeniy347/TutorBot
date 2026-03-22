@@ -7,9 +7,16 @@ using static TutorBot.TelegramService.BotActions.DialogModel;
 namespace TutorBot.Test.Common;
 
 [DatabaseSnapshotGroup]
-public class AdminBotActionTest(CustomAppFactory factory) : IntegrationTestsBase
+public class AdminBotActionTest : IntegrationTestsBase
 {
-    private readonly TestHelper _helper = new TestHelper(factory);
+    private readonly TestHelper _helper;
+    private readonly CustomAppFactory _factory;
+
+    public AdminBotActionTest(CustomAppFactory factory)
+    {
+        _factory = factory;
+        _helper = new TestHelper(factory);
+    }
 
     string[] _admin_buttons = [
         "Получить статистику",
@@ -21,7 +28,7 @@ public class AdminBotActionTest(CustomAppFactory factory) : IntegrationTestsBase
     public async Task SuccessLogin()
     {
         // Arrange
-        using HttpClient client = await factory.CreateApplication();
+        using HttpClient client = await _factory.CreateApplication();
         DialogModel model = _helper.Model;
         UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
         await _helper.CompleteWelcomeFlow(chatHelper, model);
@@ -38,7 +45,7 @@ public class AdminBotActionTest(CustomAppFactory factory) : IntegrationTestsBase
     public async Task CheckLimitLogin()
     {
         // Arrange
-        using HttpClient client = await factory.CreateApplication();
+        using HttpClient client = await _factory.CreateApplication();
         DialogModel model = _helper.Model;
         UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
         await _helper.CompleteWelcomeFlow(chatHelper, model);
@@ -58,7 +65,7 @@ public class AdminBotActionTest(CustomAppFactory factory) : IntegrationTestsBase
     public async Task CheckLogin()
     {
         // Arrange
-        using HttpClient client = await factory.CreateApplication();
+        using HttpClient client = await _factory.CreateApplication();
         DialogModel model = _helper.Model;
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
         string fullName = "иванов иван иванович";
