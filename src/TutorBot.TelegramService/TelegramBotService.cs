@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.Threading.Channels;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -12,29 +13,67 @@ namespace TutorBot.TelegramService
         IBotFactory clientFactory) : BackgroundService
     {
         private DialogModelLoader _dialogLoader = new DialogModelLoader(opt.Value.DialogModelPath);
+        private readonly Channel<bool> _reconnectChannel = Channel.CreateUnbounded<bool>();
+        private ITelegramBot? _currentBot;
+        private CancellationTokenSource? _botCts;
+
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            ITelegramBot? botClient = null;
-
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                botClient = await clientFactory.CreateBot(stoppingToken);
-                User bot = await botClient.GetMe();
+                try
+                { 
+                    _botCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+                     
+                    _currentBot = await clientFactory.CreateBot(_botCts.Token);
 
-                botClient.AddErrorHandler((exception, source) => ErrorHandle(exception, source, bot.Id, botClient, stoppingToken));
-                botClient.AddMessageHandler((message, type) => MessageHandle(message, type, bot.Id, botClient, stoppingToken));
-
-                await app.HistoryService.AddStatusService("Start", $"bot.Id:{bot.Id} FirstName:{bot.FirstName}");
-
-                await Task.Delay(-1, stoppingToken);
+                    User bot = await _currentBot.GetMe();
+                    await app.HistoryService.AddStatusService("Start", $"bot.Id:{bot.Id}");
+                     
+                    _currentBot.AddErrorHandler((ex, src) => HandleErrorAsync(ex, src, _botCts));
+                    _currentBot.AddMessageHandler((msg, type) => MessageHandle(msg, type, bot.Id, _currentBot, _botCts.Token));
+                     
+                    await Task.WhenAny(
+                        Task.Delay(-1, stoppingToken),
+                        _reconnectChannel.Reader.ReadAsync(stoppingToken).AsTask()
+                    );
+                     
+                    if (_currentBot != null)
+                    {
+                        await _currentBot.Close(_botCts.Token);
+                        await app.HistoryService.AddStatusService("Stop", "Connection lost, reconnecting...");
+                    }
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;  
+                }
+                catch (Exception ex)
+                {
+                    await app.HistoryService.AddStatusService("Error", $"Critical: {ex.Message}");
+                    await Task.Delay(5000, stoppingToken);  
+                }
+                finally
+                {
+                    _botCts?.Dispose();
+                }
             }
-            finally
-            {
-                if (botClient != null)
-                    await botClient.Close(stoppingToken);
+        }
 
-                await app.HistoryService.AddStatusService("Stop");
+        private async Task HandleErrorAsync(Exception exception, HandleErrorSource source, CancellationTokenSource cts)
+        { 
+            if (exception is HttpRequestException or TaskCanceledException or IOException)
+            {
+                await app.HistoryService.AddStatusService("Error", $"Network error: {exception.Message}. Reconnecting...");
+                 
+                cts.Cancel();
+                 
+                await _reconnectChannel.Writer.WriteAsync(true);
+            }
+            else
+            { 
+                await app.HistoryService.AddStatusService("Error", $"{source}: {exception.Message}");
             }
         }
 
