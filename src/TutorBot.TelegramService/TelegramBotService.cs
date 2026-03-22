@@ -15,10 +15,11 @@ namespace TutorBot.TelegramService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            ITelegramBot botClient = clientFactory.CreateBot(stoppingToken);
+            ITelegramBot? botClient = null;
 
             try
             {
+                botClient = await clientFactory.CreateBot(stoppingToken);
                 User bot = await botClient.GetMe();
 
                 botClient.AddErrorHandler((exception, source) => ErrorHandle(exception, source, bot.Id, botClient, stoppingToken));
@@ -30,7 +31,9 @@ namespace TutorBot.TelegramService
             }
             finally
             {
-                await botClient.Close(stoppingToken);
+                if (botClient != null)
+                    await botClient.Close(stoppingToken);
+
                 await app.HistoryService.AddStatusService("Stop");
             }
         }

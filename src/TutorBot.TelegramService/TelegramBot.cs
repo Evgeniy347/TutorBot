@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using System.Net;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -8,20 +9,67 @@ namespace TutorBot.TelegramService;
 
 internal interface IBotFactory
 {
-    public ITelegramBot CreateBot(CancellationToken cancellationToken);
+    public Task<ITelegramBot> CreateBot(CancellationToken cancellationToken);
 }
 
 internal class BotFactory(TgBotServiceOptions options) : IBotFactory
 {
-    public ITelegramBot CreateBot(CancellationToken cancellationToken)
+    public async Task<ITelegramBot> CreateBot(CancellationToken cancellationToken)
+    { 
+        if (options.Proxies == null || !options.Proxies.Any())
+        {
+            var tgBotClient = new TelegramBotClient(options.Token, cancellationToken: cancellationToken);
+            return new TelegramBot(tgBotClient);
+        }
+         
+        foreach (var proxy in options.Proxies)
+        {
+            try
+            {
+                var httpClient = CreateHttpClientWithProxy(proxy);
+                var tgBotClient = new TelegramBotClient(options.Token, httpClient, cancellationToken: cancellationToken);
+
+                var botClient = new TelegramBot(tgBotClient);
+                 
+                await botClient.GetMe();
+
+                Console.WriteLine($"[Proxy] Successfully connected via {proxy.Host}:{proxy.Port}");
+                return botClient;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Proxy] Failed to connect via {proxy.Host}:{proxy.Port} - {ex.Message}"); 
+            }
+        }
+
+        throw new Exception("Failed to connect via any proxy from the list");
+    }
+
+    private HttpClient CreateHttpClientWithProxy(ProxySettings proxy)
     {
-        TelegramBotClient tgBotClient = new TelegramBotClient(options.Token, cancellationToken: cancellationToken);
-         
-        TelegramBot botClient = new TelegramBot(tgBotClient);
-         
-        return botClient;
+        var httpClientHandler = new HttpClientHandler();
+
+        if (!string.IsNullOrEmpty(proxy.Host))
+        {
+            var webProxy = new WebProxy(proxy.Host, proxy.Port)
+            {
+                BypassProxyOnLocal = false,
+                UseDefaultCredentials = false
+            };
+
+            if (!string.IsNullOrEmpty(proxy.Username) && !string.IsNullOrEmpty(proxy.Password))
+            {
+                webProxy.Credentials = new NetworkCredential(proxy.Username, proxy.Password);
+            }
+
+            httpClientHandler.Proxy = webProxy;
+            httpClientHandler.UseProxy = true;
+        }
+
+        return new HttpClient(httpClientHandler);
     }
 }
+
 
 public class TelegramBot(TelegramBotClient botClient) : ITelegramBot
 {

@@ -38,7 +38,7 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
         _webHostBuilderConfiguration?.Invoke(builder);
 
         builder.ConfigureServices(services =>
-        { 
+        {
             services.AddControllers().AddApplicationPart(typeof(CustomAppFactory).Assembly);
             services.AddSingleton<IBotFactory, TestBotFactory>(x => new TestBotFactory("fake-token"));
         });
@@ -78,11 +78,11 @@ public class CustomAppFactory(TestContainersFixture containers) : WebApplication
 }
 
 public class TestBotFactory(string token) : IBotFactory
-{ 
-    ITelegramBot IBotFactory.CreateBot(CancellationToken cancellationToken)
+{
+    Task<ITelegramBot> IBotFactory.CreateBot(CancellationToken cancellationToken)
     {
-        return new TelegramBotFake(token, cancellationToken); 
-    } 
+        return Task.FromResult((ITelegramBot)new TelegramBotFake(token, cancellationToken));
+    }
 }
 
 
