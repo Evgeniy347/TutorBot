@@ -23,7 +23,7 @@ namespace TutorBot.Core
             services.AddSingleton<IApplication, ApplicationCore>();
 
             IConfigurationSection section = configuration.GetSection("GigaChat");
-            services.Configure<GigaChatOptions>(section);
+            //services.Configure<GigaChatOptions>(section);
 
             return services;
         }

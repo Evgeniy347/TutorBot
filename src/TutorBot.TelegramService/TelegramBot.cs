@@ -16,7 +16,7 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
     public ITelegramBot CreateBot(CancellationToken cancellationToken)
     {
         TelegramBotClient tgBotClient = new TelegramBotClient(options.Token, cancellationToken: cancellationToken);
-
+         
         TelegramBot botClient = new TelegramBot(tgBotClient);
          
         return botClient;

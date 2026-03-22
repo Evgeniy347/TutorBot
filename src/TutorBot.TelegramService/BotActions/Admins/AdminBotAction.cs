@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
+﻿//using Microsoft.CodeAnalysis.CSharp.Scripting;
 using System.Collections.Concurrent;
 using Telegram.Bot.Types;
 
@@ -6,7 +6,7 @@ namespace TutorBot.TelegramService.BotActions.Admins
 {
     internal class AdminBotAction : IBotAction
     {
-        internal static ulong MaxCount => 10; 
+        internal static ulong MaxCount => 10;
         public string Key => "/admin";
         public bool EnableProlongated => true;
 
@@ -29,17 +29,18 @@ namespace TutorBot.TelegramService.BotActions.Admins
                         await client.SendMessage("Введите код доступа");
                     }
                     else
-                    { 
-                        object resultKey = await CSharpScript.EvaluateAsync(client.Opt.EvaluateKey);
+                    {
+                        throw new NotImplementedException();
+                        //object resultKey = await CSharpScript.EvaluateAsync(client.Opt.EvaluateKey);
 
-                        if (resultKey?.ToString() == message.Text)
-                        {
-                            await client.SendMessage("Теперь вы администратор", replyMarkup: BotActionHub.GetAdminMenuKeyboard());
-                            client.ChatEntry.IsAdmin = true;
-                            count = 0;
-                        }
-                        else
-                            await client.SendMessage("Код доступа введен с ошибкой");
+                        //if (resultKey?.ToString() == message.Text)
+                        //{
+                        //    await client.SendMessage("Теперь вы администратор", replyMarkup: BotActionHub.GetAdminMenuKeyboard());
+                        //    client.ChatEntry.IsAdmin = true;
+                        //    count = 0;
+                        //}
+                        //else
+                        //    await client.SendMessage("Код доступа введен с ошибкой");
                     }
                 }
             }

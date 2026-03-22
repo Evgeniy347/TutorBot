@@ -12,7 +12,8 @@ namespace TutorBot.Core
             ServiceLocator locator = _locator = new ServiceLocator(serviceProvider, this);
             HistoryService = new HistoryServiceCore(locator);
             ChatService = new ChatService(locator);
-            ALService = new ALServiceService(locator);
+            ALService = null!;
+            //ALService = new ALServiceService(locator);
         }
 
         public IHistoryService HistoryService { get; }

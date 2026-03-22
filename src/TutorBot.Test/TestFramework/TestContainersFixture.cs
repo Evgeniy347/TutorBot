@@ -25,9 +25,8 @@ public class TestContainersFixture : IAsyncLifetime
                 .WithName(_resourceName.NetworkName)
                 .Build();
 
-        PostgreSqlBuilder postgresBuilder = new PostgreSqlBuilder()
-            .WithName(_resourceName.PGName)
-            .WithImage("postgres:17.4")
+        PostgreSqlBuilder postgresBuilder = new PostgreSqlBuilder("postgres:17.4")
+            .WithName(_resourceName.PGName) 
             .WithDatabase("DBF_Config")
             .WithUsername("postgres")
             .WithPassword("password")
