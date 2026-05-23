@@ -146,7 +146,7 @@ namespace TutorBot.TelegramService
             _ = app.HistoryService.AddHistory(new MessageHistory(message.Chat.Id, DateTime.Now, message.Text ?? string.Empty, MessageHistoryRole.User, message.From.Id, context.ChatEntry.SessionID));
         }
 
-        private static bool IsWelcome(TutorBotContext context, DialogModel model)
+        internal static bool IsWelcome(TutorBotContext context, DialogModel model)
         {
             bool isWelcome = string.IsNullOrEmpty(context.ChatEntry.GroupNumber) ||
                 string.IsNullOrEmpty(context.ChatEntry.FullName) && !string.IsNullOrEmpty(model.Handlers.Welcome.FullNameQuestion);
@@ -154,7 +154,7 @@ namespace TutorBot.TelegramService
             return isWelcome;
         }
 
-        private IBotAction? SelectAction(Message message, TutorBotContext context)
+        internal IBotAction? SelectAction(Message message, TutorBotContext context)
         {
             IBotAction? action = FindAction(message.Text, context);
 
@@ -168,7 +168,7 @@ namespace TutorBot.TelegramService
             return action;
         }
 
-        private IBotAction? FindAction(string? text, TutorBotContext context)
+        internal IBotAction? FindAction(string? text, TutorBotContext context)
         {
             DialogModel model = _dialogLoader.GetModel();
 
@@ -180,7 +180,7 @@ namespace TutorBot.TelegramService
             return action;
         }
 
-        private async Task<ChatEntry> EnsureChat(Message message)
+        internal async Task<ChatEntry> EnsureChat(Message message)
         {
             Chat chat = Check.NotNull(message.Chat);
 

@@ -7,52 +7,105 @@ namespace TutorBot.Test.Common
     public class StringHelpersTest
     {
         [Fact]
-        public void ReplaceUserName()
+        public void ReplaceUserName_ThreeNames_ReturnsFirstGivenName()
         {
-            StringHelpers.ReplaceUserName("Отлично, {UserName}!", "иванов иван иванович").ShouldBe("Отлично, иван!");
-            StringHelpers.ReplaceUserName("Отлично, {UserName}!", "иванов  иванович").ShouldBe("Отлично, иванович!");
-            StringHelpers.ReplaceUserName("Отлично, {UserName}!", "иванов  ").ShouldBe("Отлично, иванов!");
-            StringHelpers.ReplaceUserName("Отлично, {UserName}!", "  ").ShouldBe("Отлично, неизвестный пользователь!");
+            StringHelpers.ReplaceUserName("Привет, {UserName}!", "иванов иван иванович").ShouldBe("Привет, иван!");
         }
 
         [Fact]
-        public void ExpandNumbers()
+        public void ReplaceUserName_TwoNames_ReturnsSecondAsGivenName()
         {
-            // Исходный список строк
+            StringHelpers.ReplaceUserName("Привет, {UserName}!", "иванов иванович").ShouldBe("Привет, иванович!");
+        }
+
+        [Fact]
+        public void ReplaceUserName_OneName_ReturnsItAsGivenName()
+        {
+            StringHelpers.ReplaceUserName("Привет, {UserName}!", "петр").ShouldBe("Привет, петр!");
+        }
+
+        [Fact]
+        public void ReplaceUserName_TrailingWhitespace_Trims()
+        {
+            StringHelpers.ReplaceUserName("Привет, {UserName}!", "иванов  ").ShouldBe("Привет, иванов!");
+        }
+
+        [Fact]
+        public void ReplaceUserName_BlankName_ReturnsUnknown()
+        {
+            StringHelpers.ReplaceUserName("Привет, {UserName}!", "  ").ShouldBe("Привет, неизвестный пользователь!");
+        }
+
+        [Fact]
+        public void ReplaceUserName_NullName_ReturnsUnknown()
+        {
+            StringHelpers.ReplaceUserName("Привет, {UserName}!", null!).ShouldBe("Привет, неизвестный пользователь!");
+        }
+
+        [Fact]
+        public void ReplaceUserName_EmptyName_ReturnsUnknown()
+        {
+            StringHelpers.ReplaceUserName("Привет, {UserName}!", "").ShouldBe("Привет, неизвестный пользователь!");
+        }
+
+        [Fact]
+        public void ReplaceUserName_NoPlaceholder_ReturnsOriginal()
+        {
+            StringHelpers.ReplaceUserName("Просто текст", "иванов иван").ShouldBe("Просто текст");
+        }
+
+        [Fact]
+        public void ExpandNumbers_NormalPatterns_Expands()
+        {
             string[] inputList = [
-            "РИ-151001",
-            "РИ-421001/2/3",
-            "РИ-421050/51/55",
-            "РИ-511050/55",
-            "РИ-601001/2"
+                "РИ-151001",
+                "РИ-421001/2/3",
+                "РИ-421050/51/55",
+                "РИ-511050/55",
+                "РИ-601001/2"
             ];
 
-            string[] outList =
-            [
-        "РИ-151001",
-
-        "РИ-421001",
-        "РИ-421002",
-        "РИ-421003",
-
-        "РИ-421050",
-        "РИ-421051",
-        "РИ-421055",
-
-        "РИ-511050",
-        "РИ-511055",
-
-        "РИ-601001",
-        "РИ-601002",
+            string[] outList = [
+                "РИ-151001",
+                "РИ-421001",
+                "РИ-421002",
+                "РИ-421003",
+                "РИ-421050",
+                "РИ-421051",
+                "РИ-421055",
+                "РИ-511050",
+                "РИ-511055",
+                "РИ-601001",
+                "РИ-601002",
             ];
 
-            // Формирование полного списка номеров
             var resultList = StringHelpers.ExpandNumbers(inputList);
 
             string lineResult = resultList.OrderBy(x => x).JoinString(", ");
             string lineOut = outList.OrderBy(x => x).JoinString(", ");
 
             lineResult.ShouldBe(lineOut);
+        }
+
+        [Fact]
+        public void ExpandNumbers_SinglePattern_ReturnsItself()
+        {
+            var result = StringHelpers.ExpandNumbers(["РИ-151001"]);
+            result.ShouldBe(["РИ-151001"]);
+        }
+
+        [Fact]
+        public void ExpandNumbers_NoSlashes_ReturnsAll()
+        {
+            var result = StringHelpers.ExpandNumbers(["A", "B"]);
+            result.ShouldBe(["A", "B"]);
+        }
+
+        [Fact]
+        public void ExpandNumbers_EmptyInput_ReturnsEmpty()
+        {
+            var result = StringHelpers.ExpandNumbers([]);
+            result.ShouldBeEmpty();
         }
     }
 }

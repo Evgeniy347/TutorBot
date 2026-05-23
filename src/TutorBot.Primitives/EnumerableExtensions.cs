@@ -80,7 +80,7 @@ namespace System.Collections.Generic
         /// <param name="childSelector">Делегат для рекурсивного извлечения элементов</param>
         /// <returns>Извлеченные рекурсивно элементы</returns>
         public static IEnumerable<T> RecursiveSelect<T>(this T item, Func<T, T?> childSelector) =>
-            RecursiveSelect(item, childSelector, new HashSet<T>());
+            RecursiveSelect(item, childSelector, CreateCycleSet<T>());
 
         /// <summary>
         /// Рекурсивно получить элемент из списка элементов, с защитой от бесконечной рекурсии
@@ -93,7 +93,7 @@ namespace System.Collections.Generic
         {
             if (items != null)
             {
-                HashSet<T> set = new HashSet<T>();
+                var set = CreateCycleSet<T>();
                 foreach (var item in items)
                 {
                     foreach (var childTraverse in item.RecursiveSelect(childSelector, set))
@@ -110,7 +110,7 @@ namespace System.Collections.Generic
         /// <param name="childSelector">Делегат для рекурсивного извлечения элементов</param>
         /// <returns>Извлеченные рекурсивно элементы</returns>
         public static IEnumerable<T> RecursiveSelect<T>(this T item, Func<T, IEnumerable<T>> childSelector) =>
-             RecursiveSelect(item, childSelector, new HashSet<T>());
+             RecursiveSelect(item, childSelector, CreateCycleSet<T>());
 
         /// <summary>
         /// Рекурсивно получить элементы из списка элементов, с защитой от бесконечной рекурсии
@@ -123,7 +123,7 @@ namespace System.Collections.Generic
         {
             if (items != null)
             {
-                HashSet<T> set = new HashSet<T>();
+                var set = CreateCycleSet<T>();
                 foreach (var item in items)
                 {
                     foreach (var childTraverse in item.RecursiveSelect(childSelector, set))
@@ -131,6 +131,11 @@ namespace System.Collections.Generic
                 }
             }
         }
+
+        private static HashSet<T> CreateCycleSet<T>() =>
+            new(EqualityComparer<T>.Create(
+                static (x, y) => ReferenceEquals(x, y),
+                static obj => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj!)));
 
         private static IEnumerable<T> RecursiveSelect<T>(this T item, Func<T, IEnumerable<T>> childSelector, HashSet<T> set)
         {

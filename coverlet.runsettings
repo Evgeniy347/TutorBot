@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura,json</Format>
+          <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <Include>
+            [TutorBot.TelegramService]*,[TutorBot.Core]*,[TutorBot.Primitives]*,[TutorBot.Abstractions]*,[TutorBot.Authentication]*
+          </Include>
+          <Exclude>[TutorBot.TelegramService]TutorBot.TelegramService.RegistrationExtensions,[TutorBot.TelegramService]TutorBot.TelegramService.BotFactory,[TutorBot.TelegramService]TutorBot.TelegramService.TelegramBot</Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

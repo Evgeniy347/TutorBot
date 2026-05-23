@@ -5,6 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Moq" />
 		<PackageReference Include="Shouldly" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
 
