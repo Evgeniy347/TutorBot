@@ -12,6 +12,7 @@
     <None Include="$(MSBuildThisFileDirectory).dockerignore" />
     <None Include="$(MSBuildThisFileDirectory)BuildInfo.Build.props" />
     <None Include="$(MSBuildThisFileDirectory)Directory.Build.props" />
+    <None Include="$(MSBuildThisFileDirectory)Directory.Packages.props" />
     <None Include="$(MSBuildThisFileDirectory)docker-compose.yml" />
     <None Include="$(MSBuildThisFileDirectory)Dockerfile" />
     <None Include="$(MSBuildThisFileDirectory)docs\Helpers.md" />
