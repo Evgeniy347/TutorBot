@@ -26,5 +26,6 @@
 	<ItemGroup>
 		<Folder Include="Migrations\" />
 		<InternalsVisibleTo Include="TutorBot.Test" />
+		<InternalsVisibleTo Include="TutorBot.IntegrationTest" />
 	</ItemGroup> 
 </Project>

@@ -3,5 +3,6 @@
 		<InternalsVisibleTo Include="TutorBot.TelegramService" />
 		<InternalsVisibleTo Include="TutorBot.Core" />
 		<InternalsVisibleTo Include="TutorBot.Test" />
+		<InternalsVisibleTo Include="TutorBot.IntegrationTest" />
 	</ItemGroup>
 </Project>

@@ -48,5 +48,6 @@
 		<ProjectReference Include="..\TutorBot.ServiceDefaults\TutorBot.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\TutorBot.TelegramService\TutorBot.TelegramService.csproj" />
 		<InternalsVisibleTo Include="TutorBot.Test" />
+		<InternalsVisibleTo Include="TutorBot.IntegrationTest" />
 	</ItemGroup>
 </Project>

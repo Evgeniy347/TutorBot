@@ -1,9 +1,9 @@
-﻿using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Networks;
 using Testcontainers.PostgreSql;
 
-namespace TutorBot.Test.TestFramework;
+namespace TutorBot.IntegrationTest.TestFramework;
 
 public class TestContainersFixture : IAsyncLifetime
 {

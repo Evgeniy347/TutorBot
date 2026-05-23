@@ -5,12 +5,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Docker.DotNet" />
-		<PackageReference Include="Moq" />
 		<PackageReference Include="Shouldly" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
-  
+
 		<PackageReference Include="xunit.v3" />
 		<PackageReference Include="xunit.runner.visualstudio">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,11 +17,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" />
-		<PackageReference Include="Testcontainers" />
-		<PackageReference Include="Testcontainers.PostgreSql" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,9 +25,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\TutorBot.Abstractions\TutorBot.Abstractions.csproj" />
-	  <ProjectReference Include="..\TutorBot.App\TutorBot.App.csproj" />
-	  <ProjectReference Include="..\TutorBot.Core\TutorBot.Core.csproj" />
-	  <ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />
 	  <ProjectReference Include="..\TutorBot.TelegramService\TutorBot.TelegramService.csproj" />
 	</ItemGroup>
 

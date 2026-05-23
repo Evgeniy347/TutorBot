@@ -1,10 +1,10 @@
-﻿using TutorBot.TelegramService.BotActions;
+using TutorBot.TelegramService.BotActions;
 using TutorBot.TelegramService.Helpers;
-using TutorBot.Test.Helpers;
-using TutorBot.Test.TestFramework;
+using TutorBot.IntegrationTest.Helpers;
+using TutorBot.IntegrationTest.TestFramework;
 using static TutorBot.TelegramService.BotActions.DialogModel;
 
-namespace TutorBot.Test.Common;
+namespace TutorBot.IntegrationTest.Common;
 
 [DatabaseSnapshotGroup]
 public class AdminBotActionTest : IntegrationTestsBase

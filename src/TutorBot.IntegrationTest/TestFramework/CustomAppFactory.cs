@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,12 +8,12 @@ using System.Reflection;
 using TutorBot.Abstractions;
 using TutorBot.App;
 using TutorBot.TelegramService;
-using TutorBot.Test.DevOps;
-using TutorBot.Test.Helpers;
+using TutorBot.IntegrationTest.DevOps;
+using TutorBot.IntegrationTest.Helpers;
 using Xunit.Sdk;
 using Xunit.v3;
 
-namespace TutorBot.Test.TestFramework;
+namespace TutorBot.IntegrationTest.TestFramework;
 
 public class CustomAppFactory(TestContainersFixture containers) : WebApplicationFactory<Program>, IAsyncLifetime
 {

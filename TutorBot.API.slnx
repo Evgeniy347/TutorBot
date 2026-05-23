@@ -9,4 +9,5 @@
   <Project Path="src/TutorBot.ServiceDefaults/TutorBot.ServiceDefaults.csproj" />
   <Project Path="src/TutorBot.TelegramService/TutorBot.TelegramService.csproj" />
   <Project Path="src/TutorBot.Test/TutorBot.Test.csproj" />
+  <Project Path="src/TutorBot.IntegrationTest/TutorBot.IntegrationTest.csproj" />
 </Solution>
