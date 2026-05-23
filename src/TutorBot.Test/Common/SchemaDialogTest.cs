@@ -145,7 +145,8 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
         DialogModel model = _helper.Model;
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
         MenuItem subMenu = model.Menus.Single(x => x.Key == "📚 Ликвидации академических задолженностей");
-        SimpleTextItem simpleTextSubMenu = model.Handlers.SimpleText.Single(x => x.Key == "❓ Сколько у меня долгов?");
+        string subButton = subMenu.Buttons.First(x => x != "↩️ В главное меню");
+        SimpleTextItem simpleTextSubMenu = model.Handlers.SimpleText.Single(x => x.Key == subButton);
         UserChatHelper chatHelper = _helper.CreateRandomUser("test user");
         string fullName = "иванов иван иванович";
         string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
@@ -155,7 +156,7 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
         await chatHelper.SentTextWithCheck("📚 Ликвидации академических задолженностей", subMenu.Text, subMenu.Buttons);
 
         // Act & Assert - Use submenu item
-        await chatHelper.SentTextWithCheck("❓ Сколько у меня долгов?", simpleTextSubMenu.GetText(), subMenu.Buttons);
+        await chatHelper.SentTextWithCheck(simpleTextSubMenu.Key, simpleTextSubMenu.GetText(), subMenu.Buttons);
 
         // Act & Assert - Return to main menu
         await chatHelper.SentTextWithCheck("↩️ В главное меню", menuText, menu.Buttons);
@@ -237,7 +238,8 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
 
         MenuItem menu = model.Menus.Single(x => x.Key == "↩️ В главное меню");
         MenuItem subMenu = model.Menus.Single(x => x.Key == "📚 Ликвидации академических задолженностей");
-        SimpleTextItem simpleTextSubMenu = model.Handlers.SimpleText.Single(x => x.Key == "❓ Сколько у меня долгов?");
+        string subButton = subMenu.Buttons.First(x => x != "↩️ В главное меню");
+        SimpleTextItem simpleTextSubMenu = model.Handlers.SimpleText.Single(x => x.Key == subButton);
         string fullName = "иванов иван иванович";
         string menuText = StringHelpers.ReplaceUserName(menu.Text, fullName);
 
@@ -245,7 +247,7 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
 
         await _helper.CompleteWelcomeFlow(chatHelper, model);
         await chatHelper.SentTextWithCheck("📚 Ликвидации академических задолженностей", subMenu.Text, subMenu.Buttons);
-        await chatHelper.SentTextWithCheck("❓ Сколько у меня долгов?", simpleTextSubMenu.GetText(), subMenu.Buttons);
+        await chatHelper.SentTextWithCheck(simpleTextSubMenu.Key, simpleTextSubMenu.GetText(), subMenu.Buttons);
         await chatHelper.SentTextWithCheck("↩️ В главное меню", menuText, menu.Buttons);
         await chatHelper.SentTextWithCheck("Перезапустить", model.Handlers.Welcome.WelcomeText, []);
     }

@@ -3,6 +3,7 @@ using Shouldly;
 
 namespace TutorBot.Test.Common
 {
+    [Trait("Category", "Unit")]
     public class StringHelpersTest
     {
         [Fact]

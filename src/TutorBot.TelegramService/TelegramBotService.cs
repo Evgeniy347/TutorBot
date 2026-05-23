@@ -14,8 +14,9 @@ namespace TutorBot.TelegramService
     {
         private DialogModelLoader _dialogLoader = new DialogModelLoader(opt.Value.DialogModelPath);
         private readonly Channel<bool> _reconnectChannel = Channel.CreateUnbounded<bool>();
-        private ITelegramBot? _currentBot;
-        private CancellationTokenSource? _botCts;
+    private ITelegramBot? _currentBot;
+    private CancellationTokenSource? _botCts;
+    private long _botID;
 
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -29,7 +30,8 @@ namespace TutorBot.TelegramService
                     _currentBot = await clientFactory.CreateBot(_botCts.Token);
 
                     User bot = await _currentBot.GetMe();
-                    await app.HistoryService.AddStatusService("Start", $"bot.Id:{bot.Id}");
+                    _botID = bot.Id;
+                    await app.HistoryService.AddStatusService("Start", $"bot.Id:{_botID}");
                      
                     _currentBot.AddErrorHandler((ex, src) => HandleErrorAsync(ex, src, _botCts));
                     _currentBot.AddMessageHandler((msg, type) => MessageHandle(msg, type, bot.Id, _currentBot, _botCts.Token));
@@ -74,6 +76,11 @@ namespace TutorBot.TelegramService
             else
             { 
                 await app.HistoryService.AddStatusService("Error", $"{source}: {exception.Message}");
+
+                if (_currentBot != null)
+                {
+                    await ErrorHandle(exception, source, _botID, _currentBot, _botCts?.Token ?? default);
+                }
             }
         }
 
