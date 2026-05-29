@@ -34,7 +34,7 @@ namespace TutorBot.TelegramService.BotActions.Admins
 
                         if (resultKey?.ToString() == message.Text)
                         {
-                            await client.SendMessage("Теперь вы администратор", replyMarkup: BotActionHub.GetAdminMenuKeyboard());
+                            await client.SendMessage("Теперь вы администратор", replyMarkup: BotActionHub.GetAdminMenuKeyboard(client.ChatEntry.EnableAdminError));
                             client.ChatEntry.IsAdmin = true;
                             count = 0;
                         }
@@ -45,7 +45,7 @@ namespace TutorBot.TelegramService.BotActions.Admins
             }
             else
             {
-                await client.SendMessage("Выберите опцию:", replyMarkup: BotActionHub.GetAdminMenuKeyboard());
+                await client.SendMessage("Выберите опцию:", replyMarkup: BotActionHub.GetAdminMenuKeyboard(client.ChatEntry.EnableAdminError));
             }
         }
     }

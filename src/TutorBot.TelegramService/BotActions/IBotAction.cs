@@ -7,5 +7,6 @@ namespace TutorBot.TelegramService.BotActions
         string Key { get; }
         bool EnableProlongated { get; }
         Task ExecuteAsync(Message message, TutorBotContext client);
+        bool MatchesKey(string? text) => text == Key;
     }
 }

@@ -175,7 +175,7 @@ namespace TutorBot.TelegramService
             IBotAction? action = BotActionHub.FindHandler(model, text);
 
             if (action == null && context.ChatEntry.IsAdmin)
-                action = BotActionHub.AdminHandles.FirstOrDefault(a => a.Key == text);
+                action = BotActionHub.AdminHandles.FirstOrDefault(a => a.MatchesKey(text));
 
             return action;
         }

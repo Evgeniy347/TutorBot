@@ -5,6 +5,7 @@ using Telegram.Bot.Types;
 using TutorBot.Abstractions;
 using TutorBot.TelegramService;
 using TutorBot.TelegramService.BotActions;
+using TutorBot.TelegramService.BotActions.Admins;
 using static TutorBot.TelegramService.BotActions.DialogModel;
 
 namespace TutorBot.Test.TelegramService;
@@ -211,6 +212,24 @@ public class TelegramBotServiceTests : IDisposable
         IBotAction? result = _service.FindAction("Получить статистику", context);
         result.ShouldNotBeNull();
         result.Key.ShouldBe("Получить статистику");
+    }
+
+    [Fact]
+    public void FindAction_NotifyEnableText_FindsNotifyBotAction()
+    {
+        TutorBotContext context = CreateContext(ce => ce.IsAdmin = true);
+        IBotAction? result = _service.FindAction("Включить оповещение об ошибках", context);
+        result.ShouldNotBeNull();
+        result.ShouldBeOfType<NotifyBotAction>();
+    }
+
+    [Fact]
+    public void FindAction_NotifyDisableText_FindsNotifyBotAction()
+    {
+        TutorBotContext context = CreateContext(ce => ce.IsAdmin = true);
+        IBotAction? result = _service.FindAction("Выключить оповещение об ошибках", context);
+        result.ShouldNotBeNull();
+        result.ShouldBeOfType<NotifyBotAction>();
     }
 
     // ==================== SelectAction ====================

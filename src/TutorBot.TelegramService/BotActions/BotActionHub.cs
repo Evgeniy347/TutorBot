@@ -35,12 +35,16 @@ internal class BotActionHub
         }
     }
 
-    public static ReplyKeyboardMarkup GetAdminMenuKeyboard()
+    public static ReplyKeyboardMarkup GetAdminMenuKeyboard(bool enableAdminError = false)
     {
+        string notifyText = enableAdminError
+            ? "Выключить оповещение об ошибках"
+            : "Включить оповещение об ошибках";
+
         return new ReplyKeyboardMarkup(
         [
             [ new KeyboardButton("Получить статистику") ],
-            [ new KeyboardButton("Оповещения об ошибках") ],
+            [ new KeyboardButton(notifyText) ],
             [ new KeyboardButton("↩️ В главное меню") ]
         ]);
     }

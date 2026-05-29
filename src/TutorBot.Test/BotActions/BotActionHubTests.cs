@@ -124,13 +124,21 @@ public class BotActionHubTests
     }
 
     [Fact]
-    public void GetAdminMenuKeyboard_ReturnsThreeButtons()
+    public void GetAdminMenuKeyboard_WhenDisabled_ShowsEnableButton()
     {
-        ReplyKeyboardMarkup keyboard = BotActionHub.GetAdminMenuKeyboard();
+        ReplyKeyboardMarkup keyboard = BotActionHub.GetAdminMenuKeyboard(enableAdminError: false);
         List<IEnumerable<KeyboardButton>> rows = keyboard.Keyboard.ToList();
         rows.Count.ShouldBe(3);
         rows[0].First().Text.ShouldBe("Получить статистику");
-        rows[1].First().Text.ShouldBe("Оповещения об ошибках");
+        rows[1].First().Text.ShouldBe("Включить оповещение об ошибках");
         rows[2].First().Text.ShouldBe("↩️ В главное меню");
+    }
+
+    [Fact]
+    public void GetAdminMenuKeyboard_WhenEnabled_ShowsDisableButton()
+    {
+        ReplyKeyboardMarkup keyboard = BotActionHub.GetAdminMenuKeyboard(enableAdminError: true);
+        List<IEnumerable<KeyboardButton>> rows = keyboard.Keyboard.ToList();
+        rows[1].First().Text.ShouldBe("Выключить оповещение об ошибках");
     }
 }

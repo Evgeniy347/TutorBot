@@ -88,7 +88,19 @@ public class BotActionExecuteTests
     }
 
     [Fact]
-    public async Task NotifyBotAction_SendsStatusMessage()
+    public void NotifyBotAction_MatchesKey_AcceptsBothButtonTexts()
+    {
+        NotifyBotAction action = new NotifyBotAction();
+
+        action.MatchesKey("Включить оповещение об ошибках").ShouldBeTrue();
+        action.MatchesKey("Выключить оповещение об ошибках").ShouldBeTrue();
+        action.MatchesKey("Оповещения об ошибках").ShouldBeTrue();
+        action.MatchesKey("Получить статистику").ShouldBeFalse();
+        action.MatchesKey(null).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task NotifyBotAction_SendsStatusMessageAndKeyboard()
     {
         TutorBotContext context = CreateContext();
         NotifyBotAction action = new NotifyBotAction();
@@ -96,11 +108,34 @@ public class BotActionExecuteTests
 
         await action.ExecuteAsync(message, context);
 
-        _botMock.Verify(x => x.SendMessage(100, "EnableAdminError:True",
+        _botMock.Verify(x => x.SendMessage(100, "🔔 Оповещение об ошибках включено",
             It.IsAny<ParseMode>(), It.IsAny<ReplyParameters>(), It.IsAny<ReplyMarkup>(),
             It.IsAny<LinkPreviewOptions>(), It.IsAny<int?>(), It.IsAny<IEnumerable<MessageEntity>>(),
             It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task NotifyBotAction_SendsUpdatedKeyboardAfterToggle()
+    {
+        TutorBotContext context = CreateContext();
+        NotifyBotAction action = new NotifyBotAction();
+        Message message = CreateMessage("Включить оповещение об ошибках");
+
+        await action.ExecuteAsync(message, context);
+
+        _botMock.Verify(x => x.SendMessage(100, It.IsAny<string>(),
+            It.IsAny<ParseMode>(), It.IsAny<ReplyParameters>(),
+            It.Is<ReplyMarkup>(m => VerifyDisableButton(m)),
+            It.IsAny<LinkPreviewOptions>(), It.IsAny<int?>(), It.IsAny<IEnumerable<MessageEntity>>(),
+            It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private static bool VerifyDisableButton(ReplyMarkup markup)
+    {
+        if (markup is not ReplyKeyboardMarkup keyboard) return false;
+        return keyboard.Keyboard.ToList()[1].First().Text == "Выключить оповещение об ошибках";
     }
 
     [Fact]
