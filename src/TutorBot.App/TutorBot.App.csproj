@@ -28,6 +28,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<TrimmerRootAssembly Include="Asp.Versioning.Mvc.ApiExplorer" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Folder Include="wwwroot\" />
 	</ItemGroup>
 
