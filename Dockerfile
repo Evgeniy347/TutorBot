@@ -1,9 +1,13 @@
 # See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-#FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:10.0-alpine-arm64v8 AS base
-USER root
+# Minimal base image — only native deps, no shared .NET runtime
+FROM --platform=$BUILDPLATFORM alpine:3.21 AS base
+RUN apk add --no-cache \
+    libstdc++ \
+    libgcc \
+    openssl \
+    zlib \
+    zstd-libs
 WORKDIR /app 
 EXPOSE 8080
 
@@ -43,7 +47,6 @@ RUN \
 COPY src ./src
 
 # Publish project
-# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish 
 
 ARG BUILD_VERSION=1.0.0
@@ -58,37 +61,26 @@ RUN \
       -o /app/publish \
       /p:VersionPrefix=$BUILD_VERSION \
       /p:VersionSuffix=$VERSION_SUFFIX \
-      --no-restore \
-      --no-self-contained \
-      /p:InvariantGlobalization=true \
+      --self-contained \
       /p:PublishTrimmed=true \
+      /p:SuppressTrimAnalysisWarnings=true \
+      /p:InvariantGlobalization=true \
       /p:EnableConfigurationBindingGenerator=false
 
-# Remove Roslyn compiler DLLs (~10 MB) — not needed for published Blazor Server
-RUN rm -rf \
-    /app/publish/Microsoft.CodeAnalysis*.dll \
-    /app/publish/cs/Microsoft.CodeAnalysis* \
-    /app/publish/de/Microsoft.CodeAnalysis* \
-    /app/publish/es/Microsoft.CodeAnalysis* \
-    /app/publish/fr/Microsoft.CodeAnalysis* \
-    /app/publish/it/Microsoft.CodeAnalysis* \
-    /app/publish/ja/Microsoft.CodeAnalysis* \
-    /app/publish/ko/Microsoft.CodeAnalysis* \
-    /app/publish/pl/Microsoft.CodeAnalysis* \
-    /app/publish/pt-BR/Microsoft.CodeAnalysis* \
-    /app/publish/ru/Microsoft.CodeAnalysis* \
-    /app/publish/tr/Microsoft.CodeAnalysis* \
-    /app/publish/zh-Hans/Microsoft.CodeAnalysis* \
-    /app/publish/zh-Hant/Microsoft.CodeAnalysis*
+# Remove Roslyn compiler DLLs (~8 MB) — not needed, BlazorRuntimeCompilation=false
+RUN find /app/publish -name 'Microsoft.CodeAnalysis*' -delete
 
 # Remove extra Radzen CSS themes (~7 MB) — keep only material
 RUN find /app/publish/wwwroot/_content/Radzen.Blazor/css \
     -type f ! -name 'material*' -delete
 
-# Build final image with all the layers
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+# Remove localization resource DLLs (~5 MB) — keep only ru
+RUN find /app/publish -type d -name 'cs' -o -name 'de' -o -name 'es' -o -name 'fr' \
+    -o -name 'it' -o -name 'ja' -o -name 'ko' -o -name 'pl' -o -name 'pt-BR' \
+    -o -name 'tr' -o -name 'zh-Hans' -o -name 'zh-Hant' | xargs -r rm -rf
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-ENTRYPOINT ["dotnet", "TutorBot.App.dll"]
+ENTRYPOINT ["./TutorBot.App"]
