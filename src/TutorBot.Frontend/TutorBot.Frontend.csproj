@@ -2,6 +2,8 @@
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 		<GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+		<BlazorRuntimeCompilation>false</BlazorRuntimeCompilation>
+		<PreserveCompilationContext>false</PreserveCompilationContext>
 	</PropertyGroup>
 
 	<ItemGroup> 
@@ -29,5 +31,14 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	  </Content>
 	</ItemGroup>
+
+	<Target Name="RemoveExtraRadzenThemes" AfterTargets="Publish">
+		<ItemGroup>
+			<RadzenCss Include="$(PublishDir)wwwroot\_content\Radzen.Blazor\css\*.css"
+			           Exclude="$(PublishDir)wwwroot\_content\Radzen.Blazor\css\material*.css" />
+		</ItemGroup>
+		<Delete Files="@(RadzenCss)" />
+		<Message Text="Removed @(RadzenCss->Count()) extra Radzen CSS themes" Importance="high" />
+	</Target>
 
 </Project>
