@@ -60,7 +60,9 @@ RUN \
       /p:VersionSuffix=$VERSION_SUFFIX \
       --no-restore \
       --no-self-contained \
-      /p:InvariantGlobalization=true
+      /p:InvariantGlobalization=true \
+      /p:PublishTrimmed=true \
+      /p:EnableConfigurationBindingGenerator=false
 
 # Remove Roslyn compiler DLLs (~10 MB) — not needed for published Blazor Server
 RUN rm -rf \
