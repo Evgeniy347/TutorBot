@@ -19,6 +19,7 @@ WORKDIR /build
 
 COPY BuildInfo.Build.props ./
 COPY Directory.Build.props ./
+COPY Directory.Packages.props ./
  
 COPY NuGet.Config . 
 COPY TutorBot.API.slnx .
@@ -32,6 +33,7 @@ COPY src/TutorBot.Frontend/TutorBot.Frontend.csproj ./src/TutorBot.Frontend/
 COPY src/TutorBot.Primitives/TutorBot.Primitives.csproj ./src/TutorBot.Primitives/
 COPY src/TutorBot.ServiceDefaults/TutorBot.ServiceDefaults.csproj ./src/TutorBot.ServiceDefaults/
 COPY src/TutorBot.TelegramService/TutorBot.TelegramService.csproj ./src/TutorBot.TelegramService/
+COPY src/TutorBot.IntegrationTest/TutorBot.IntegrationTest.csproj ./src/TutorBot.IntegrationTest/
 COPY src/TutorBot.Test/TutorBot.Test.csproj ./src/TutorBot.Test/
 
 ARG TARGETARCH
