@@ -24,8 +24,7 @@ COPY Directory.Packages.props ./
 COPY NuGet.Config . 
 COPY TutorBot.API.slnx .
 
-COPY src/TutorBot.Abstractions/TutorBot.Abstractions.csproj ./src/TutorBot.Abstractions/
-COPY src/TutorBot.API/TutorBot.API.csproj ./src/TutorBot.API/
+COPY src/TutorBot.Abstractions/TutorBot.Abstractions.csproj ./src/TutorBot.Abstractions/ 
 COPY src/TutorBot.App/TutorBot.App.csproj ./src/TutorBot.App/
 COPY src/TutorBot.Authentication/TutorBot.Authentication.csproj ./src/TutorBot.Authentication/
 COPY src/TutorBot.Core/TutorBot.Core.csproj ./src/TutorBot.Core/
