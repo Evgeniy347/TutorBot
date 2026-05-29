@@ -44,7 +44,7 @@ public class ALBotActionTests
 
     private TutorBotContext CreateContext()
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
         context.ChatEntry = new ChatEntry
         {
             ID = 1,
@@ -92,8 +92,8 @@ public class ALBotActionTests
     [Fact]
     public async Task ExecuteAsync_TextEqualsKey_SendsPrompt()
     {
-        var context = CreateContext();
-        var message = CreateMessage("Спросить нейросеть");
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("Спросить нейросеть");
 
         await ALBotAction.Instance.ExecuteAsync(message, context);
 
@@ -111,8 +111,8 @@ public class ALBotActionTests
         _alServiceMock.Setup(x => x.TransferQuestionAL(100, "some question", It.IsAny<Guid>()))
             .ReturnsAsync("answer");
 
-        var context = CreateContext();
-        var message = CreateMessage("some question");
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("some question");
 
         await ALBotAction.Instance.ExecuteAsync(message, context);
 
@@ -131,8 +131,8 @@ public class ALBotActionTests
         _alServiceMock.Setup(x => x.TransferQuestionAL(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<Guid>()))
             .ReturnsAsync("hello_world");
 
-        var context = CreateContext();
-        var message = CreateMessage("question");
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("question");
 
         await ALBotAction.Instance.ExecuteAsync(message, context);
 
@@ -152,8 +152,8 @@ public class ALBotActionTests
             .Callback<long, string, Guid>((_, text, _) => capturedText = text)
             .ReturnsAsync("answer");
 
-        var context = CreateContext();
-        var message = CreateMessage(null);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage(null);
 
         await ALBotAction.Instance.ExecuteAsync(message, context);
 

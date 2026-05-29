@@ -136,12 +136,12 @@ namespace TutorBot.Core
             await using (ServiceLocatorScope scope = locator.CreateAsyncScope())
             {
                 ApplicationDbContext context = scope.DBContext;
-                 
+
                 DateTime twentyDaysAgo = DateTime.Now.AddDays(-20);
 
                 // Базовые счетчики
-                var numberOfChats = await context.Chats.CountAsync();
-                var numberOfMessages = await context.MessageHistories.CountAsync();
+                int numberOfChats = await context.Chats.CountAsync();
+                int numberOfMessages = await context.MessageHistories.CountAsync();
 
                 // Статистика по группам
                 var groupStats = await context.Chats
@@ -154,10 +154,10 @@ namespace TutorBot.Core
                     })
                     .ToListAsync();
 
-                var groupSummaries = new List<GroupSummary>();
+                List<GroupSummary> groupSummaries = new List<GroupSummary>();
                 foreach (var group in groupStats)
                 {
-                    var messageCount = await context.MessageHistories
+                    int messageCount = await context.MessageHistories
                         .Where(m => group.ChatIDs.Contains(m.ChatID))
                         .CountAsync();
 
@@ -182,7 +182,7 @@ namespace TutorBot.Core
                     .Take(100)
                     .ToListAsync();
 
-                var topUsers = new List<UserMessageCount>();
+                List<UserMessageCount> topUsers = new List<UserMessageCount>();
                 foreach (var userStat in userMessageCounts)
                 {
                     var userInfo = await context.Chats
@@ -211,11 +211,11 @@ namespace TutorBot.Core
                     })
                     .ToListAsync();
 
-                var chatGroups = await context.Chats
+                Dictionary<long, string> chatGroups = await context.Chats
                     .Select(c => new { c.ChatID, c.GroupNumber })
                     .ToDictionaryAsync(c => c.ChatID, c => c.GroupNumber);
 
-                var hourlyAverages = hourlyStats
+                List<HourlyAverage> hourlyAverages = hourlyStats
                     .GroupBy(m => new
                     {
                         GroupNumber = chatGroups.ContainsKey(m.ChatID) ? chatGroups[m.ChatID] : "Unknown",
@@ -232,7 +232,7 @@ namespace TutorBot.Core
                     .ThenBy(a => a.Hour)
                     .ToList();
 
-                var report = new ChatSummaryReport
+                ChatSummaryReport report = new ChatSummaryReport
                 {
                     NumberOfChats = numberOfChats,
                     NumberOfMessages = numberOfMessages,

@@ -71,7 +71,7 @@ namespace System
         {
             if (string.IsNullOrEmpty(value) || trimValues == null || trimValues.Length == 0)
                 return value;
-            New:
+        New:
 
             foreach (string trimValue in trimValues)
             {

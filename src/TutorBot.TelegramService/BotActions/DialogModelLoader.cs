@@ -13,7 +13,7 @@ internal class DialogModelLoader(string filePath)
         lock (_lockObject)
         {
             // Получаем последнюю отметку изменения файла
-            var lastWriteTime = File.GetLastWriteTimeUtc(filePath);
+            DateTime lastWriteTime = File.GetLastWriteTimeUtc(filePath);
 
             if (_model == null || !_lastFileUpdateCheck.HasValue || lastWriteTime > _lastFileUpdateCheck.Value)
             {
@@ -34,21 +34,21 @@ internal class DialogModelLoader(string filePath)
     private static void CheckStructure(DialogModel model)
     {
         // Проверяем уникальные ключи
-        var allKeys = new HashSet<string>();
+        HashSet<string> allKeys = new HashSet<string>();
 
-        foreach (var item in model.Handlers.SimpleText)
+        foreach (DialogModel.SimpleTextItem item in model.Handlers.SimpleText)
         {
             if (!allKeys.Add(item.Key))
                 throw new InvalidOperationException($"duplicate key '{item.Key}'");
         }
 
-        foreach (var item in model.Handlers.YandexSearchText)
+        foreach (DialogModel.YandexSearchTextItem item in model.Handlers.YandexSearchText)
         {
             if (!allKeys.Add(item.Key))
                 throw new InvalidOperationException($"duplicate key '{item.Key}'");
         }
 
-        foreach (var menu in model.Menus)
+        foreach (DialogModel.MenuItem menu in model.Menus)
         {
             if (!allKeys.Add(menu.Key))
                 throw new InvalidOperationException($"duplicate key '{menu.Key}'");
@@ -63,9 +63,9 @@ internal class DialogModelLoader(string filePath)
             ];
 
         // Проверяем наличие ключей для кнопок
-        foreach (var menu in model.Menus)
+        foreach (DialogModel.MenuItem menu in model.Menus)
         {
-            foreach (var button in menu.Buttons)
+            foreach (string button in menu.Buttons)
             {
                 if (!keys.Contains(button))
                 {

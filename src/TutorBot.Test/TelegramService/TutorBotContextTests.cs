@@ -1,6 +1,5 @@
 using Moq;
 using Shouldly;
-using System.Text;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -43,7 +42,7 @@ public class TutorBotContextTests
 
     private TutorBotContext CreateContext(ChatEntry? chatEntry = null)
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, _cancellationToken);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, _cancellationToken);
         context.ChatEntry = chatEntry ?? new ChatEntry
         {
             ID = 1,
@@ -62,7 +61,7 @@ public class TutorBotContextTests
     [Fact]
     public void Constructor_SetsProperties()
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, _cancellationToken);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, _cancellationToken);
 
         context.Client.ShouldBe(_botMock.Object);
         context.Opt.ShouldBe(_options);
@@ -74,8 +73,8 @@ public class TutorBotContextTests
     [Fact]
     public void ChatEntry_SetAndGet()
     {
-        var context = CreateContext();
-        var chatEntry = new ChatEntry
+        TutorBotContext context = CreateContext();
+        ChatEntry chatEntry = new ChatEntry
         {
             ID = 99,
             ChatID = 999,
@@ -89,7 +88,7 @@ public class TutorBotContextTests
     [Fact]
     public void ChatEntry_SetNull_Throws()
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, _cancellationToken);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, _cancellationToken);
 
         Should.Throw<ArgumentNullException>(() => context.ChatEntry = null!);
     }
@@ -97,7 +96,7 @@ public class TutorBotContextTests
     [Fact]
     public void ChatEntry_GetBeforeSet_Throws()
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, _cancellationToken);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, _cancellationToken);
 
         Should.Throw<ArgumentNullException>(() => context.ChatEntry);
     }
@@ -105,8 +104,8 @@ public class TutorBotContextTests
     [Fact]
     public void Token_ReturnsStoppingToken()
     {
-        var cts = new CancellationTokenSource();
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, cts.Token);
+        CancellationTokenSource cts = new CancellationTokenSource();
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, cts.Token);
 
         context.Token.ShouldBe(cts.Token);
         context.Token.ShouldBe(context.stoppingToken);
@@ -115,7 +114,7 @@ public class TutorBotContextTests
     [Fact]
     public void IsGroupChat_DefaultFalse()
     {
-        var context = CreateContext();
+        TutorBotContext context = CreateContext();
 
         context.IsGroupChat.ShouldBeFalse();
     }
@@ -123,7 +122,7 @@ public class TutorBotContextTests
     [Fact]
     public void IsGroupChat_SetTrue()
     {
-        var context = CreateContext();
+        TutorBotContext context = CreateContext();
 
         context.IsGroupChat = true;
 
@@ -133,7 +132,7 @@ public class TutorBotContextTests
     [Fact]
     public async Task SendMessage_NoReplyMarkup_CallsClient()
     {
-        var context = CreateContext();
+        TutorBotContext context = CreateContext();
 
         await context.SendMessage("Hello");
 
@@ -157,8 +156,8 @@ public class TutorBotContextTests
     [Fact]
     public async Task SendMessage_WithReplyKeyboardRemove_LogsRemove()
     {
-        var context = CreateContext();
-        var removeMarkup = new ReplyKeyboardRemove();
+        TutorBotContext context = CreateContext();
+        ReplyKeyboardRemove removeMarkup = new ReplyKeyboardRemove();
 
         await context.SendMessage("test", replyMarkup: removeMarkup);
 
@@ -184,8 +183,8 @@ public class TutorBotContextTests
     [Fact]
     public async Task SendMessage_WithReplyKeyboardMarkup_LogsMarkup()
     {
-        var context = CreateContext();
-        var keyboardMarkup = new ReplyKeyboardMarkup([
+        TutorBotContext context = CreateContext();
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup([
             [new KeyboardButton("Btn1"), new KeyboardButton("Btn2")],
             [new KeyboardButton("Btn3")]
         ]);
@@ -200,7 +199,7 @@ public class TutorBotContextTests
     [Fact]
     public async Task SendMessage_AddsHistory()
     {
-        var context = CreateContext();
+        TutorBotContext context = CreateContext();
         Guid sessionId = context.ChatEntry.SessionID;
 
         await context.SendMessage("test message");
@@ -216,8 +215,8 @@ public class TutorBotContextTests
     [Fact]
     public async Task ErrorHandle_WithNoAdminChats_WritesError()
     {
-        var context = CreateContext();
-        var exception = new InvalidOperationException("test error");
+        TutorBotContext context = CreateContext();
+        InvalidOperationException exception = new InvalidOperationException("test error");
 
         _chatServiceMock.Setup(x => x.GetChats(It.IsAny<GetChatsFilter>()))
             .ReturnsAsync([]);
@@ -239,9 +238,9 @@ public class TutorBotContextTests
     [Fact]
     public async Task ErrorHandle_WithAdminChats_NotifiesEach()
     {
-        var context = CreateContext();
-        var exception = new InvalidOperationException("test error");
-        var adminChats = new[]
+        TutorBotContext context = CreateContext();
+        InvalidOperationException exception = new InvalidOperationException("test error");
+        ChatEntry[] adminChats = new[]
         {
             new ChatEntry { ID = 10, ChatID = 1000, UserID = 100, IsAdmin = true, EnableAdminError = true },
             new ChatEntry { ID = 11, ChatID = 1001, UserID = 101, IsAdmin = true, EnableAdminError = true },
@@ -291,9 +290,9 @@ public class TutorBotContextTests
     [Fact]
     public async Task ErrorHandle_ExceptionInAdminNotify_DoesNotThrow()
     {
-        var context = CreateContext();
-        var exception = new InvalidOperationException("test error");
-        var adminChats = new[]
+        TutorBotContext context = CreateContext();
+        InvalidOperationException exception = new InvalidOperationException("test error");
+        ChatEntry[] adminChats = new[]
         {
             new ChatEntry { ID = 10, ChatID = 1000, UserID = 100, IsAdmin = true, EnableAdminError = true },
         };
@@ -318,9 +317,9 @@ public class TutorBotContextTests
     [Fact]
     public async Task WriteError_CallsConsoleAndHistory()
     {
-        var context = CreateContext();
-        var stringWriter = new StringWriter();
-        var originalOut = Console.Out;
+        TutorBotContext context = CreateContext();
+        StringWriter stringWriter = new StringWriter();
+        TextWriter originalOut = Console.Out;
         Console.SetOut(stringWriter);
 
         try
@@ -346,7 +345,7 @@ public class TutorBotContextTests
     [Fact]
     public async Task WriteError_GetErrorChat_CreatesIfNotFound()
     {
-        var context = CreateContext();
+        TutorBotContext context = CreateContext();
 
         _chatServiceMock.Setup(x => x.Find(-1))
             .ReturnsAsync((ChatEntry?)null);
@@ -364,7 +363,7 @@ public class TutorBotContextTests
     [Fact]
     public async Task WriteError_GetErrorChat_FindsExisting()
     {
-        var context = CreateContext();
+        TutorBotContext context = CreateContext();
 
         _chatServiceMock.Setup(x => x.Find(-1))
             .ReturnsAsync(new ChatEntry { ID = -1, ChatID = -1, UserID = -1 });

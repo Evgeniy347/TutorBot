@@ -70,8 +70,8 @@ public class WelcomeBotActionTests
 
     private TutorBotContext CreateContext(Action<ChatEntry>? configure = null)
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
-        var chatEntry = new ChatEntry
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
+        ChatEntry chatEntry = new ChatEntry
         {
             ID = 1,
             ChatID = 100,
@@ -102,9 +102,9 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_FirstMessage_SendsWelcomeRemovesKeyboard()
     {
-        var context = CreateContext(ce => ce.IsFirstMessage = true);
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("anything");
+        TutorBotContext context = CreateContext(ce => ce.IsFirstMessage = true);
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("anything");
 
         ReplyMarkup? capturedMarkup = null;
         _botMock.Setup(x => x.SendMessage(It.IsAny<ChatId>(), It.IsAny<string>(), It.IsAny<ParseMode>(),
@@ -130,9 +130,9 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_SlashStart_SendsWelcome()
     {
-        var context = CreateContext();
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("/start");
+        TutorBotContext context = CreateContext();
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("/start");
 
         await action.ExecuteAsync(message, context);
 
@@ -146,9 +146,9 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_FirstMessage_SetsIsFirstMessageFalseAndUpdates()
     {
-        var context = CreateContext(ce => ce.IsFirstMessage = true);
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("anything");
+        TutorBotContext context = CreateContext(ce => ce.IsFirstMessage = true);
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("anything");
 
         await action.ExecuteAsync(message, context);
 
@@ -159,12 +159,12 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_ValidGroupNumber_UpdatesGroupAndForwards()
     {
-        var context = CreateContext(ce =>
+        TutorBotContext context = CreateContext(ce =>
         {
             ce.GroupNumber = string.Empty;
         });
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("1");
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("1");
 
         await action.ExecuteAsync(message, context);
 
@@ -175,9 +175,9 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_InvalidGroupNumber_SendsError()
     {
-        var context = CreateContext(ce => ce.GroupNumber = string.Empty);
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("invalid");
+        TutorBotContext context = CreateContext(ce => ce.GroupNumber = string.Empty);
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("invalid");
 
         ReplyMarkup? capturedMarkup = null;
         _botMock.Setup(x => x.SendMessage(It.IsAny<ChatId>(), It.IsAny<string>(), It.IsAny<ParseMode>(),
@@ -203,13 +203,13 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_GroupSetMissingFullName_SendsFullNameQuestion()
     {
-        var context = CreateContext(ce =>
+        TutorBotContext context = CreateContext(ce =>
         {
             ce.GroupNumber = string.Empty;
             ce.FullName = string.Empty;
         });
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("1");
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("1");
 
         ReplyMarkup? capturedMarkup = null;
         _botMock.Setup(x => x.SendMessage(It.IsAny<ChatId>(), It.IsAny<string>(), It.IsAny<ParseMode>(),
@@ -236,12 +236,12 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_InvalidFullName_SendsFullNameError()
     {
-        var context = CreateContext(ce =>
+        TutorBotContext context = CreateContext(ce =>
         {
             ce.FullName = string.Empty;
         });
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("12345");
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("12345");
 
         await action.ExecuteAsync(message, context);
 
@@ -255,12 +255,12 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_ValidFullName_SetsFullNameAndUpdates()
     {
-        var context = CreateContext(ce =>
+        TutorBotContext context = CreateContext(ce =>
         {
             ce.FullName = string.Empty;
         });
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("Иванов Иван");
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("Иванов Иван");
 
         await action.ExecuteAsync(message, context);
 
@@ -271,9 +271,9 @@ public class WelcomeBotActionTests
     [Fact]
     public async Task ExecuteAsync_GroupSetWithFullName_ForwardsToNextStep()
     {
-        var context = CreateContext();
-        var action = new WelcomeBotAction(_model);
-        var message = CreateMessage("1");
+        TutorBotContext context = CreateContext();
+        WelcomeBotAction action = new WelcomeBotAction(_model);
+        Message message = CreateMessage("1");
 
         await action.ExecuteAsync(message, context);
 

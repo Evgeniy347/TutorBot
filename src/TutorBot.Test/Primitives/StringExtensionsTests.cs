@@ -40,14 +40,14 @@ public class StringExtensionsTests
     [Fact]
     public void Replace_WithStringReplacement_ReplacesAll()
     {
-        var result = "hello {name}".Replace("{name}", "world");
+        string result = "hello {name}".Replace("{name}", "world");
         result.ShouldBe("hello world");
     }
 
     [Fact]
     public void Replace_WithObjectReplacement_ReplacesAll()
     {
-        var result = "value {x}".Replace("{x}", 42);
+        string result = "value {x}".Replace("{x}", 42);
         result.ShouldBe("value 42");
     }
 
@@ -58,21 +58,21 @@ public class StringExtensionsTests
     [Fact]
     public void ReplaceKey_ReplacesBracedKey()
     {
-        var result = "Hello {UserName}".ReplaceKey("UserName", "Ivan");
+        string result = "Hello {UserName}".ReplaceKey("UserName", "Ivan");
         result.ShouldBe("Hello Ivan");
     }
 
     [Fact]
     public void ReplaceKey_MissingKey_ReturnsOriginal()
     {
-        var result = "Hello {Name}".ReplaceKey("UserName", "Ivan");
+        string result = "Hello {Name}".ReplaceKey("UserName", "Ivan");
         result.ShouldBe("Hello {Name}");
     }
 
     [Fact]
     public void ReplaceKey_NullValue_ReplacesWithEmpty()
     {
-        var result = "Hello {Key}".ReplaceKey("Key", null!);
+        string result = "Hello {Key}".ReplaceKey("Key", null!);
         result.ShouldBe("Hello ");
     }
 

@@ -29,7 +29,7 @@ public class BotActionExecuteTests
 
     private TutorBotContext CreateContext(ChatEntry? chatEntry = null)
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
         context.ChatEntry = chatEntry ?? new ChatEntry
         {
             ID = 1,
@@ -74,9 +74,9 @@ public class BotActionExecuteTests
     [Fact]
     public async Task NotifyBotAction_TogglesEnableAdminError()
     {
-        var context = CreateContext();
-        var action = new NotifyBotAction();
-        var message = CreateMessage("Оповещения об ошибках");
+        TutorBotContext context = CreateContext();
+        NotifyBotAction action = new NotifyBotAction();
+        Message message = CreateMessage("Оповещения об ошибках");
 
         await action.ExecuteAsync(message, context);
 
@@ -90,9 +90,9 @@ public class BotActionExecuteTests
     [Fact]
     public async Task NotifyBotAction_SendsStatusMessage()
     {
-        var context = CreateContext();
-        var action = new NotifyBotAction();
-        var message = CreateMessage("Оповещения об ошибках");
+        TutorBotContext context = CreateContext();
+        NotifyBotAction action = new NotifyBotAction();
+        Message message = CreateMessage("Оповещения об ошибках");
 
         await action.ExecuteAsync(message, context);
 
@@ -106,15 +106,15 @@ public class BotActionExecuteTests
     [Fact]
     public async Task SimpleSubMenuBotAction_SendsMessageWithUserName()
     {
-        var context = CreateContext();
-        var menu = new MenuItem
+        TutorBotContext context = CreateContext();
+        MenuItem menu = new MenuItem
         {
             Key = "test-menu",
             Text = "Привет, {UserName}!",
             Buttons = ["Кнопка 1", "Кнопка 2"]
         };
-        var action = new SimpleSubMenuBotAction(menu);
-        var message = CreateMessage("test-menu");
+        SimpleSubMenuBotAction action = new SimpleSubMenuBotAction(menu);
+        Message message = CreateMessage("test-menu");
 
         await action.ExecuteAsync(message, context);
 
@@ -137,22 +137,24 @@ public class BotActionExecuteTests
     [Fact]
     public async Task SimpleSubMenuBotAction_EnableProlongated_ReturnsTrue()
     {
-        var menu = new MenuItem { Key = "test", Text = "test", Buttons = ["btn"] };
-        var action = new SimpleSubMenuBotAction(menu);
+        MenuItem menu = new MenuItem { Key = "test", Text = "test", Buttons = ["btn"] };
+        SimpleSubMenuBotAction action = new SimpleSubMenuBotAction(menu);
         action.EnableProlongated.ShouldBeTrue();
     }
 
     [Fact]
     public async Task SimpleTextBotAction_SendsMessageWithUserName()
     {
-        var model = new DialogModel
+        DialogModel model = new DialogModel
         {
             Start = new StartNodeModel { Handler = "start", NextStep = "menu" },
             Handlers = new HandlersModel
             {
                 Welcome = new WelcomeHandler
                 {
-                    Key = "welcome", WelcomeText = "hello", ErrorText = "err",
+                    Key = "welcome",
+                    WelcomeText = "hello",
+                    ErrorText = "err",
                     GroupNumbers = ["101"]
                 },
                 Schedule = new ScheduleItem { Key = "sched", Text = ["s"] },
@@ -163,10 +165,10 @@ public class BotActionExecuteTests
                 new MenuItem { Key = "Главное меню", Text = "меню", Buttons = ["Помощь"] }
             ]
         };
-        var item = new SimpleTextItem { Key = "Помощь", Text = ["{UserName}, помощь"] };
-        var action = new SimpleTextBotAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("Помощь");
+        SimpleTextItem item = new SimpleTextItem { Key = "Помощь", Text = ["{UserName}, помощь"] };
+        SimpleTextBotAction action = new SimpleTextBotAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("Помощь");
 
         await action.ExecuteAsync(message, context);
 
@@ -189,9 +191,9 @@ public class BotActionExecuteTests
     [Fact]
     public async Task ResetBotAction_ClearsChatEntryAndSendsWelcome()
     {
-        var context = CreateContext();
-        var action = new ResetBotAction("Добро пожаловать!");
-        var message = CreateMessage("Перезапустить");
+        TutorBotContext context = CreateContext();
+        ResetBotAction action = new ResetBotAction("Добро пожаловать!");
+        Message message = CreateMessage("Перезапустить");
 
         await action.ExecuteAsync(message, context);
 
@@ -218,9 +220,9 @@ public class BotActionExecuteTests
     [Fact]
     public async Task ResetBotAction_ReplyMarkup_IsReplyKeyboardRemove()
     {
-        var context = CreateContext();
-        var action = new ResetBotAction("текст");
-        var message = CreateMessage("Перезапустить");
+        TutorBotContext context = CreateContext();
+        ResetBotAction action = new ResetBotAction("текст");
+        Message message = CreateMessage("Перезапустить");
 
         ReplyMarkup? capturedMarkup = null;
         _botMock.Setup(x => x.SendMessage(It.IsAny<ChatId>(), It.IsAny<string>(), It.IsAny<ParseMode>(),
@@ -241,9 +243,9 @@ public class BotActionExecuteTests
     [Fact]
     public async Task GroupChatBotAction_DoesNotThrow()
     {
-        var context = CreateContext();
-        var action = new GroupChatBotAction();
-        var message = CreateMessage("test");
+        TutorBotContext context = CreateContext();
+        GroupChatBotAction action = new GroupChatBotAction();
+        Message message = CreateMessage("test");
 
         await action.ExecuteAsync(message, context);
     }
@@ -251,10 +253,10 @@ public class BotActionExecuteTests
     [Fact]
     public async Task GroupChatBotAction_FirstMessage_CallsAskAssistantWithWelcome()
     {
-        var context = CreateContext();
+        TutorBotContext context = CreateContext();
         context.ChatEntry.IsFirstMessage = true;
-        var action = new GroupChatBotAction();
-        var message = CreateMessage("test");
+        GroupChatBotAction action = new GroupChatBotAction();
+        Message message = CreateMessage("test");
 
         _alServiceMock.Setup(x => x.AskAssistant(TextPromts.WelcomeGroup)).ReturnsAsync("answer");
 
@@ -267,13 +269,13 @@ public class BotActionExecuteTests
     [Fact]
     public async Task GroupChatBotAction_SubsequentMessage_CallsAskAssistantWithParams()
     {
-        var sessionId = Guid.NewGuid();
-        var context = CreateContext();
+        Guid sessionId = Guid.NewGuid();
+        TutorBotContext context = CreateContext();
         context.ChatEntry.IsFirstMessage = false;
         context.ChatEntry.ChatID = 100;
         context.ChatEntry.SessionID = sessionId;
-        var action = new GroupChatBotAction();
-        var message = CreateMessage("hello");
+        GroupChatBotAction action = new GroupChatBotAction();
+        Message message = CreateMessage("hello");
 
         await action.ExecuteAsync(message, context);
 
@@ -283,10 +285,10 @@ public class BotActionExecuteTests
     [Fact]
     public async Task GroupChatBotAction_EmptyAnswer_DoesNotSendMessage()
     {
-        var context = CreateContext();
+        TutorBotContext context = CreateContext();
         context.ChatEntry.IsFirstMessage = true;
-        var action = new GroupChatBotAction();
-        var message = CreateMessage("test");
+        GroupChatBotAction action = new GroupChatBotAction();
+        Message message = CreateMessage("test");
 
         _alServiceMock.Setup(x => x.AskAssistant(It.IsAny<string>())).ReturnsAsync(string.Empty);
 
@@ -304,9 +306,9 @@ public class BotActionExecuteTests
     [Fact]
     public async Task GroupChatBotAction_NullText_ReturnsEarly()
     {
-        var context = CreateContext();
-        var action = new GroupChatBotAction();
-        var message = CreateMessage(null!);
+        TutorBotContext context = CreateContext();
+        GroupChatBotAction action = new GroupChatBotAction();
+        Message message = CreateMessage(null!);
 
         await action.ExecuteAsync(message, context);
 
@@ -323,9 +325,9 @@ public class BotActionExecuteTests
     [Fact]
     public async Task GroupChatBotAction_NoFrom_ReturnsEarly()
     {
-        var context = CreateContext();
-        var action = new GroupChatBotAction();
-        var message = CreateMessage("test");
+        TutorBotContext context = CreateContext();
+        GroupChatBotAction action = new GroupChatBotAction();
+        Message message = CreateMessage("test");
         message.From = null;
 
         await action.ExecuteAsync(message, context);
@@ -343,14 +345,16 @@ public class BotActionExecuteTests
     [Fact]
     public async Task SimpleTextBotAction_NoMatchingMenu_WritesError()
     {
-        var model = new DialogModel
+        DialogModel model = new DialogModel
         {
             Start = new StartNodeModel { Handler = "start", NextStep = "menu" },
             Handlers = new HandlersModel
             {
                 Welcome = new WelcomeHandler
                 {
-                    Key = "welcome", WelcomeText = "hello", ErrorText = "err",
+                    Key = "welcome",
+                    WelcomeText = "hello",
+                    ErrorText = "err",
                     GroupNumbers = ["101"]
                 },
                 Schedule = new ScheduleItem { Key = "sched", Text = ["s"] },
@@ -359,16 +363,18 @@ public class BotActionExecuteTests
             },
             Menus = []
         };
-        var item = new SimpleTextItem { Key = "key без меню", Text = ["текст"] };
-        var action = new SimpleTextBotAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("key без меню");
+        SimpleTextItem item = new SimpleTextItem { Key = "key без меню", Text = ["текст"] };
+        SimpleTextBotAction action = new SimpleTextBotAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("key без меню");
 
         _chatServiceMock.Setup(x => x.Find(-1)).ReturnsAsync((ChatEntry?)null);
         _chatServiceMock.Setup(x => x.Create(-1, It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), -1)).ReturnsAsync(new ChatEntry
             {
-                ID = -1, ChatID = -1, UserID = -1,
+                ID = -1,
+                ChatID = -1,
+                UserID = -1,
                 FullName = "Error Service"
             });
 

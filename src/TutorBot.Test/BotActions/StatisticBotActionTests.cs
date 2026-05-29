@@ -27,7 +27,7 @@ public class StatisticBotActionTests
 
     private TutorBotContext CreateContext(ChatEntry? chatEntry = null)
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
         context.ChatEntry = chatEntry ?? new ChatEntry
         {
             ID = 1,
@@ -60,9 +60,9 @@ public class StatisticBotActionTests
     [Fact]
     public void GenerateHtmlReport_EmptyReport_ReturnsHeader()
     {
-        var report = new ChatSummaryReport();
+        ChatSummaryReport report = new ChatSummaryReport();
 
-        var result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = StatisticBotAction.GenerateHtmlReport(report);
 
         result.ShouldContain("<b>📊 Статистика чатов</b>");
         result.ShouldContain("<b>Всего чатов:</b> 0");
@@ -75,7 +75,7 @@ public class StatisticBotActionTests
     [Fact]
     public void GenerateHtmlReport_WithGroupSummaries_IncludesGroupTable()
     {
-        var report = new ChatSummaryReport
+        ChatSummaryReport report = new ChatSummaryReport
         {
             GroupSummaries =
             [
@@ -84,7 +84,7 @@ public class StatisticBotActionTests
             ]
         };
 
-        var result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = StatisticBotAction.GenerateHtmlReport(report);
 
         result.ShouldContain("РИ-151001");
         result.ShouldContain("РИ-151002");
@@ -97,7 +97,7 @@ public class StatisticBotActionTests
     [Fact]
     public void GenerateHtmlReport_WithTopUsers_IncludesUserTable()
     {
-        var report = new ChatSummaryReport
+        ChatSummaryReport report = new ChatSummaryReport
         {
             TopUsers =
             [
@@ -106,7 +106,7 @@ public class StatisticBotActionTests
             ]
         };
 
-        var result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = StatisticBotAction.GenerateHtmlReport(report);
 
         result.ShouldContain("Иванов Иван Иванович");
         result.ShouldContain("Петров Петр Петрович");
@@ -117,7 +117,7 @@ public class StatisticBotActionTests
     [Fact]
     public void GenerateHtmlReport_WithHourlyAverages_IncludesHourlyTable()
     {
-        var report = new ChatSummaryReport
+        ChatSummaryReport report = new ChatSummaryReport
         {
             GroupSummaries =
             [
@@ -130,7 +130,7 @@ public class StatisticBotActionTests
             ]
         };
 
-        var result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = StatisticBotAction.GenerateHtmlReport(report);
 
         result.ShouldContain("<b>Группа РИ-151001:</b>");
         result.ShouldContain("10:00 | ");
@@ -140,7 +140,7 @@ public class StatisticBotActionTests
     [Fact]
     public void GenerateHtmlReport_AllSections_ReturnsCompleteReport()
     {
-        var report = new ChatSummaryReport
+        ChatSummaryReport report = new ChatSummaryReport
         {
             NumberOfChats = 5,
             NumberOfMessages = 1000,
@@ -158,7 +158,7 @@ public class StatisticBotActionTests
             ]
         };
 
-        var result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = StatisticBotAction.GenerateHtmlReport(report);
 
         result.ShouldContain("<b>Всего чатов:</b> 5");
         result.ShouldContain("<b>Всего сообщений:</b> 1000");
@@ -170,7 +170,7 @@ public class StatisticBotActionTests
     [Fact]
     public void GenerateHtmlReport_TopUsersTruncation_TruncatesLongNames()
     {
-        var report = new ChatSummaryReport
+        ChatSummaryReport report = new ChatSummaryReport
         {
             TopUsers =
             [
@@ -182,7 +182,7 @@ public class StatisticBotActionTests
             ]
         };
 
-        var result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = StatisticBotAction.GenerateHtmlReport(report);
 
         result.ShouldContain("Оченьдлинноеимяфамилияотч...");
         result.ShouldNotContain("Оченьдлинноеимяфамилияотчествобольше25символов");
@@ -191,7 +191,7 @@ public class StatisticBotActionTests
     [Fact]
     public async Task ExecuteAsync_GetsChatsAndSendsReport()
     {
-        var report = new ChatSummaryReport
+        ChatSummaryReport report = new ChatSummaryReport
         {
             NumberOfChats = 3,
             NumberOfMessages = 500
@@ -202,9 +202,9 @@ public class StatisticBotActionTests
         _chatServiceMock.Setup(x => x.GetSummaryInfo())
             .ReturnsAsync(report);
 
-        var action = new StatisticBotAction();
-        var context = CreateContext();
-        var message = new Message
+        StatisticBotAction action = new StatisticBotAction();
+        TutorBotContext context = CreateContext();
+        Message message = new Message
         {
             Text = "Получить статистику",
             From = new User { Id = 42 },

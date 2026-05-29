@@ -45,8 +45,8 @@ public class AdminBotActionTests
 
     private TutorBotContext CreateContext(Action<ChatEntry>? configure = null)
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
-        var chatEntry = new ChatEntry
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
+        ChatEntry chatEntry = new ChatEntry
         {
             ID = 1,
             ChatID = 100,
@@ -95,8 +95,8 @@ public class AdminBotActionTests
     [Fact]
     public async Task ExecuteAsync_AlreadyAdmin_SendsAdminMenu()
     {
-        var context = CreateContext(ce => ce.IsAdmin = true);
-        var message = CreateMessage("/admin");
+        TutorBotContext context = CreateContext(ce => ce.IsAdmin = true);
+        Message message = CreateMessage("/admin");
 
         ReplyMarkup? capturedMarkup = null;
         _botMock.Setup(x => x.SendMessage(It.IsAny<ChatId>(), It.IsAny<string>(), It.IsAny<ParseMode>(),
@@ -122,8 +122,8 @@ public class AdminBotActionTests
     [Fact]
     public async Task ExecuteAsync_NotAdmin_KeyMatches_PromptsForCode()
     {
-        var context = CreateContext(ce => ce.IsAdmin = false);
-        var message = CreateMessage("/admin", userId: 99);
+        TutorBotContext context = CreateContext(ce => ce.IsAdmin = false);
+        Message message = CreateMessage("/admin", userId: 99);
 
         await _action.ExecuteAsync(message, context);
 
@@ -138,21 +138,28 @@ public class AdminBotActionTests
     public async Task ExecuteAsync_NotAdmin_CorrectCode_GrantsAccess()
     {
         long userId = 999001;
-        var options = new TgBotServiceOptions
+        TgBotServiceOptions options = new TgBotServiceOptions
         {
             Enable = true,
             Token = "test-token",
             DialogModelPath = "test.json",
             EvaluateKey = "\"test123\""
         };
-        var context = new TutorBotContext(_botMock.Object, options, _appMock.Object, 12345, CancellationToken.None);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, options, _appMock.Object, 12345, CancellationToken.None);
         context.ChatEntry = new ChatEntry
         {
-            ID = 1, ChatID = 100, UserID = userId, FullName = "Test", FirstName = "Test",
-            LastName = "User", UserName = "tester", GroupNumber = "GRP-001",
-            SessionID = Guid.NewGuid(), IsAdmin = false
+            ID = 1,
+            ChatID = 100,
+            UserID = userId,
+            FullName = "Test",
+            FirstName = "Test",
+            LastName = "User",
+            UserName = "tester",
+            GroupNumber = "GRP-001",
+            SessionID = Guid.NewGuid(),
+            IsAdmin = false
         };
-        var message = new Message
+        Message message = new Message
         {
             Text = "test123",
             From = new User { Id = userId, FirstName = "Test" },
@@ -174,21 +181,28 @@ public class AdminBotActionTests
     public async Task ExecuteAsync_NotAdmin_WrongCode_Rejects()
     {
         long userId = 999002;
-        var options = new TgBotServiceOptions
+        TgBotServiceOptions options = new TgBotServiceOptions
         {
             Enable = true,
             Token = "test-token",
             DialogModelPath = "test.json",
             EvaluateKey = "\"test123\""
         };
-        var context = new TutorBotContext(_botMock.Object, options, _appMock.Object, 12345, CancellationToken.None);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, options, _appMock.Object, 12345, CancellationToken.None);
         context.ChatEntry = new ChatEntry
         {
-            ID = 1, ChatID = 100, UserID = userId, FullName = "Test", FirstName = "Test",
-            LastName = "User", UserName = "tester", GroupNumber = "GRP-001",
-            SessionID = Guid.NewGuid(), IsAdmin = false
+            ID = 1,
+            ChatID = 100,
+            UserID = userId,
+            FullName = "Test",
+            FirstName = "Test",
+            LastName = "User",
+            UserName = "tester",
+            GroupNumber = "GRP-001",
+            SessionID = Guid.NewGuid(),
+            IsAdmin = false
         };
-        var message = new Message
+        Message message = new Message
         {
             Text = "wrong",
             From = new User { Id = userId, FirstName = "Test" },
@@ -210,12 +224,12 @@ public class AdminBotActionTests
     public async Task ExecuteAsync_NotAdmin_ExceedsMaxAttempts_Denies()
     {
         long userId = 999003;
-        var context = CreateContext(ce =>
+        TutorBotContext context = CreateContext(ce =>
         {
             ce.IsAdmin = false;
             ce.UserID = userId;
         });
-        var message = CreateMessage("/admin", userId: userId);
+        Message message = CreateMessage("/admin", userId: userId);
 
         for (int i = 0; i < 12; i++)
         {

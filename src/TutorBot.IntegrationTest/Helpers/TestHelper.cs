@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Telegram.Bot.Types;
+using TutorBot.IntegrationTest.TestFramework;
 using TutorBot.TelegramService;
 using TutorBot.TelegramService.BotActions;
 using TutorBot.TelegramService.Helpers;
-using TutorBot.IntegrationTest.TestFramework;
 using static TutorBot.TelegramService.BotActions.DialogModel;
 
 namespace TutorBot.IntegrationTest.Helpers;

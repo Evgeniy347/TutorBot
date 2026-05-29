@@ -1,10 +1,10 @@
+using Moq;
+using Moq.Protected;
+using Shouldly;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Reflection;
 using System.Text.Json;
-using Moq;
-using Moq.Protected;
-using Shouldly;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -64,8 +64,8 @@ public class ScheduleActionTests : IDisposable
 
     private TutorBotContext CreateContext(Action<ChatEntry>? configure = null)
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
-        var chatEntry = new ChatEntry
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
+        ChatEntry chatEntry = new ChatEntry
         {
             ID = 1,
             ChatID = 100,
@@ -114,10 +114,10 @@ public class ScheduleActionTests : IDisposable
     [Fact]
     public async Task ExecuteAsync_NoMenu_WritesError()
     {
-        var model = CreateModel(menuButtons: ["OtherButton"]);
-        var action = new ScheduleAction(model);
-        var context = CreateContext();
-        var message = CreateMessage("Schedule");
+        DialogModel model = CreateModel(menuButtons: ["OtherButton"]);
+        ScheduleAction action = new ScheduleAction(model);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("Schedule");
 
         await action.ExecuteAsync(message, context);
 
@@ -128,10 +128,10 @@ public class ScheduleActionTests : IDisposable
     [Fact]
     public async Task ExecuteAsync_NoUrlInText_SendsSimpleText()
     {
-        var model = CreateModel(scheduleText: ["Timetable for {UserName}"]);
-        var action = new ScheduleAction(model);
-        var context = CreateContext();
-        var message = CreateMessage("Schedule");
+        DialogModel model = CreateModel(scheduleText: ["Timetable for {UserName}"]);
+        ScheduleAction action = new ScheduleAction(model);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("Schedule");
 
         await action.ExecuteAsync(message, context);
 
@@ -145,13 +145,13 @@ public class ScheduleActionTests : IDisposable
     [Fact]
     public async Task ExecuteAsync_WithUrlInText_CachedGroup_SendsWithUrl()
     {
-        var model = CreateModel();
-        var action = new ScheduleAction(model);
-        var context = CreateContext();
-        var message = CreateMessage("Schedule");
+        DialogModel model = CreateModel();
+        ScheduleAction action = new ScheduleAction(model);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("Schedule");
 
-        var field = typeof(ScheduleAction).GetField("_groupID", BindingFlags.NonPublic | BindingFlags.Instance);
-        var cache = (ConcurrentDictionary<string, ulong>)field!.GetValue(action)!;
+        FieldInfo? field = typeof(ScheduleAction).GetField("_groupID", BindingFlags.NonPublic | BindingFlags.Instance);
+        ConcurrentDictionary<string, ulong> cache = (ConcurrentDictionary<string, ulong>)field!.GetValue(action)!;
         cache["РИ-151001"] = 12345;
 
         await action.ExecuteAsync(message, context);
@@ -166,20 +166,20 @@ public class ScheduleActionTests : IDisposable
     [Fact]
     public async Task ExecuteAsync_WithUrlInText_UncachedGroup_FetchesAndSends()
     {
-        var jsonResponse = JsonSerializer.Serialize(new[]
+        string jsonResponse = JsonSerializer.Serialize(new[]
         {
             new { id = 12345UL, divisionId = 0UL, course = 0UL, title = "РИ-151001" }
         }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-        var handlerMock = new Mock<HttpMessageHandler>();
+        Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) });
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
-        var action = new ScheduleAction(CreateModel());
-        var context = CreateContext();
-        var message = CreateMessage("Schedule");
+        ScheduleAction action = new ScheduleAction(CreateModel());
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("Schedule");
 
         await action.ExecuteAsync(message, context);
 
@@ -196,15 +196,15 @@ public class ScheduleActionTests : IDisposable
         _chatServiceMock.Setup(x => x.GetChats(It.IsAny<GetChatsFilter?>()))
             .ReturnsAsync([]);
 
-        var handlerMock = new Mock<HttpMessageHandler>();
+        Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ThrowsAsync(new HttpRequestException("API error"));
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
-        var action = new ScheduleAction(CreateModel());
-        var context = CreateContext();
-        var message = CreateMessage("Schedule");
+        ScheduleAction action = new ScheduleAction(CreateModel());
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("Schedule");
 
         await action.ExecuteAsync(message, context);
 
@@ -223,20 +223,20 @@ public class ScheduleActionTests : IDisposable
         _chatServiceMock.Setup(x => x.GetChats(It.IsAny<GetChatsFilter?>()))
             .ReturnsAsync([]);
 
-        var jsonResponse = JsonSerializer.Serialize(new[]
+        string jsonResponse = JsonSerializer.Serialize(new[]
         {
             new { id = 99999UL, divisionId = 0UL, course = 0UL, title = "OTHER-GROUP" }
         }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-        var handlerMock = new Mock<HttpMessageHandler>();
+        Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) });
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
-        var action = new ScheduleAction(CreateModel());
-        var context = CreateContext();
-        var message = CreateMessage("Schedule");
+        ScheduleAction action = new ScheduleAction(CreateModel());
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("Schedule");
 
         await action.ExecuteAsync(message, context);
 
@@ -252,19 +252,19 @@ public class ScheduleActionTests : IDisposable
     [Fact]
     public async Task GetGroupsAsync_Success_ReturnsGroups()
     {
-        var jsonResponse = JsonSerializer.Serialize(new[]
+        string jsonResponse = JsonSerializer.Serialize(new[]
         {
             new { id = 1UL, divisionId = 1UL, course = 1UL, title = "РИ-151001" },
             new { id = 2UL, divisionId = 2UL, course = 2UL, title = "РИ-151002" }
         }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-        var handlerMock = new Mock<HttpMessageHandler>();
+        Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) });
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
-        var result = await ScheduleAction.GetGroupsAsync("РИ-151001", TestContext.Current.CancellationToken);
+        ScheduleAction.GroupInfo[] result = await ScheduleAction.GetGroupsAsync("РИ-151001", TestContext.Current.CancellationToken);
 
         result.Length.ShouldBe(2);
         result[0].Id.ShouldBe(1UL);
@@ -276,7 +276,7 @@ public class ScheduleActionTests : IDisposable
     [Fact]
     public async Task GetGroupsAsync_HttpError_Throws()
     {
-        var handlerMock = new Mock<HttpMessageHandler>();
+        Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.NotFound });
@@ -288,15 +288,15 @@ public class ScheduleActionTests : IDisposable
     [Fact]
     public async Task GetGroupsAsync_EmptyResponse_ReturnsEmpty()
     {
-        var jsonResponse = "[]";
+        string jsonResponse = "[]";
 
-        var handlerMock = new Mock<HttpMessageHandler>();
+        Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) });
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
-        var result = await ScheduleAction.GetGroupsAsync("РИ-151001", TestContext.Current.CancellationToken);
+        ScheduleAction.GroupInfo[] result = await ScheduleAction.GetGroupsAsync("РИ-151001", TestContext.Current.CancellationToken);
 
         result.ShouldBeEmpty();
     }

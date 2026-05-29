@@ -28,7 +28,7 @@ namespace TutorBot.TelegramService.BotActions
 
             if (!string.IsNullOrEmpty(answer))
             {
-                var answerEscape = TelegramMarkdownHelper.EscapeMarkdownV2(answer);
+                string answerEscape = TelegramMarkdownHelper.EscapeMarkdownV2(answer);
                 await client.SendMessage(
                     text: answerEscape,
                     parseMode: ParseMode.MarkdownV2

@@ -15,22 +15,22 @@ internal interface IBotFactory
 internal class BotFactory(TgBotServiceOptions options) : IBotFactory
 {
     public async Task<ITelegramBot> CreateBot(CancellationToken cancellationToken)
-    { 
+    {
         if (options.Proxies == null || !options.Proxies.Any())
         {
-            var tgBotClient = new TelegramBotClient(options.Token, cancellationToken: cancellationToken);
+            TelegramBotClient tgBotClient = new TelegramBotClient(options.Token, cancellationToken: cancellationToken);
             return new TelegramBot(tgBotClient);
         }
-         
-        foreach (var proxy in options.Proxies)
+
+        foreach (ProxySettings proxy in options.Proxies)
         {
             try
             {
-                var httpClient = CreateHttpClientWithProxy(proxy);
-                var tgBotClient = new TelegramBotClient(options.Token, httpClient, cancellationToken: cancellationToken);
+                HttpClient httpClient = CreateHttpClientWithProxy(proxy);
+                TelegramBotClient tgBotClient = new TelegramBotClient(options.Token, httpClient, cancellationToken: cancellationToken);
 
-                var botClient = new TelegramBot(tgBotClient);
-                 
+                TelegramBot botClient = new TelegramBot(tgBotClient);
+
                 await botClient.GetMe();
 
                 Console.WriteLine($"[Proxy] Successfully connected via {proxy.Host}:{proxy.Port}");
@@ -38,7 +38,7 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Proxy] Failed to connect via {proxy.Host}:{proxy.Port} - {ex.Message}"); 
+                Console.WriteLine($"[Proxy] Failed to connect via {proxy.Host}:{proxy.Port} - {ex.Message}");
             }
         }
 
@@ -47,11 +47,11 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
 
     private HttpClient CreateHttpClientWithProxy(ProxySettings proxy)
     {
-        var httpClientHandler = new HttpClientHandler();
+        HttpClientHandler httpClientHandler = new HttpClientHandler();
 
         if (!string.IsNullOrEmpty(proxy.Host))
         {
-            var webProxy = new WebProxy(proxy.Host, proxy.Port)
+            WebProxy webProxy = new WebProxy(proxy.Host, proxy.Port)
             {
                 BypassProxyOnLocal = false,
                 UseDefaultCredentials = false

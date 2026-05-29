@@ -1,7 +1,7 @@
-using TutorBot.TelegramService.BotActions;
-using TutorBot.TelegramService.Helpers;
 using TutorBot.IntegrationTest.Helpers;
 using TutorBot.IntegrationTest.TestFramework;
+using TutorBot.TelegramService.BotActions;
+using TutorBot.TelegramService.Helpers;
 using static TutorBot.TelegramService.BotActions.DialogModel;
 
 namespace TutorBot.IntegrationTest.Common;

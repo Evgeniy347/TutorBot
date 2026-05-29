@@ -3,13 +3,12 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Moq;
 using System.Reflection;
 using TutorBot.Abstractions;
 using TutorBot.App;
-using TutorBot.TelegramService;
 using TutorBot.IntegrationTest.DevOps;
 using TutorBot.IntegrationTest.Helpers;
+using TutorBot.TelegramService;
 using Xunit.Sdk;
 using Xunit.v3;
 

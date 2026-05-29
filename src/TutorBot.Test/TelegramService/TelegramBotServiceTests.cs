@@ -1,10 +1,7 @@
 using Moq;
-using Microsoft.Extensions.Options;
 using Shouldly;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 using TutorBot.Abstractions;
 using TutorBot.TelegramService;
 using TutorBot.TelegramService.BotActions;
@@ -72,7 +69,7 @@ public class TelegramBotServiceTests : IDisposable
 
     private static TutorBotContext CreateContext(Action<ChatEntry>? configure = null)
     {
-        var entry = new ChatEntry
+        ChatEntry entry = new ChatEntry
         {
             ID = 1,
             ChatID = 100,
@@ -87,7 +84,7 @@ public class TelegramBotServiceTests : IDisposable
         };
         configure?.Invoke(entry);
 
-        var context = new TutorBotContext(
+        TutorBotContext context = new TutorBotContext(
             Mock.Of<ITelegramBot>(),
             new TgBotServiceOptions { Enable = true, Token = "t", DialogModelPath = "x", EvaluateKey = "k" },
             Mock.Of<IApplication>(),
@@ -103,8 +100,8 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void IsWelcome_EmptyGroupNumber_ReturnsTrue()
     {
-        var context = CreateContext(ce => ce.GroupNumber = string.Empty);
-        var model = new DialogModel
+        TutorBotContext context = CreateContext(ce => ce.GroupNumber = string.Empty);
+        DialogModel model = new DialogModel
         {
             Start = new StartNodeModel { Handler = "s", NextStep = "n" },
             Handlers = new HandlersModel
@@ -117,7 +114,7 @@ public class TelegramBotServiceTests : IDisposable
             Menus = []
         };
 
-        var result = TelegramBotService.IsWelcome(context, model);
+        bool result = TelegramBotService.IsWelcome(context, model);
 
         result.ShouldBeTrue();
     }
@@ -125,8 +122,8 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void IsWelcome_HasGroupAndFullName_ReturnsFalse()
     {
-        var context = CreateContext();
-        var model = new DialogModel
+        TutorBotContext context = CreateContext();
+        DialogModel model = new DialogModel
         {
             Start = new StartNodeModel { Handler = "s", NextStep = "n" },
             Handlers = new HandlersModel
@@ -139,7 +136,7 @@ public class TelegramBotServiceTests : IDisposable
             Menus = []
         };
 
-        var result = TelegramBotService.IsWelcome(context, model);
+        bool result = TelegramBotService.IsWelcome(context, model);
 
         result.ShouldBeFalse();
     }
@@ -147,8 +144,8 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void IsWelcome_HasGroupEmptyFullNameWithQuestion_ReturnsTrue()
     {
-        var context = CreateContext(ce => ce.FullName = string.Empty);
-        var model = new DialogModel
+        TutorBotContext context = CreateContext(ce => ce.FullName = string.Empty);
+        DialogModel model = new DialogModel
         {
             Start = new StartNodeModel { Handler = "s", NextStep = "n" },
             Handlers = new HandlersModel
@@ -161,7 +158,7 @@ public class TelegramBotServiceTests : IDisposable
             Menus = []
         };
 
-        var result = TelegramBotService.IsWelcome(context, model);
+        bool result = TelegramBotService.IsWelcome(context, model);
 
         result.ShouldBeTrue();
     }
@@ -169,8 +166,8 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void IsWelcome_HasGroupEmptyFullNameWithoutQuestion_ReturnsFalse()
     {
-        var context = CreateContext(ce => ce.FullName = string.Empty);
-        var model = new DialogModel
+        TutorBotContext context = CreateContext(ce => ce.FullName = string.Empty);
+        DialogModel model = new DialogModel
         {
             Start = new StartNodeModel { Handler = "s", NextStep = "n" },
             Handlers = new HandlersModel
@@ -183,7 +180,7 @@ public class TelegramBotServiceTests : IDisposable
             Menus = []
         };
 
-        var result = TelegramBotService.IsWelcome(context, model);
+        bool result = TelegramBotService.IsWelcome(context, model);
 
         result.ShouldBeFalse();
     }
@@ -193,8 +190,8 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void FindAction_TextFound_ReturnsAction()
     {
-        var context = CreateContext();
-        var result = _service.FindAction("Help", context);
+        TutorBotContext context = CreateContext();
+        IBotAction? result = _service.FindAction("Help", context);
         result.ShouldNotBeNull();
         result.Key.ShouldBe("Help");
     }
@@ -202,16 +199,16 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void FindAction_TextNotFoundNotAdmin_ReturnsNull()
     {
-        var context = CreateContext();
-        var result = _service.FindAction("NonExistent", context);
+        TutorBotContext context = CreateContext();
+        IBotAction? result = _service.FindAction("NonExistent", context);
         result.ShouldBeNull();
     }
 
     [Fact]
     public void FindAction_TextNotFoundIsAdmin_FindsInAdminHandles()
     {
-        var context = CreateContext(ce => ce.IsAdmin = true);
-        var result = _service.FindAction("Получить статистику", context);
+        TutorBotContext context = CreateContext(ce => ce.IsAdmin = true);
+        IBotAction? result = _service.FindAction("Получить статистику", context);
         result.ShouldNotBeNull();
         result.Key.ShouldBe("Получить статистику");
     }
@@ -221,9 +218,9 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void SelectAction_TextFound_ReturnsAction()
     {
-        var context = CreateContext();
-        var message = new Message { Text = "Help" };
-        var result = _service.SelectAction(message, context);
+        TutorBotContext context = CreateContext();
+        Message message = new Message { Text = "Help" };
+        IBotAction? result = _service.SelectAction(message, context);
         result.ShouldNotBeNull();
         result.Key.ShouldBe("Help");
     }
@@ -231,13 +228,13 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void SelectAction_TextNotFoundProlongated_ReturnsLastAction()
     {
-        var context = CreateContext(ce =>
+        TutorBotContext context = CreateContext(ce =>
         {
             ce.LastActionKey = "Спросить нейросеть";
             ce.IsAdmin = true;
         });
-        var message = new Message { Text = "Some question" };
-        var result = _service.SelectAction(message, context);
+        Message message = new Message { Text = "Some question" };
+        IBotAction? result = _service.SelectAction(message, context);
         result.ShouldNotBeNull();
         result.Key.ShouldBe("Спросить нейросеть");
     }
@@ -245,22 +242,22 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void SelectAction_TextNotFoundNoProlongated_ReturnsNull()
     {
-        var context = CreateContext(ce =>
+        TutorBotContext context = CreateContext(ce =>
         {
             ce.LastActionKey = "Welcome";
             ce.IsAdmin = true;
         });
-        var message = new Message { Text = "Some text" };
-        var result = _service.SelectAction(message, context);
+        Message message = new Message { Text = "Some text" };
+        IBotAction? result = _service.SelectAction(message, context);
         result.ShouldBeNull();
     }
 
     [Fact]
     public void SelectAction_TextNotFoundNoLastKey_ReturnsNull()
     {
-        var context = CreateContext(ce => ce.LastActionKey = null);
-        var message = new Message { Text = "Some text" };
-        var result = _service.SelectAction(message, context);
+        TutorBotContext context = CreateContext(ce => ce.LastActionKey = null);
+        Message message = new Message { Text = "Some text" };
+        IBotAction? result = _service.SelectAction(message, context);
         result.ShouldBeNull();
     }
 
@@ -269,11 +266,11 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public async Task EnsureChat_ExistingChat_ReturnsEntry()
     {
-        var existingEntry = new ChatEntry { ID = 1, ChatID = 12345, UserID = 42 };
+        ChatEntry existingEntry = new ChatEntry { ID = 1, ChatID = 12345, UserID = 42 };
         _chatServiceMock.Setup(x => x.Find(12345)).ReturnsAsync(existingEntry);
-        var message = new Message { Chat = new Chat { Id = 12345 }, From = new User { Id = 42 } };
+        Message message = new Message { Chat = new Chat { Id = 12345 }, From = new User { Id = 42 } };
 
-        var result = await _service.EnsureChat(message);
+        ChatEntry result = await _service.EnsureChat(message);
 
         result.ShouldBe(existingEntry);
         _chatServiceMock.Verify(x => x.Create(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>()), Times.Never);
@@ -285,13 +282,13 @@ public class TelegramBotServiceTests : IDisposable
         _chatServiceMock.Setup(x => x.Find(12345)).ReturnsAsync((ChatEntry?)null);
         _chatServiceMock.Setup(x => x.Create(99, "Test", "User", "testuser", 12345))
             .ReturnsAsync(new ChatEntry { ID = 2, ChatID = 12345, UserID = 99 });
-        var message = new Message
+        Message message = new Message
         {
             Chat = new Chat { Id = 12345 },
             From = new User { Id = 99, FirstName = "Test", LastName = "User", Username = "testuser" }
         };
 
-        var result = await _service.EnsureChat(message);
+        ChatEntry result = await _service.EnsureChat(message);
 
         result.ShouldNotBeNull();
         result.ChatID.ShouldBe(12345);
@@ -300,7 +297,7 @@ public class TelegramBotServiceTests : IDisposable
     [Fact]
     public void EnsureChat_NullChat_Throws()
     {
-        var message = new Message { Chat = null!, From = new User { Id = 42 } };
+        Message message = new Message { Chat = null!, From = new User { Id = 42 } };
 
         Should.Throw<ArgumentNullException>(() => _service.EnsureChat(message));
     }

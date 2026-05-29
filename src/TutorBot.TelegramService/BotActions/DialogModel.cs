@@ -1,11 +1,12 @@
 ﻿
 namespace TutorBot.TelegramService.BotActions;
+
 public class DialogModel
 {
     public required StartNodeModel Start { get; set; }
     public required HandlersModel Handlers { get; set; }
     public required MenuItem[] Menus { get; set; }
-     
+
     public class StartNodeModel
     {
         public required string Handler { get; set; }

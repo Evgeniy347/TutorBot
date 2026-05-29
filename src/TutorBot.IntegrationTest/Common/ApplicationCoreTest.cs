@@ -16,7 +16,7 @@ public class ApplicationCoreTest(CustomAppFactory factory, ITestOutputHelper out
     {
         using (HttpClient client = await factory.CreateApplication())
         {
-            using var response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
+            using HttpResponseMessage response = await client.GetAsync("/health", TestContext.Current.CancellationToken);
             output.WriteLine($@"StatusCode {(int)response.StatusCode} {response.StatusCode}
 {await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)}");
 

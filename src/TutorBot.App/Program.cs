@@ -11,13 +11,13 @@ public class Program
     {
         Console.OutputEncoding = Console.InputEncoding = System.Text.Encoding.UTF8;
 
-        var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions()
         {
             Args = args,
             ApplicationName = "TutorBot.App"
         });
 
-        var services = builder.Services;
+        IServiceCollection services = builder.Services;
 
         if (!AppContext.TryGetSwitch("DisableLoadConfig", out bool isDisableLoadConfig) || !isDisableLoadConfig)
         {
@@ -37,8 +37,8 @@ public class Program
         services.AddTelegramService(builder.Configuration);
 
         services.AddControllers();
-         
-        var app = builder.Build();
+
+        WebApplication app = builder.Build();
 
         app.MapDefaultEndpoints();
 

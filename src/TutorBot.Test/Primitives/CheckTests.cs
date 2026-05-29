@@ -7,7 +7,7 @@ public class CheckTests
     [Fact]
     public void NotNull_WithValue_ReturnsValue()
     {
-        var obj = new object();
+        object obj = new object();
         Check.NotNull(obj).ShouldBeSameAs(obj);
     }
 
@@ -22,7 +22,7 @@ public class CheckTests
     [Fact]
     public void NotEmpty_Array_WithItems_ReturnsArray()
     {
-        var arr = new[] { 1, 2, 3 };
+        int[] arr = new[] { 1, 2, 3 };
         Check.NotEmpty(arr).ShouldBe(arr);
     }
 
@@ -37,7 +37,7 @@ public class CheckTests
     [Fact]
     public void NotEmpty_String_WithText_ReturnsText()
     {
-        var s = "hello";
+        string s = "hello";
         Check.NotEmpty(s).ShouldBe(s);
     }
 
@@ -52,7 +52,7 @@ public class CheckTests
     [Fact]
     public void NotEmpty_Guid_WithValue_ReturnsValue()
     {
-        var g = Guid.NewGuid();
+        Guid g = Guid.NewGuid();
         Check.NotEmpty(g).ShouldBe(g);
     }
 
@@ -63,7 +63,7 @@ public class CheckTests
     [Fact]
     public void NotEmpty_DateTime_WithValue_ReturnsValue()
     {
-        var dt = DateTime.UtcNow;
+        DateTime dt = DateTime.UtcNow;
         Check.NotEmpty(dt).ShouldBe(dt);
     }
 
@@ -74,7 +74,7 @@ public class CheckTests
     [Fact]
     public void NotZero_TimeSpan_WithValue_ReturnsValue()
     {
-        var ts = TimeSpan.FromSeconds(5);
+        TimeSpan ts = TimeSpan.FromSeconds(5);
         Check.NotZero(ts).ShouldBe(ts);
     }
 
@@ -109,7 +109,7 @@ public class CheckTests
     [Fact]
     public void IsPositive_TimeSpan_WithPositive_ReturnsValue()
     {
-        var ts = TimeSpan.FromSeconds(1);
+        TimeSpan ts = TimeSpan.FromSeconds(1);
         Check.IsPositive(ts).ShouldBe(ts);
     }
 
@@ -140,7 +140,7 @@ public class CheckTests
     [Fact]
     public void IsPositiveOrZero_TimeSpan_Positive_ReturnsValue()
     {
-        var ts = TimeSpan.FromSeconds(1);
+        TimeSpan ts = TimeSpan.FromSeconds(1);
         Check.IsPositiveOrZero(ts).ShouldBe(ts);
     }
 

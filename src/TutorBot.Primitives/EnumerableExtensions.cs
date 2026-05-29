@@ -93,10 +93,10 @@ namespace System.Collections.Generic
         {
             if (items != null)
             {
-                var set = CreateCycleSet<T>();
-                foreach (var item in items)
+                HashSet<T> set = CreateCycleSet<T>();
+                foreach (T? item in items)
                 {
-                    foreach (var childTraverse in item.RecursiveSelect(childSelector, set))
+                    foreach (T? childTraverse in item.RecursiveSelect(childSelector, set))
                         yield return childTraverse;
                 }
             }
@@ -123,10 +123,10 @@ namespace System.Collections.Generic
         {
             if (items != null)
             {
-                var set = CreateCycleSet<T>();
-                foreach (var item in items)
+                HashSet<T> set = CreateCycleSet<T>();
+                foreach (T? item in items)
                 {
-                    foreach (var childTraverse in item.RecursiveSelect(childSelector, set))
+                    foreach (T? childTraverse in item.RecursiveSelect(childSelector, set))
                         yield return childTraverse;
                 }
             }
@@ -144,11 +144,11 @@ namespace System.Collections.Generic
                 set.Add(item);
                 yield return item;
 
-                var childs = childSelector(item);
+                IEnumerable<T> childs = childSelector(item);
                 if (childs != null)
                 {
-                    foreach (var child in childs)
-                        foreach (var childTraverse in RecursiveSelect(child, childSelector, set))
+                    foreach (T? child in childs)
+                        foreach (T? childTraverse in RecursiveSelect(child, childSelector, set))
                             yield return childTraverse;
                 }
             }
@@ -161,10 +161,10 @@ namespace System.Collections.Generic
                 set.Add(item);
                 yield return item;
 
-                var child = childSelector(item);
+                T? child = childSelector(item);
 
                 if (child != null)
-                    foreach (var childTraverse in RecursiveSelect(child, childSelector, set))
+                    foreach (T? childTraverse in RecursiveSelect(child, childSelector, set))
                         yield return childTraverse;
             }
         }

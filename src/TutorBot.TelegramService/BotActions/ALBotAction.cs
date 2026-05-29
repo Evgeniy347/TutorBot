@@ -22,7 +22,7 @@ namespace TutorBot.TelegramService.BotActions
             {
                 string answer = await client.App.ALService.TransferQuestionAL(client.ChatEntry.ChatID, message.Text ?? string.Empty, client.ChatEntry.SessionID);
 
-                var answerEscape = TelegramMarkdownHelper.EscapeMarkdownV2(answer);
+                string answerEscape = TelegramMarkdownHelper.EscapeMarkdownV2(answer);
                 await client.SendMessage(answerEscape, parseMode: ParseMode.MarkdownV2);
             }
         }
@@ -42,8 +42,8 @@ namespace TutorBot.TelegramService.BotActions
         public static string EscapeMarkdownV2(string text)
         {
             // Находим все существующие Markdown-элементы
-            var matches = _markdownRegex.Matches(text);
-            var result = new StringBuilder();
+            MatchCollection matches = _markdownRegex.Matches(text);
+            StringBuilder result = new StringBuilder();
             int lastPos = 0;
 
             // Обрабатываем текст между Markdown-элементами
@@ -67,7 +67,7 @@ namespace TutorBot.TelegramService.BotActions
         /// </summary>
         private static string EscapeText(string text)
         {
-            var result = new StringBuilder();
+            StringBuilder result = new StringBuilder();
             foreach (char c in text)
             {
                 if (_specialChars.Contains(c))

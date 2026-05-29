@@ -1,5 +1,4 @@
 using Moq;
-using Shouldly;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -28,7 +27,7 @@ public class YandexSearchActionTests
 
     private TutorBotContext CreateContext(ChatEntry? chatEntry = null)
     {
-        var context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
+        TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, CancellationToken.None);
         context.ChatEntry = chatEntry ?? new ChatEntry
         {
             ID = 1,
@@ -64,7 +63,9 @@ public class YandexSearchActionTests
             {
                 Welcome = new WelcomeHandler
                 {
-                    Key = "welcome", WelcomeText = "hello", ErrorText = "err",
+                    Key = "welcome",
+                    WelcomeText = "hello",
+                    ErrorText = "err",
                     GroupNumbers = ["101"]
                 },
                 Schedule = new ScheduleItem { Key = "sched", Text = ["s"] },
@@ -95,16 +96,16 @@ public class YandexSearchActionTests
     [Fact]
     public async Task ExecuteAsync_KeyEquals_SendsDescriptionsWithMenu()
     {
-        var model = CreateModelWithMenu("search");
-        var item = new YandexSearchTextItem
+        DialogModel model = CreateModelWithMenu("search");
+        YandexSearchTextItem item = new YandexSearchTextItem
         {
             Key = "search",
             Descriptions = "Введите запрос:",
             Text = ["результат: {Text}"]
         };
-        var action = new YandexSearchAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("search");
+        YandexSearchAction action = new YandexSearchAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("search");
 
         await action.ExecuteAsync(message, context);
 
@@ -127,16 +128,16 @@ public class YandexSearchActionTests
     [Fact]
     public async Task ExecuteAsync_NullText_SendsDescriptions()
     {
-        var model = CreateModelWithMenu("search");
-        var item = new YandexSearchTextItem
+        DialogModel model = CreateModelWithMenu("search");
+        YandexSearchTextItem item = new YandexSearchTextItem
         {
             Key = "search",
             Descriptions = "Введите запрос:",
             Text = ["результат: {Text}"]
         };
-        var action = new YandexSearchAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage(null);
+        YandexSearchAction action = new YandexSearchAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage(null);
 
         await action.ExecuteAsync(message, context);
 
@@ -159,16 +160,16 @@ public class YandexSearchActionTests
     [Fact]
     public async Task ExecuteAsync_EmptyText_SendsDescriptions()
     {
-        var model = CreateModelWithMenu("search");
-        var item = new YandexSearchTextItem
+        DialogModel model = CreateModelWithMenu("search");
+        YandexSearchTextItem item = new YandexSearchTextItem
         {
             Key = "search",
             Descriptions = "Введите запрос:",
             Text = ["результат: {Text}"]
         };
-        var action = new YandexSearchAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("");
+        YandexSearchAction action = new YandexSearchAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("");
 
         await action.ExecuteAsync(message, context);
 
@@ -191,16 +192,16 @@ public class YandexSearchActionTests
     [Fact]
     public async Task ExecuteAsync_ValidText_SendsReplacedText()
     {
-        var model = CreateModelWithMenu("search");
-        var item = new YandexSearchTextItem
+        DialogModel model = CreateModelWithMenu("search");
+        YandexSearchTextItem item = new YandexSearchTextItem
         {
             Key = "search",
             Descriptions = "Введите запрос:",
             Text = ["Результат: {Text}"]
         };
-        var action = new YandexSearchAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("some query");
+        YandexSearchAction action = new YandexSearchAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("some query");
 
         await action.ExecuteAsync(message, context);
 
@@ -223,8 +224,8 @@ public class YandexSearchActionTests
     [Fact]
     public async Task ExecuteAsync_WithPattern_ValidInput_SendsText()
     {
-        var model = CreateModelWithMenu("search");
-        var item = new YandexSearchTextItem
+        DialogModel model = CreateModelWithMenu("search");
+        YandexSearchTextItem item = new YandexSearchTextItem
         {
             Key = "search",
             Descriptions = "Введите запрос:",
@@ -232,9 +233,9 @@ public class YandexSearchActionTests
             InvalidPatternMessage = "Только цифры!",
             Text = ["Результат: {Text}"]
         };
-        var action = new YandexSearchAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("123");
+        YandexSearchAction action = new YandexSearchAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("123");
 
         await action.ExecuteAsync(message, context);
 
@@ -257,8 +258,8 @@ public class YandexSearchActionTests
     [Fact]
     public async Task ExecuteAsync_WithPattern_InvalidInput_SendsError()
     {
-        var model = CreateModelWithMenu("search");
-        var item = new YandexSearchTextItem
+        DialogModel model = CreateModelWithMenu("search");
+        YandexSearchTextItem item = new YandexSearchTextItem
         {
             Key = "search",
             Descriptions = "Введите запрос:",
@@ -266,9 +267,9 @@ public class YandexSearchActionTests
             InvalidPatternMessage = "Только цифры!",
             Text = ["Результат: {Text}"]
         };
-        var action = new YandexSearchAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("abc");
+        YandexSearchAction action = new YandexSearchAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("abc");
 
         await action.ExecuteAsync(message, context);
 
@@ -291,14 +292,16 @@ public class YandexSearchActionTests
     [Fact]
     public async Task ExecuteAsync_NoMenu_WritesError()
     {
-        var model = new DialogModel
+        DialogModel model = new DialogModel
         {
             Start = new StartNodeModel { Handler = "start", NextStep = "menu" },
             Handlers = new HandlersModel
             {
                 Welcome = new WelcomeHandler
                 {
-                    Key = "welcome", WelcomeText = "hello", ErrorText = "err",
+                    Key = "welcome",
+                    WelcomeText = "hello",
+                    ErrorText = "err",
                     GroupNumbers = ["101"]
                 },
                 Schedule = new ScheduleItem { Key = "sched", Text = ["s"] },
@@ -307,21 +310,23 @@ public class YandexSearchActionTests
             },
             Menus = []
         };
-        var item = new YandexSearchTextItem
+        YandexSearchTextItem item = new YandexSearchTextItem
         {
             Key = "no-menu-key",
             Descriptions = "desc",
             Text = ["text"]
         };
-        var action = new YandexSearchAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("any");
+        YandexSearchAction action = new YandexSearchAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("any");
 
         _chatServiceMock.Setup(x => x.Find(-1)).ReturnsAsync((ChatEntry?)null);
         _chatServiceMock.Setup(x => x.Create(-1, It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), -1)).ReturnsAsync(new ChatEntry
             {
-                ID = -1, ChatID = -1, UserID = -1,
+                ID = -1,
+                ChatID = -1,
+                UserID = -1,
                 FullName = "Error Service"
             });
 
@@ -334,16 +339,16 @@ public class YandexSearchActionTests
     [Fact]
     public async Task ExecuteAsync_ReplacesTextAndTextUri()
     {
-        var model = CreateModelWithMenu("search");
-        var item = new YandexSearchTextItem
+        DialogModel model = CreateModelWithMenu("search");
+        YandexSearchTextItem item = new YandexSearchTextItem
         {
             Key = "search",
             Descriptions = "desc",
             Text = ["query={Text}", "uri={Text:URI}"]
         };
-        var action = new YandexSearchAction(model, item);
-        var context = CreateContext();
-        var message = CreateMessage("hello world");
+        YandexSearchAction action = new YandexSearchAction(model, item);
+        TutorBotContext context = CreateContext();
+        Message message = CreateMessage("hello world");
 
         await action.ExecuteAsync(message, context);
 

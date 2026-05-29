@@ -1,5 +1,5 @@
-﻿using TutorBot.TelegramService.Helpers;
-using Shouldly;
+﻿using Shouldly;
+using TutorBot.TelegramService.Helpers;
 
 namespace TutorBot.Test.Common
 {
@@ -79,7 +79,7 @@ namespace TutorBot.Test.Common
                 "РИ-601002",
             ];
 
-            var resultList = StringHelpers.ExpandNumbers(inputList);
+            string[] resultList = StringHelpers.ExpandNumbers(inputList);
 
             string lineResult = resultList.OrderBy(x => x).JoinString(", ");
             string lineOut = outList.OrderBy(x => x).JoinString(", ");
@@ -90,21 +90,21 @@ namespace TutorBot.Test.Common
         [Fact]
         public void ExpandNumbers_SinglePattern_ReturnsItself()
         {
-            var result = StringHelpers.ExpandNumbers(["РИ-151001"]);
+            string[] result = StringHelpers.ExpandNumbers(["РИ-151001"]);
             result.ShouldBe(["РИ-151001"]);
         }
 
         [Fact]
         public void ExpandNumbers_NoSlashes_ReturnsAll()
         {
-            var result = StringHelpers.ExpandNumbers(["A", "B"]);
+            string[] result = StringHelpers.ExpandNumbers(["A", "B"]);
             result.ShouldBe(["A", "B"]);
         }
 
         [Fact]
         public void ExpandNumbers_EmptyInput_ReturnsEmpty()
         {
-            var result = StringHelpers.ExpandNumbers([]);
+            string[] result = StringHelpers.ExpandNumbers([]);
             result.ShouldBeEmpty();
         }
     }

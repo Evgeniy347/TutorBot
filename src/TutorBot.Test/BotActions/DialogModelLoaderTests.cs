@@ -1,7 +1,5 @@
 using Shouldly;
-using System.Text.Json;
 using TutorBot.TelegramService.BotActions;
-using static TutorBot.TelegramService.BotActions.DialogModel;
 
 namespace TutorBot.Test.BotActions;
 
@@ -10,7 +8,7 @@ public class DialogModelLoaderTests
 {
     private static string CreateTempFile(string jsonContent)
     {
-        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
+        string path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
         File.WriteAllText(path, jsonContent);
         return path;
     }
@@ -35,11 +33,11 @@ public class DialogModelLoaderTests
     [Fact]
     public void LoadModel_ValidJson_ReturnsModel()
     {
-        var path = CreateTempFile(ValidJson);
+        string path = CreateTempFile(ValidJson);
         try
         {
-            var loader = new DialogModelLoader(path);
-            var model = loader.GetModel();
+            DialogModelLoader loader = new DialogModelLoader(path);
+            DialogModel model = loader.GetModel();
 
             model.ShouldNotBeNull();
             model.Start.Handler.ShouldBe("start_handler");
@@ -60,13 +58,13 @@ public class DialogModelLoaderTests
     [Fact]
     public void LoadModel_CachesModel_OnSecondCall()
     {
-        var path = CreateTempFile(ValidJson);
+        string path = CreateTempFile(ValidJson);
         try
         {
-            var loader = new DialogModelLoader(path);
+            DialogModelLoader loader = new DialogModelLoader(path);
 
-            var model1 = loader.GetModel();
-            var model2 = loader.GetModel();
+            DialogModel model1 = loader.GetModel();
+            DialogModel model2 = loader.GetModel();
 
             model1.ShouldBeSameAs(model2);
         }
@@ -79,13 +77,13 @@ public class DialogModelLoaderTests
     [Fact]
     public void LoadModel_Reloads_WhenFileChanges()
     {
-        var path = CreateTempFile(ValidJson);
+        string path = CreateTempFile(ValidJson);
         try
         {
-            var loader = new DialogModelLoader(path);
-            var model1 = loader.GetModel();
+            DialogModelLoader loader = new DialogModelLoader(path);
+            DialogModel model1 = loader.GetModel();
 
-            var updatedJson = /*lang=json*/ """
+            string updatedJson = /*lang=json*/ """
             {
                 "Start": { "Handler": "updated_handler", "NextStep": "updated_menu" },
                 "Handlers": {
@@ -103,7 +101,7 @@ public class DialogModelLoaderTests
             File.WriteAllText(path, updatedJson);
             File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddSeconds(1));
 
-            var model2 = loader.GetModel();
+            DialogModel model2 = loader.GetModel();
 
             model2.ShouldNotBeSameAs(model1);
             model2.Start.Handler.ShouldBe("updated_handler");
@@ -118,7 +116,7 @@ public class DialogModelLoaderTests
     [Fact]
     public void LoadModel_DuplicateSimpleTextKey_Throws()
     {
-        var json = /*lang=json*/ """
+        string json = /*lang=json*/ """
         {
             "Start": { "Handler": "s", "NextStep": "n" },
             "Handlers": {
@@ -135,10 +133,10 @@ public class DialogModelLoaderTests
             ]
         }
         """;
-        var path = CreateTempFile(json);
+        string path = CreateTempFile(json);
         try
         {
-            var loader = new DialogModelLoader(path);
+            DialogModelLoader loader = new DialogModelLoader(path);
 
             Should.Throw<InvalidOperationException>(() => loader.GetModel())
                 .Message.ShouldContain("dup");
@@ -152,7 +150,7 @@ public class DialogModelLoaderTests
     [Fact]
     public void LoadModel_DuplicateMenuKey_Throws()
     {
-        var json = /*lang=json*/ """
+        string json = /*lang=json*/ """
         {
             "Start": { "Handler": "s", "NextStep": "n" },
             "Handlers": {
@@ -167,10 +165,10 @@ public class DialogModelLoaderTests
             ]
         }
         """;
-        var path = CreateTempFile(json);
+        string path = CreateTempFile(json);
         try
         {
-            var loader = new DialogModelLoader(path);
+            DialogModelLoader loader = new DialogModelLoader(path);
 
             Should.Throw<InvalidOperationException>(() => loader.GetModel())
                 .Message.ShouldContain("dup");
@@ -184,7 +182,7 @@ public class DialogModelLoaderTests
     [Fact]
     public void LoadModel_MissingButtonKey_Throws()
     {
-        var json = /*lang=json*/ """
+        string json = /*lang=json*/ """
         {
             "Start": { "Handler": "s", "NextStep": "n" },
             "Handlers": {
@@ -198,10 +196,10 @@ public class DialogModelLoaderTests
             ]
         }
         """;
-        var path = CreateTempFile(json);
+        string path = CreateTempFile(json);
         try
         {
-            var loader = new DialogModelLoader(path);
+            DialogModelLoader loader = new DialogModelLoader(path);
 
             Should.Throw<KeyNotFoundException>(() => loader.GetModel())
                 .Message.ShouldBe("NonExistent");

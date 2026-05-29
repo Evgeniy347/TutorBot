@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Telegram.Bot.Types;
@@ -76,8 +75,8 @@ Groups:'{groups.Select(x => x.Title).JoinString("', '")}'
         string encodedSearch = Uri.EscapeDataString(searchTerm);
         string url = $"{BaseUrl}api/v2/schedule/groups?search={encodedSearch}";
 
-        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+        using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
         HttpResponseMessage response = await Client.GetAsync(url, linkedCts.Token);
 

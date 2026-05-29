@@ -1,4 +1,5 @@
 using Shouldly;
+using Telegram.Bot.Types.ReplyMarkups;
 using TutorBot.TelegramService.BotActions;
 using TutorBot.TelegramService.BotActions.Admins;
 using static TutorBot.TelegramService.BotActions.DialogModel;
@@ -37,8 +38,8 @@ public class BotActionHubTests
     [Fact]
     public void FindHandler_SimpleTextKey_ReturnsSimpleTextBotAction()
     {
-        var model = CreateTestModel();
-        var handler = BotActionHub.FindHandler(model, "Помощь");
+        DialogModel model = CreateTestModel();
+        IBotAction? handler = BotActionHub.FindHandler(model, "Помощь");
         handler.ShouldNotBeNull();
         handler.ShouldBeOfType<SimpleTextBotAction>();
         handler.Key.ShouldBe("Помощь");
@@ -47,8 +48,8 @@ public class BotActionHubTests
     [Fact]
     public void FindHandler_ScheduleKey_ReturnsScheduleAction()
     {
-        var model = CreateTestModel();
-        var handler = BotActionHub.FindHandler(model, "Расписание");
+        DialogModel model = CreateTestModel();
+        IBotAction? handler = BotActionHub.FindHandler(model, "Расписание");
         handler.ShouldNotBeNull();
         handler.Key.ShouldBe("Расписание");
     }
@@ -56,8 +57,8 @@ public class BotActionHubTests
     [Fact]
     public void FindHandler_ALKey_ReturnsALBotAction()
     {
-        var model = CreateTestModel();
-        var handler = BotActionHub.FindHandler(model, "Спросить нейросеть");
+        DialogModel model = CreateTestModel();
+        IBotAction? handler = BotActionHub.FindHandler(model, "Спросить нейросеть");
         handler.ShouldNotBeNull();
         handler.ShouldBeOfType<ALBotAction>();
     }
@@ -65,8 +66,8 @@ public class BotActionHubTests
     [Fact]
     public void FindHandler_AdminKey_ReturnsAdminBotAction()
     {
-        var model = CreateTestModel();
-        var handler = BotActionHub.FindHandler(model, "/admin");
+        DialogModel model = CreateTestModel();
+        IBotAction? handler = BotActionHub.FindHandler(model, "/admin");
         handler.ShouldNotBeNull();
         handler.ShouldBeOfType<AdminBotAction>();
     }
@@ -74,8 +75,8 @@ public class BotActionHubTests
     [Fact]
     public void FindHandler_ResetKey_ReturnsResetBotAction()
     {
-        var model = CreateTestModel();
-        var handler = BotActionHub.FindHandler(model, "Перезапустить");
+        DialogModel model = CreateTestModel();
+        IBotAction? handler = BotActionHub.FindHandler(model, "Перезапустить");
         handler.ShouldNotBeNull();
         handler.ShouldBeOfType<ResetBotAction>();
     }
@@ -83,8 +84,8 @@ public class BotActionHubTests
     [Fact]
     public void FindHandler_SubMenuKey_ReturnsSimpleSubMenuBotAction()
     {
-        var model = CreateTestModel();
-        var handler = BotActionHub.FindHandler(model, "Главное меню");
+        DialogModel model = CreateTestModel();
+        IBotAction? handler = BotActionHub.FindHandler(model, "Главное меню");
         handler.ShouldNotBeNull();
         handler.ShouldBeOfType<SimpleSubMenuBotAction>();
     }
@@ -92,15 +93,15 @@ public class BotActionHubTests
     [Fact]
     public void FindHandler_NotFound_ReturnsNull()
     {
-        var model = CreateTestModel();
-        var handler = BotActionHub.FindHandler(model, "Несуществующий ключ");
+        DialogModel model = CreateTestModel();
+        IBotAction? handler = BotActionHub.FindHandler(model, "Несуществующий ключ");
         handler.ShouldBeNull();
     }
 
     [Fact]
     public void FindHandler_NotFoundWithThrow_Throws()
     {
-        var model = CreateTestModel();
+        DialogModel model = CreateTestModel();
         Should.Throw<Exception>(() => BotActionHub.FindHandler(model, "Несуществующий ключ", throwNotFound: true));
     }
 
@@ -125,8 +126,8 @@ public class BotActionHubTests
     [Fact]
     public void GetAdminMenuKeyboard_ReturnsThreeButtons()
     {
-        var keyboard = BotActionHub.GetAdminMenuKeyboard();
-        var rows = keyboard.Keyboard.ToList();
+        ReplyKeyboardMarkup keyboard = BotActionHub.GetAdminMenuKeyboard();
+        List<IEnumerable<KeyboardButton>> rows = keyboard.Keyboard.ToList();
         rows.Count.ShouldBe(3);
         rows[0].First().Text.ShouldBe("Получить статистику");
         rows[1].First().Text.ShouldBe("Оповещения об ошибках");

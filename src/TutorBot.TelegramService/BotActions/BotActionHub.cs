@@ -1,5 +1,5 @@
 ﻿using Telegram.Bot.Types.ReplyMarkups;
-using TutorBot.TelegramService.BotActions.Admins; 
+using TutorBot.TelegramService.BotActions.Admins;
 
 namespace TutorBot.TelegramService.BotActions;
 

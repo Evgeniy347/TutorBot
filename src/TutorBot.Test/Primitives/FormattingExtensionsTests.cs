@@ -27,14 +27,14 @@ public class FormattingExtensionsTests
     [Fact]
     public void JoinStrings_WithSeparator_Joins()
     {
-        var result = new[] { "a", "b", "c" }.JoinStrings(", ");
+        string result = new[] { "a", "b", "c" }.JoinStrings(", ");
         result.ShouldBe("a, b, c");
     }
 
     [Fact]
     public void JoinStrings_DefaultSeparator_UsesComma()
     {
-        var result = new[] { "a", "b" }.JoinStrings(",");
+        string result = new[] { "a", "b" }.JoinStrings(",");
         result.ShouldBe("a,b");
     }
 
@@ -49,7 +49,7 @@ public class FormattingExtensionsTests
     [Fact]
     public void Trim_WithTrimValues_RemovesPrefixAndSuffix()
     {
-        var result = "xxHelloWorldxx".Trim("xx");
+        string result = "xxHelloWorldxx".Trim("xx");
         result.ShouldBe("HelloWorld");
     }
 
@@ -68,8 +68,8 @@ public class FormattingExtensionsTests
     [Fact]
     public void RemoveContentWhitespaces_WithIndentation_Removes()
     {
-        var input = "\n  text\n  more";
-        var result = input.RemoveContentWhitespaces();
+        string input = "\n  text\n  more";
+        string result = input.RemoveContentWhitespaces();
         result.ShouldNotContain("\n  ");
     }
 
@@ -84,10 +84,10 @@ public class FormattingExtensionsTests
     [Fact]
     public void FullExceptionStack_ReturnsAllInnerExceptions()
     {
-        var inner = new InvalidOperationException("inner");
-        var outer = new Exception("outer", inner);
+        InvalidOperationException inner = new InvalidOperationException("inner");
+        Exception outer = new Exception("outer", inner);
 
-        var stack = outer.FullExceptionStack();
+        IReadOnlyList<Exception> stack = outer.FullExceptionStack();
         stack.Count.ShouldBe(2);
         stack[0].Message.ShouldBe("outer");
         stack[1].Message.ShouldBe("inner");
@@ -100,10 +100,10 @@ public class FormattingExtensionsTests
     [Fact]
     public void GetMessageStack_ReturnsFormattedMessages()
     {
-        var inner = new InvalidOperationException("inner msg");
-        var outer = new Exception("outer msg", inner);
+        InvalidOperationException inner = new InvalidOperationException("inner msg");
+        Exception outer = new Exception("outer msg", inner);
 
-        var result = outer.GetMessageStack();
+        string result = outer.GetMessageStack();
         result.ShouldContain("outer msg");
         result.ShouldContain("inner msg");
     }
@@ -111,63 +111,63 @@ public class FormattingExtensionsTests
     [Fact]
     public void Trim_MultipleTrimValues_RemovesAll()
     {
-        var result = "abchellodef".Trim("abc", "def");
+        string result = "abchellodef".Trim("abc", "def");
         result.ShouldBe("hello");
     }
 
     [Fact]
     public void Trim_RepeatedTrim_RemovesNested()
     {
-        var result = "xxyyxx".Trim("xx");
+        string result = "xxyyxx".Trim("xx");
         result.ShouldBe("yy");
     }
 
     [Fact]
     public void JoinStrings_CharSeparator_Joins()
     {
-        var result = new[] { "a", "b", "c" }.JoinStrings(',');
+        string result = new[] { "a", "b", "c" }.JoinStrings(',');
         result.ShouldBe("a,b,c");
     }
 
     [Fact]
     public void DoubleQuotes_IStringWrapper_ReturnsWrappedString()
     {
-        var wrapper = new TestStringWrapper("test");
+        TestStringWrapper wrapper = new TestStringWrapper("test");
         wrapper.DoubleQuotes().ShouldBe("\"test\"");
     }
 
     [Fact]
     public void SingleQuotes_IStringWrapper_ReturnsWrappedString()
     {
-        var wrapper = new TestStringWrapper("test");
+        TestStringWrapper wrapper = new TestStringWrapper("test");
         wrapper.SingleQuotes().ShouldBe("'test'");
     }
 
     [Fact]
     public void SquareBrackets_IStringWrapper_ReturnsWrappedString()
     {
-        var wrapper = new TestStringWrapper("test");
+        TestStringWrapper wrapper = new TestStringWrapper("test");
         wrapper.SquareBrackets().ShouldBe("[test]");
     }
 
     [Fact]
     public void RoundBrackets_IStringWrapper_ReturnsWrappedString()
     {
-        var wrapper = new TestStringWrapper("test");
+        TestStringWrapper wrapper = new TestStringWrapper("test");
         wrapper.RoundBrackets().ShouldBe("(test)");
     }
 
     [Fact]
     public void JoinStrings_IStringWrapperEnumerable_Joins()
     {
-        var result = new IStringWrapper[] { new TestStringWrapper("a"), new TestStringWrapper("b") }.JoinStrings(", ");
+        string result = new IStringWrapper[] { new TestStringWrapper("a"), new TestStringWrapper("b") }.JoinStrings(", ");
         result.ShouldBe("a, b");
     }
 
     [Fact]
     public void ToLower_IStringWrapper_ReturnsLowercase()
     {
-        var wrapper = new TestStringWrapper("HELLO");
+        TestStringWrapper wrapper = new TestStringWrapper("HELLO");
         FormattingExtensions.ToLower(wrapper).ShouldBe("hello");
     }
 

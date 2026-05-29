@@ -14,9 +14,9 @@ namespace TutorBot.TelegramService
     {
         private DialogModelLoader _dialogLoader = new DialogModelLoader(opt.Value.DialogModelPath);
         private readonly Channel<bool> _reconnectChannel = Channel.CreateUnbounded<bool>();
-    private ITelegramBot? _currentBot;
-    private CancellationTokenSource? _botCts;
-    private long _botID;
+        private ITelegramBot? _currentBot;
+        private CancellationTokenSource? _botCts;
+        private long _botID;
 
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -24,23 +24,23 @@ namespace TutorBot.TelegramService
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
-                { 
+                {
                     _botCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
-                     
+
                     _currentBot = await clientFactory.CreateBot(_botCts.Token);
 
                     User bot = await _currentBot.GetMe();
                     _botID = bot.Id;
                     await app.HistoryService.AddStatusService("Start", $"bot.Id:{_botID}");
-                     
+
                     _currentBot.AddErrorHandler((ex, src) => HandleErrorAsync(ex, src, _botCts));
                     _currentBot.AddMessageHandler((msg, type) => MessageHandle(msg, type, bot.Id, _currentBot, _botCts.Token));
-                     
+
                     await Task.WhenAny(
                         Task.Delay(-1, stoppingToken),
                         _reconnectChannel.Reader.ReadAsync(stoppingToken).AsTask()
                     );
-                     
+
                     if (_currentBot != null)
                     {
                         await _currentBot.Close(_botCts.Token);
@@ -49,12 +49,12 @@ namespace TutorBot.TelegramService
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
-                    break;  
+                    break;
                 }
                 catch (Exception ex)
                 {
                     await app.HistoryService.AddStatusService("Error", $"Critical: {ex.Message}");
-                    await Task.Delay(5000, stoppingToken);  
+                    await Task.Delay(5000, stoppingToken);
                 }
                 finally
                 {
@@ -64,17 +64,17 @@ namespace TutorBot.TelegramService
         }
 
         private async Task HandleErrorAsync(Exception exception, HandleErrorSource source, CancellationTokenSource cts)
-        { 
+        {
             if (exception is HttpRequestException or TaskCanceledException or IOException)
             {
                 await app.HistoryService.AddStatusService("Error", $"Network error: {exception.Message}. Reconnecting...");
-                 
+
                 cts.Cancel();
-                 
+
                 await _reconnectChannel.Writer.WriteAsync(true);
             }
             else
-            { 
+            {
                 await app.HistoryService.AddStatusService("Error", $"{source}: {exception.Message}");
 
                 if (_currentBot != null)
