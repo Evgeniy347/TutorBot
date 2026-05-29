@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Telegram.Bot.Types;
+﻿using Telegram.Bot.Types;
+using static Telegram.Bot.Types.Enums.ParseMode;
 using TutorBot.Abstractions;
 
 namespace TutorBot.TelegramService.BotActions.Admins
@@ -9,87 +9,106 @@ namespace TutorBot.TelegramService.BotActions.Admins
         public string Key => "Получить статистику";
         public bool EnableProlongated => false;
 
+        private const int MaxMessageLength = 4000;
+
         public async Task ExecuteAsync(Message message, TutorBotContext client)
         {
-            ChatEntry[] chats = await client.App.ChatService.GetChats();
-
-            StringBuilder sb = new StringBuilder();
-
             ChatSummaryReport report = await client.App.ChatService.GetSummaryInfo();
 
-            string htmlReport = GenerateHtmlReport(report);
-
-            await client.SendMessage(htmlReport, parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+            foreach (string part in GenerateReportParts(report))
+                await client.SendMessage(part, parseMode: Html);
         }
 
-        public static string GenerateHtmlReport(ChatSummaryReport report)
+        public static IEnumerable<string> GenerateReportParts(ChatSummaryReport report)
         {
-            StringBuilder html = new StringBuilder();
+            // Часть 1: сводка и статистика по группам
+            yield return BuildSummaryPart(report);
 
-            // Заголовок
+            // Часть 2: топ пользователей
+            foreach (string part in BuildTopUsersParts(report))
+                yield return part;
+
+            // Часть 3: почасовая статистика
+            foreach (string part in BuildHourlyStatsParts(report))
+                yield return part;
+        }
+
+        private static string BuildSummaryPart(ChatSummaryReport report)
+        {
+            var html = new System.Text.StringBuilder();
+
             html.AppendLine("<b>📊 Статистика чатов</b>\n");
-
-            // Суммарная информация
             html.AppendLine($"<b>Всего чатов:</b> {report.NumberOfChats}");
             html.AppendLine($"<b>Всего сообщений:</b> {report.NumberOfMessages}\n");
 
-            // Статистика по группам
-            html.AppendLine("<b>📈 Статистика по группам</b>");
+            html.AppendLine("<b>📈 По группам</b>");
             html.AppendLine("<pre>");
-            html.AppendLine("Группа      | Пользователей | Сообщений");
-            html.AppendLine("----------------------------------------");
+            html.AppendLine("Группа       | Пользователей | Сообщений");
+            html.AppendLine("-----------------------------------------");
 
             foreach (GroupSummary? group in report.GroupSummaries.OrderByDescending(g => g.MessageCount))
-            {
-                html.AppendLine($"{group.GroupNumber.PadRight(10)} | {group.UserCount.ToString().PadRight(13)} | {group.MessageCount}");
-            }
+                html.AppendLine($"{group.GroupNumber.PadRight(12)} | {group.UserCount,12} | {group.MessageCount}");
 
-            html.AppendLine("</pre>\n");
+            html.Append("</pre>");
+            return html.ToString();
+        }
 
-            // Топ 100 пользователей
-            html.AppendLine("<b>🏆 Топ 100 пользователей по количеству сообщений</b>");
+        private static IEnumerable<string> BuildTopUsersParts(ChatSummaryReport report)
+        {
+            var html = new System.Text.StringBuilder();
+            html.AppendLine("<b>🏆 Топ пользователей</b>");
             html.AppendLine("<pre>");
-            html.AppendLine("#   | Сообщений | ФИО");
-            html.AppendLine("----------------------------------------");
+            html.AppendLine("#  | Сообщ | ФИО");
+            html.AppendLine("------------------------------");
 
             int rank = 1;
             foreach (UserMessageCount? user in report.TopUsers.Take(100))
             {
-                string truncatedName = user.FullName.Length > 25 ? user.FullName.Substring(0, 25) + "..." : user.FullName;
-                html.AppendLine($"{rank.ToString().PadRight(3)} | {user.MessageCount.ToString().PadRight(9)} | {truncatedName}");
+                string name = user.FullName.Length > 20 ? user.FullName[..20] + ".." : user.FullName;
+                html.AppendLine($"{rank,2} | {user.MessageCount,4} | {name}");
+
+                if (html.Length >= MaxMessageLength && rank < 100)
+                {
+                    html.Append("</pre>");
+                    yield return html.ToString();
+                    html.Clear();
+                    html.AppendLine("<b>🏆 Топ пользователей (продолжение)</b>");
+                    html.AppendLine("<pre>");
+                    html.AppendLine("#  | Сообщ | ФИО");
+                    html.AppendLine("------------------------------");
+                }
                 rank++;
             }
 
-            html.AppendLine("</pre>\n");
+            html.Append("</pre>");
+            yield return html.ToString();
+        }
 
-            // Средние обращения по часам (только для основных групп)
+        private static IEnumerable<string> BuildHourlyStatsParts(ChatSummaryReport report)
+        {
             IEnumerable<GroupSummary> mainGroups = report.GroupSummaries
                 .Where(g => !string.IsNullOrEmpty(g.GroupNumber) && g.GroupNumber != "Unknown")
                 .OrderBy(g => g.GroupNumber)
-                .Take(5); // Ограничиваем количество групп для читаемости
-
-            html.AppendLine("<b>⏰ Среднее количество обращений по часам (последние 20 дней)</b>");
+                .Take(5);
 
             foreach (GroupSummary? group in mainGroups)
             {
-                html.AppendLine($"\n<b>Группа {group.GroupNumber}:</b>");
+                var html = new System.Text.StringBuilder();
+                html.AppendLine($"<b>⏰ Группа {group.GroupNumber} (среднее за час)</b>");
                 html.AppendLine("<pre>");
-                html.AppendLine("Час | Сообщений");
-                html.AppendLine("----------------------");
+                html.AppendLine("Час  | Сообщений");
+                html.AppendLine("-------------------");
 
-                IOrderedEnumerable<HourlyAverage> groupAverages = report.HourlyAverages
+                foreach (HourlyAverage? avg in report.HourlyAverages
                     .Where(a => a.GroupNumber == group.GroupNumber)
-                    .OrderBy(a => a.Hour);
-
-                foreach (HourlyAverage? avg in groupAverages)
+                    .OrderBy(a => a.Hour))
                 {
-                    html.AppendLine($"{avg.Hour.ToString().PadRight(2)}:00 | {avg.MessageCount:F2}");
+                    html.AppendLine($"{avg.Hour,2}:00 | {avg.MessageCount,6:F2}");
                 }
 
-                html.AppendLine("</pre>");
+                html.Append("</pre>");
+                yield return html.ToString();
             }
-
-            return html.ToString();
         }
     }
 }

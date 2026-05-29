@@ -57,19 +57,21 @@ public class StatisticBotActionTests
             .ReturnsAsync(new Message());
     }
 
+    private static string JoinParts(ChatSummaryReport report) =>
+        string.Join("\n", StatisticBotAction.GenerateReportParts(report));
+
     [Fact]
     public void GenerateHtmlReport_EmptyReport_ReturnsHeader()
     {
         ChatSummaryReport report = new ChatSummaryReport();
 
-        string result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = JoinParts(report);
 
         result.ShouldContain("<b>📊 Статистика чатов</b>");
         result.ShouldContain("<b>Всего чатов:</b> 0");
         result.ShouldContain("<b>Всего сообщений:</b> 0");
-        result.ShouldContain("<b>📈 Статистика по группам</b>");
-        result.ShouldContain("<b>🏆 Топ 100 пользователей по количеству сообщений</b>");
-        result.ShouldContain("<b>⏰ Среднее количество обращений по часам (последние 20 дней)</b>");
+        result.ShouldContain("<b>📈 По группам</b>");
+        result.ShouldContain("<b>🏆 Топ пользователей</b>");
     }
 
     [Fact]
@@ -84,7 +86,7 @@ public class StatisticBotActionTests
             ]
         };
 
-        string result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = JoinParts(report);
 
         result.ShouldContain("РИ-151001");
         result.ShouldContain("РИ-151002");
@@ -106,7 +108,7 @@ public class StatisticBotActionTests
             ]
         };
 
-        string result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = JoinParts(report);
 
         result.ShouldContain("Иванов Иван Иванович");
         result.ShouldContain("Петров Петр Петрович");
@@ -130,9 +132,9 @@ public class StatisticBotActionTests
             ]
         };
 
-        string result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = JoinParts(report);
 
-        result.ShouldContain("<b>Группа РИ-151001:</b>");
+        result.ShouldContain("<b>⏰ Группа РИ-151001");
         result.ShouldContain("10:00 | ");
         result.ShouldContain("14:00 | ");
     }
@@ -158,7 +160,7 @@ public class StatisticBotActionTests
             ]
         };
 
-        string result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = JoinParts(report);
 
         result.ShouldContain("<b>Всего чатов:</b> 5");
         result.ShouldContain("<b>Всего сообщений:</b> 1000");
@@ -182,14 +184,14 @@ public class StatisticBotActionTests
             ]
         };
 
-        string result = StatisticBotAction.GenerateHtmlReport(report);
+        string result = JoinParts(report);
 
-        result.ShouldContain("Оченьдлинноеимяфамилияотч...");
+        result.ShouldContain("Оченьдлинноеимяфамил..");
         result.ShouldNotContain("Оченьдлинноеимяфамилияотчествобольше25символов");
     }
 
     [Fact]
-    public async Task ExecuteAsync_GetsChatsAndSendsReport()
+    public async Task ExecuteAsync_GetsSummaryAndSendsReport()
     {
         ChatSummaryReport report = new ChatSummaryReport
         {
@@ -197,8 +199,6 @@ public class StatisticBotActionTests
             NumberOfMessages = 500
         };
 
-        _chatServiceMock.Setup(x => x.GetChats(It.IsAny<GetChatsFilter?>()))
-            .ReturnsAsync([]);
         _chatServiceMock.Setup(x => x.GetSummaryInfo())
             .ReturnsAsync(report);
 
@@ -214,7 +214,6 @@ public class StatisticBotActionTests
 
         await action.ExecuteAsync(message, context);
 
-        _chatServiceMock.Verify(x => x.GetChats(It.IsAny<GetChatsFilter?>()), Times.Once);
         _chatServiceMock.Verify(x => x.GetSummaryInfo(), Times.Once);
         _botMock.Verify(x => x.SendMessage(It.IsAny<ChatId>(),
             It.Is<string>(s => s.Contains("<b>📊 Статистика чатов</b>")),
