@@ -49,24 +49,68 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
     {
         HttpClientHandler httpClientHandler = new HttpClientHandler();
 
-        if (!string.IsNullOrEmpty(proxy.Host))
+        if (proxy.BypassSslCheck)
         {
-            WebProxy webProxy = new WebProxy(proxy.Host, proxy.Port)
-            {
-                BypassProxyOnLocal = false,
-                UseDefaultCredentials = false
-            };
-
-            if (!string.IsNullOrEmpty(proxy.Username) && !string.IsNullOrEmpty(proxy.Password))
-            {
-                webProxy.Credentials = new NetworkCredential(proxy.Username, proxy.Password);
-            }
-
-            httpClientHandler.Proxy = webProxy;
-            httpClientHandler.UseProxy = true;
+            httpClientHandler.ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
         }
 
+        if (string.IsNullOrEmpty(proxy.Host))
+            return new HttpClient(httpClientHandler);
+
+        httpClientHandler.UseProxy = true;
+        httpClientHandler.Proxy = proxy.Type.ToUpperInvariant() switch
+        {
+            "SOCKS5" => CreateSocks5Proxy(proxy),
+            "HTTPS" => CreateHttpsProxy(proxy),
+            _ => CreateHttpProxy(proxy)
+        };
+
         return new HttpClient(httpClientHandler);
+    }
+
+    private static IWebProxy CreateHttpProxy(ProxySettings proxy)
+    {
+        WebProxy webProxy = new WebProxy(proxy.Host, proxy.Port)
+        {
+            BypassProxyOnLocal = false,
+            UseDefaultCredentials = false
+        };
+        SetProxyCredentials(webProxy, proxy);
+        return webProxy;
+    }
+
+    private static IWebProxy CreateHttpsProxy(ProxySettings proxy)
+    {
+        WebProxy webProxy = new WebProxy(new Uri($"https://{proxy.Host}:{proxy.Port}"))
+        {
+            BypassProxyOnLocal = false,
+            UseDefaultCredentials = false
+        };
+        SetProxyCredentials(webProxy, proxy);
+        return webProxy;
+    }
+
+    private static IWebProxy CreateSocks5Proxy(ProxySettings proxy)
+    {
+        UriBuilder uriBuilder = new UriBuilder("socks5", proxy.Host, proxy.Port);
+        if (!string.IsNullOrEmpty(proxy.Username) || !string.IsNullOrEmpty(proxy.Password))
+        {
+            uriBuilder.UserName = proxy.Username ?? string.Empty;
+            uriBuilder.Password = proxy.Password ?? string.Empty;
+        }
+        return new WebProxy(uriBuilder.Uri)
+        {
+            BypassProxyOnLocal = false
+        };
+    }
+
+    private static void SetProxyCredentials(WebProxy webProxy, ProxySettings proxy)
+    {
+        if (!string.IsNullOrEmpty(proxy.Username) && !string.IsNullOrEmpty(proxy.Password))
+        {
+            webProxy.Credentials = new NetworkCredential(proxy.Username, proxy.Password);
+        }
     }
 }
 
