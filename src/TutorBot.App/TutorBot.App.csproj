@@ -30,6 +30,7 @@
 	<ItemGroup>
 		<TrimmerRootAssembly Include="Asp.Versioning.Mvc.ApiExplorer" />
 		<TrimmerRootAssembly Include="FluentValidation.AspNetCore" />
+		<TrimmerRootAssembly Include="Microsoft.AspNetCore.OpenApi" />
 	</ItemGroup>
 
 	<ItemGroup>

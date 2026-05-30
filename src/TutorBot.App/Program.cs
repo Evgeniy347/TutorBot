@@ -11,12 +11,15 @@ public class Program
     {
         Console.OutputEncoding = Console.InputEncoding = System.Text.Encoding.UTF8;
 
+        Console.WriteLine("TutorBot initializing...");
+
         WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions()
         {
             Args = args,
             ApplicationName = "TutorBot.App"
         });
 
+        Console.WriteLine("Loading configuration...");
         IServiceCollection services = builder.Services;
 
         if (!AppContext.TryGetSwitch("DisableLoadConfig", out bool isDisableLoadConfig) || !isDisableLoadConfig)
@@ -27,6 +30,7 @@ public class Program
                 builder.Configuration.AddJsonFile("appsettings.private.json");
         }
 
+        Console.WriteLine("Registering services...");
         builder.AddServiceDefaults();
 
         services.AddFrontendAuthentication();
@@ -38,6 +42,7 @@ public class Program
 
         services.AddControllers();
 
+        Console.WriteLine("Building application pipeline...");
         WebApplication app = builder.Build();
 
         app.MapDefaultEndpoints();
@@ -52,6 +57,7 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        Console.WriteLine("Starting web server...");
         await app.RunAsync();
     }
 }
