@@ -1,0 +1,20 @@
+<linker>
+  <assembly fullname="Telegram.Bot" preserve="all" />
+  <assembly fullname="Microsoft.EntityFrameworkCore" preserve="all" />
+  <assembly fullname="Microsoft.EntityFrameworkCore.Relational" preserve="all" />
+  <assembly fullname="Npgsql" preserve="all" />
+  <assembly fullname="System.Console" preserve="all" />
+  <assembly fullname="System.Net.Http" preserve="all" />
+  <assembly fullname="System.Net.Sockets" preserve="all" />
+  <assembly fullname="System.Net.Security" preserve="all" />
+  <assembly fullname="System.Net.NameResolution" preserve="all" />
+  <assembly fullname="System.Net.Primitives" preserve="all" />
+  <assembly fullname="System.Net.WebProxy" preserve="all" />
+  <assembly fullname="System.Security.Cryptography" preserve="all" />
+  <assembly fullname="System.Security.Cryptography.X509Certificates" preserve="all" />
+  <assembly fullname="TutorBot.TelegramService" preserve="all" />
+  <assembly fullname="TutorBot.Abstractions" preserve="all" />
+  <assembly fullname="TutorBot.Core" preserve="all" />
+  <assembly fullname="TutorBot.Primitives" preserve="all" />
+  <assembly fullname="TutorBot.Authentication" preserve="all" />
+</linker>

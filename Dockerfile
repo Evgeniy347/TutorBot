@@ -7,7 +7,8 @@ RUN apk add --no-cache \
     libgcc \
     openssl \
     zlib \
-    zstd-libs
+    zstd-libs \
+    krb5-libs
 WORKDIR /app 
 EXPOSE 8080
 
@@ -64,6 +65,8 @@ RUN \
       --self-contained \
       /p:PublishTrimmed=true \
       /p:SuppressTrimAnalysisWarnings=true \
+      /p:DebuggerSupport=true \
+      /p:EventSourceSupport=true \
       /p:InvariantGlobalization=true \
       /p:EnableConfigurationBindingGenerator=false
 

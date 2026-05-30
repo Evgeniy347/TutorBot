@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk"> 
+	<PropertyGroup>
+		<JsonSerializerIsReflectionDisabledByDefault>true</JsonSerializerIsReflectionDisabledByDefault>
+	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\TutorBot.Abstractions\TutorBot.Abstractions.csproj" />
 		<ProjectReference Include="..\TutorBot.Primitives\TutorBot.Primitives.csproj" />

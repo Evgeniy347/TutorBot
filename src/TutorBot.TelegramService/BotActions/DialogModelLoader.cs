@@ -18,9 +18,7 @@ internal class DialogModelLoader(string filePath)
             if (_model == null || !_lastFileUpdateCheck.HasValue || lastWriteTime > _lastFileUpdateCheck.Value)
             {
                 string jsonString = File.ReadAllText(filePath);
-                _model = JsonSerializer.Deserialize<DialogModel>(
-                    jsonString,
-                    new JsonSerializerOptions() { PropertyNamingPolicy = null })!;
+                _model = JsonSerializer.Deserialize(jsonString, JsonContext.Default.DialogModel)!;
 
                 CheckStructure(_model);
 
