@@ -41,6 +41,8 @@ namespace TutorBot.TelegramService.BotActions
         /// </summary>
         public static string EscapeMarkdownV2(string text)
         {
+            ArgumentNullException.ThrowIfNull(text);
+
             // Находим все существующие Markdown-элементы
             MatchCollection matches = _markdownRegex.Matches(text);
             StringBuilder result = new StringBuilder();

@@ -5,7 +5,8 @@ using TutorBot.TelegramService;
 
 namespace TutorBot.App;
 
-public class Program
+#pragma warning disable CA1303 // intentional console startup logging
+public sealed class Program
 {
     public static async Task Main(string[] args)
     {
@@ -61,3 +62,4 @@ public class Program
         await app.RunAsync();
     }
 }
+#pragma warning restore CA1303

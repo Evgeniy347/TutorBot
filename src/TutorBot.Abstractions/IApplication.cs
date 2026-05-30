@@ -72,9 +72,9 @@ namespace TutorBot.Abstractions
     {
         public int NumberOfChats { get; set; }
         public int NumberOfMessages { get; set; }
-        public List<GroupSummary> GroupSummaries { get; set; } = new();
-        public List<UserMessageCount> TopUsers { get; set; } = new();
-        public List<HourlyAverage> HourlyAverages { get; set; } = new();
+        public IReadOnlyList<GroupSummary> GroupSummaries { get; init; } = new List<GroupSummary>();
+        public IReadOnlyList<UserMessageCount> TopUsers { get; init; } = new List<UserMessageCount>();
+        public IReadOnlyList<HourlyAverage> HourlyAverages { get; init; } = new List<HourlyAverage>();
     }
 
     public class GroupSummary

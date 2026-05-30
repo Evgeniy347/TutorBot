@@ -40,7 +40,7 @@ namespace TutorBot.TelegramService.BotActions
                     }
                 }
 
-                string text = item.GetText().Replace("{Text}", message.Text).Replace("{Text:URI}", message.Text.Replace(" ", "+"));
+                string text = item.GetText().Replace("{Text}", message.Text, StringComparison.Ordinal).Replace("{Text:URI}", message.Text.Replace(" ", "+", StringComparison.Ordinal), StringComparison.Ordinal);
                 await client.SendMessage(text, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
             }
         }

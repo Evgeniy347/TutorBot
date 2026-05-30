@@ -76,12 +76,12 @@ namespace System
             foreach (string trimValue in trimValues)
             {
                 bool change = false;
-                while (value.StartsWith(trimValue))
+                while (value.StartsWith(trimValue, StringComparison.Ordinal))
                 {
                     value = value.Substring(trimValue.Length);
                     change = true;
                 }
-                while (value.EndsWith(trimValue))
+                while (value.EndsWith(trimValue, StringComparison.Ordinal))
                 {
                     value = value.Remove(value.Length - trimValue.Length);
                     change = true;
@@ -133,11 +133,13 @@ namespace System
         /// </summary>
         /// <param name="str">Строка.</param>
         /// <returns></returns>
+#pragma warning disable CA1308 // intentional lowercase conversion
         public static string ToLower(this IStringWrapper str) =>
             str.ToString()?.ToLowerInvariant() ?? string.Empty;
+#pragma warning restore CA1308
 
         public static bool Equals(this IStringWrapper str, string value) =>
-            str.ToString()?.Equals(value) ?? value == null;
+            str.ToString()?.Equals(value, StringComparison.Ordinal) ?? value == null;
 
         public static bool Equals(this IStringWrapper str, string value, StringComparison comparisonType) =>
             str.ToString()?.Equals(value, comparisonType) ?? value == null;
@@ -195,6 +197,7 @@ namespace System
     /// Используется для реализации расширений над <see cref="IStringWrapper"/>, аналогичных расширениям над <see cref="string"/>.
     /// Класс реализующий интерфейс <see cref="IStringWrapper"/> должен переопределить метод <see cref="object.ToString"/>, возвращающим значение, которое будет использовано в методах расширения над <see cref="IStringWrapper"/>.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1040:Avoid empty interfaces", Justification = "Marker interface for string wrapper pattern")]
     public interface IStringWrapper
     {
     }

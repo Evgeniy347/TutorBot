@@ -171,10 +171,11 @@ public class ScheduleActionTests : IDisposable
             new { id = 12345UL, divisionId = 0UL, course = 0UL, title = "РИ-151001" }
         }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
+        using HttpResponseMessage responseMessage = new() { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) };
         Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) });
+            .ReturnsAsync(responseMessage);
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
         ScheduleAction action = new ScheduleAction(CreateModel());
@@ -228,10 +229,11 @@ public class ScheduleActionTests : IDisposable
             new { id = 99999UL, divisionId = 0UL, course = 0UL, title = "OTHER-GROUP" }
         }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
+        using HttpResponseMessage responseMessage = new() { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) };
         Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) });
+            .ReturnsAsync(responseMessage);
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
         ScheduleAction action = new ScheduleAction(CreateModel());
@@ -258,10 +260,11 @@ public class ScheduleActionTests : IDisposable
             new { id = 2UL, divisionId = 2UL, course = 2UL, title = "РИ-151002" }
         }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
+        using HttpResponseMessage responseMessage = new() { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) };
         Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) });
+            .ReturnsAsync(responseMessage);
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
         ScheduleAction.GroupInfo[] result = await ScheduleAction.GetGroupsAsync("РИ-151001", TestContext.Current.CancellationToken);
@@ -276,10 +279,11 @@ public class ScheduleActionTests : IDisposable
     [Fact]
     public async Task GetGroupsAsync_HttpError_Throws()
     {
+        using HttpResponseMessage responseMessage = new() { StatusCode = HttpStatusCode.NotFound };
         Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.NotFound });
+            .ReturnsAsync(responseMessage);
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
         await Should.ThrowAsync<HttpRequestException>(() => ScheduleAction.GetGroupsAsync("РИ-151001", TestContext.Current.CancellationToken));
@@ -290,10 +294,11 @@ public class ScheduleActionTests : IDisposable
     {
         string jsonResponse = "[]";
 
+        using HttpResponseMessage responseMessage = new() { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) };
         Mock<HttpMessageHandler> handlerMock = new Mock<HttpMessageHandler>();
         handlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(jsonResponse) });
+            .ReturnsAsync(responseMessage);
         ScheduleAction.Client = new HttpClient(handlerMock.Object);
 
         ScheduleAction.GroupInfo[] result = await ScheduleAction.GetGroupsAsync("РИ-151001", TestContext.Current.CancellationToken);

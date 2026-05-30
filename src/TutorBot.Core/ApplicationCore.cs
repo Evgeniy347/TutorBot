@@ -26,7 +26,7 @@ namespace TutorBot.Core
         {
             await using (ServiceLocatorScope scope = _locator.CreateAsyncScope())
             {
-                scope.DBContext.Database.EnsureCreated();
+                await scope.DBContext.Database.EnsureCreatedAsync();
             }
         }
     }
@@ -50,11 +50,13 @@ namespace TutorBot.Core
 
         public ApplicationCore Application => applicationCore;
 
+#pragma warning disable CA2000 // scope is disposed by ServiceLocatorScope
         public ServiceLocatorScope CreateAsyncScope()
         {
             IServiceScope scope = serviceProvider.CreateScope();
             return new ServiceLocatorScope(scope);
         }
+#pragma warning restore CA2000
     }
 
     internal class ChatService(ServiceLocator locator) : IChatService
@@ -218,7 +220,7 @@ namespace TutorBot.Core
                 List<HourlyAverage> hourlyAverages = hourlyStats
                     .GroupBy(m => new
                     {
-                        GroupNumber = chatGroups.ContainsKey(m.ChatID) ? chatGroups[m.ChatID] : "Unknown",
+                        GroupNumber = chatGroups.TryGetValue(m.ChatID, out var group) ? group : "Unknown",
                         m.Hour
                     })
                     .Select(g => new HourlyAverage
@@ -251,6 +253,7 @@ namespace TutorBot.Core
     {
         public async Task AddStatusService(string status, string? message = null)
         {
+#pragma warning disable CA1031 // intentional — DB operation should never crash the service
             try
             {
                 await using (ServiceLocatorScope scope = locator.CreateAsyncScope())
@@ -263,10 +266,12 @@ namespace TutorBot.Core
             {
                 Console.WriteLine(ex);
             }
+#pragma warning restore CA1031
         }
 
         public async Task AddHistory(MessageHistory history)
         {
+#pragma warning disable CA1031 // intentional — DB operation should never crash the service
             try
             {
                 await using (ServiceLocatorScope scope = locator.CreateAsyncScope())
@@ -279,6 +284,7 @@ namespace TutorBot.Core
             {
                 Console.WriteLine(ex);
             }
+#pragma warning restore CA1031
         }
 
         public async Task<MessageHistory[]> GetMessages(long chatID, int offcet, int count, bool revers)

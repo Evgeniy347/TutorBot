@@ -62,10 +62,18 @@ internal record TutorBotContext(ITelegramBot Client, TgBotServiceOptions Opt, IA
                     context.ChatEntry = adminChat;
                     await context.SendMessage($"Произошла ошибка:{title}{Environment.NewLine}{exception}");
                 }
-                catch { }
+#pragma warning disable CA1031 // intentional — error notifications must never fail
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+#pragma warning restore CA1031
 
         await Task.CompletedTask;
     }

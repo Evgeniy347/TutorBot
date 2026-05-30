@@ -2,6 +2,10 @@
 
 	<PropertyGroup>
 		<IsPackable>false</IsPackable>
+		<!-- Минимальный уровень анализатора для тестов -->
+		<AnalysisLevel>latest-Minimum</AnalysisLevel>
+		<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+		<WarningsNotAsErrors>$(WarningsNotAsErrors);CA1822;CA1868</WarningsNotAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>

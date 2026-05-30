@@ -2,6 +2,9 @@
 
 	<PropertyGroup>
 		<IsPackable>false</IsPackable>
+		<!-- Минимальный уровень анализатора для тестов -->
+		<AnalysisLevel>latest-Minimum</AnalysisLevel>
+		<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
 	</PropertyGroup>
 
 	<ItemGroup>

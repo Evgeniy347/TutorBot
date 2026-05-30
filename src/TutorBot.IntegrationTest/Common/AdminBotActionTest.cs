@@ -20,7 +20,7 @@ public class AdminBotActionTest : IntegrationTestsBase
 
     string[] _admin_buttons = [
         "Получить статистику",
-        "Оповещения об ошибках",
+        "Включить оповещение об ошибках",
         "↩️ В главное меню"
         ];
 

@@ -200,7 +200,7 @@ public class SchemaDialogTest(CustomAppFactory factory) : IntegrationTestsBase
 
         // Act & Assert - Restart and verify welcome text
 
-        string resultText = model.Handlers.Schedule.GetText().Replace("#URL#", $"{client.BaseAddress}ru/students/study/schedule/#/groups/{62140}");
+        string resultText = model.Handlers.Schedule.GetText().Replace("#URL#", $"{client.BaseAddress}ru/students/study/schedule/");
         await chatHelper.SentTextWithCheck("📅 Расписание группы", resultText, menu.Buttons);
         await chatHelper.SentTextWithCheck("📅 Расписание группы", resultText, menu.Buttons);
     }

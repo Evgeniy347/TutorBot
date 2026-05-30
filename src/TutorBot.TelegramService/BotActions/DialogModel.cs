@@ -1,6 +1,8 @@
 ﻿
 namespace TutorBot.TelegramService.BotActions;
 
+// Nested types and arrays are intentional — this is a JSON deserialization model
+#pragma warning disable CA1034, CA1819, CA1721
 public class DialogModel
 {
     public required StartNodeModel Start { get; set; }

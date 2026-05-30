@@ -17,6 +17,8 @@ public static class RegistrationExtensions
 
     public static void AddFrontend<TApp>(this WebApplication app)
     {
+        ArgumentNullException.ThrowIfNull(app);
+
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error");

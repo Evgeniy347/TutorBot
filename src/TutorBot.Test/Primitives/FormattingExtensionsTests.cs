@@ -85,7 +85,7 @@ public class FormattingExtensionsTests
     public void FullExceptionStack_ReturnsAllInnerExceptions()
     {
         InvalidOperationException inner = new InvalidOperationException("inner");
-        Exception outer = new Exception("outer", inner);
+        InvalidOperationException outer = new InvalidOperationException("outer", inner);
 
         IReadOnlyList<Exception> stack = outer.FullExceptionStack();
         stack.Count.ShouldBe(2);
@@ -101,7 +101,7 @@ public class FormattingExtensionsTests
     public void GetMessageStack_ReturnsFormattedMessages()
     {
         InvalidOperationException inner = new InvalidOperationException("inner msg");
-        Exception outer = new Exception("outer msg", inner);
+        InvalidOperationException outer = new InvalidOperationException("outer msg", inner);
 
         string result = outer.GetMessageStack();
         result.ShouldContain("outer msg");
@@ -173,15 +173,15 @@ public class FormattingExtensionsTests
 
     [Fact]
     public void Equals_IStringWrapper_String_ReturnsTrue() =>
-        FormattingExtensions.Equals(new TestStringWrapper("hello"), "hello").ShouldBeTrue();
+        FormattingExtensions.Equals(new TestStringWrapper("hello"), "hello", StringComparison.Ordinal).ShouldBeTrue();
 
     [Fact]
     public void Equals_IStringWrapper_String_ReturnsFalse() =>
-        FormattingExtensions.Equals(new TestStringWrapper("hello"), "world").ShouldBeFalse();
+        FormattingExtensions.Equals(new TestStringWrapper("hello"), "world", StringComparison.Ordinal).ShouldBeFalse();
 
     [Fact]
     public void Equals_IStringWrapper_Null_ReturnsFalse() =>
-        FormattingExtensions.Equals(new TestStringWrapper("hello"), null!).ShouldBeFalse();
+        FormattingExtensions.Equals(new TestStringWrapper("hello"), null!, StringComparison.Ordinal).ShouldBeFalse();
 
     [Fact]
     public void Equals_IStringWrapper_String_Comparison_ReturnsTrue() =>

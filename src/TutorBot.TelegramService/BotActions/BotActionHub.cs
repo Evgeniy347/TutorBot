@@ -31,7 +31,7 @@ internal class BotActionHub
         }
         catch (Exception e)
         {
-            throw new Exception($"invalid key '{key}'", e);
+            throw new InvalidOperationException($"invalid key '{key}'", e);
         }
     }
 

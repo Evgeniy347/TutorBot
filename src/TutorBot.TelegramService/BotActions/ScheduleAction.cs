@@ -33,7 +33,7 @@ internal class ScheduleAction(DialogModel model) : IBotAction
 
         string resultText = StringHelpers.ReplaceUserName(sourceText, client.ChatEntry.FullName);
 
-        if (resultText.Contains("#URL#"))
+        if (resultText.Contains("#URL#", StringComparison.Ordinal))
         {
             if (!_groupID.TryGetValue(client.ChatEntry.GroupNumber, out ulong groupID))
             {
@@ -44,9 +44,16 @@ internal class ScheduleAction(DialogModel model) : IBotAction
                     groupID = groups.Single(x => client.ChatEntry.GroupNumber.Equals(x.Title, StringComparison.OrdinalIgnoreCase)).Id;
                     _groupID[client.ChatEntry.GroupNumber] = groupID;
                 }
-                catch (Exception ex)
+                catch (HttpRequestException ex)
                 {
                     string strGroups = groups.Select(x => x.Title).JoinString();
+                    await client.ErrorHandle(ex, $@"
+Search:'{client.ChatEntry.GroupNumber}'
+Groups:'{groups.Select(x => x.Title).JoinString("', '")}'
+");
+                }
+                catch (InvalidOperationException ex)
+                {
                     await client.ErrorHandle(ex, $@"
 Search:'{client.ChatEntry.GroupNumber}'
 Groups:'{groups.Select(x => x.Title).JoinString("', '")}'
@@ -61,7 +68,7 @@ Groups:'{groups.Select(x => x.Title).JoinString("', '")}'
             else
                 url = $"{BaseUrl}ru/students/study/schedule/";
 
-            resultText = resultText.Replace("#URL#", url);
+            resultText = resultText.Replace("#URL#", url, StringComparison.Ordinal);
         }
 
         await client.SendMessage(resultText, replyMarkup: replyMarkup, parseMode: ParseMode.Html);
@@ -77,7 +84,7 @@ Groups:'{groups.Select(x => x.Title).JoinString("', '")}'
         using CancellationTokenSource timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
         using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
-        HttpResponseMessage response = await Client.GetAsync(url, linkedCts.Token);
+        HttpResponseMessage response = await Client.GetAsync(new Uri(url), linkedCts.Token);
 
         response.EnsureSuccessStatusCode();
 
