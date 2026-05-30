@@ -23,7 +23,7 @@ public class DialogModel
 
     public class WelcomeHandler
     {
-        public required string Key { get; set; }
+        public string Key { get; set; } = "Welcome";
 
         public required string WelcomeText { get; set; }
         public required string ErrorText { get; set; }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -83,16 +82,10 @@ Groups:'{groups.Select(x => x.Title).JoinString("', '")}'
         response.EnsureSuccessStatusCode();
 
         string json = await response.Content.ReadAsStringAsync(linkedCts.Token);
-        GroupInfo[]? groups = JsonSerializer.Deserialize<GroupInfo[]>(json, DefaultOptions);
+        GroupInfo[]? groups = JsonSerializer.Deserialize(json, JsonCamelCaseContext.Default.GroupInfoArray);
 
         return groups ?? [];
     }
-
-    public static JsonSerializerOptions DefaultOptions => new JsonSerializerOptions
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
 
     public record GroupInfo(ulong Id, ulong DivisionId, ulong Course, string? Title);
 }

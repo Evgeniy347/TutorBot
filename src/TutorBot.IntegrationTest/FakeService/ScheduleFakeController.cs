@@ -17,7 +17,7 @@ namespace TutorBot.IntegrationTest.FakeService
         public IActionResult GetToken([FromQuery] string search)
         {
             ScheduleAction.GroupInfo[] response = _groups.Where(x => x.Title?.Contains(search) ?? true).ToArray();
-            return new JsonResult(response, ScheduleAction.DefaultOptions);
+            return new JsonResult(response, JsonCamelCaseContext.Default.GroupInfoArray);
         }
     }
 }

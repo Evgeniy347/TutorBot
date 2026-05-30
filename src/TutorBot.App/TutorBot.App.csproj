@@ -34,6 +34,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<TrimmerRootDescriptor Include="LinkerDescriptor.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Folder Include="wwwroot\" />
 	</ItemGroup>
 
