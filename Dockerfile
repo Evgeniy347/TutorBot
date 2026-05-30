@@ -1,7 +1,7 @@
 # See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 # Minimal base image — only native deps, no shared .NET runtime
-FROM --platform=$BUILDPLATFORM alpine:3.21 AS base
+FROM alpine:3.21 AS base
 RUN apk add --no-cache \
     libstdc++ \
     libgcc \
@@ -41,7 +41,7 @@ ARG TARGETARCH
 
 RUN \
     --mount=type=cache,id=nuget-arm,target=/root/.nuget/packages \
-    dotnet restore -r linux-arm64
+    dotnet restore -r linux-musl-arm64
                                     
 # Copy all the files
 COPY src ./src
@@ -56,7 +56,7 @@ WORKDIR /build/src/TutorBot.App
 RUN \
     --mount=type=cache,id=nuget-arm,target=/root/.nuget/packages \
     dotnet publish "TutorBot.App.csproj" \
-      -r linux-arm64 \
+      -r linux-musl-arm64 \
       -c Release \
       -o /app/publish \
       /p:VersionPrefix=$BUILD_VERSION \

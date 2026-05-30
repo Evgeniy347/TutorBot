@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TIME=$(date +"%H.%M") 
+TIME=$(date +"%Y%m%d-%H%M") 
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
@@ -10,4 +10,3 @@ docker save tutorbot:$CURRENT_BRANCH tutorbot:$CURRENT_BRANCH.$TIME \
     | gzip -c \
     | dd bs=4M status=progress \
     | ssh gtr@192.168.0.221 "gunzip -c | docker load"  || exit 1
- 
