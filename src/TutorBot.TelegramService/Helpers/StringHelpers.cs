@@ -14,16 +14,16 @@ namespace TutorBot.TelegramService.Helpers
                 {
                     string name = fioParts.Skip(1).FirstOrDefault() ?? fioParts.First();
 
-                    text = sourceText.Replace("{UserName}", name);
+                    text = sourceText.Replace("{UserName}", name, StringComparison.Ordinal);
                 }
                 else
                 {
-                    text = sourceText.Replace("{UserName}", "неизвестный пользователь");
+                    text = sourceText.Replace("{UserName}", "неизвестный пользователь", StringComparison.Ordinal);
                 }
             }
             else
             {
-                text = sourceText.Replace("{UserName}", "неизвестный пользователь");
+                text = sourceText.Replace("{UserName}", "неизвестный пользователь", StringComparison.Ordinal);
             }
 
             return text;

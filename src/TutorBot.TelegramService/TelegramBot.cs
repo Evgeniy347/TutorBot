@@ -16,7 +16,7 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
 {
     public async Task<ITelegramBot> CreateBot(CancellationToken cancellationToken)
     {
-        if (options.Proxies == null || !options.Proxies.Any())
+        if (options.Proxies == null || options.Proxies.Count == 0)
         {
             TelegramBotClient tgBotClient = new TelegramBotClient(options.Token, cancellationToken: cancellationToken);
             return new TelegramBot(tgBotClient);
@@ -26,7 +26,7 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
         {
             try
             {
-                HttpClient httpClient = CreateHttpClientWithProxy(proxy);
+                using HttpClient httpClient = CreateHttpClientWithProxy(proxy);
                 TelegramBotClient tgBotClient = new TelegramBotClient(options.Token, httpClient, cancellationToken: cancellationToken);
 
                 TelegramBot botClient = new TelegramBot(tgBotClient);
@@ -36,18 +36,22 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
                 Console.WriteLine($"[Proxy] Successfully connected via {proxy.Host}:{proxy.Port}");
                 return botClient;
             }
-            catch (Exception ex)
+            catch (HttpRequestException ex)
             {
                 Console.WriteLine($"[Proxy] Failed to connect via {proxy.Host}:{proxy.Port} - {ex.Message}");
             }
         }
 
-        throw new Exception("Failed to connect via any proxy from the list");
+        throw new InvalidOperationException("Failed to connect via any proxy from the list");
     }
 
-    private HttpClient CreateHttpClientWithProxy(ProxySettings proxy)
+    private static HttpClient CreateHttpClientWithProxy(ProxySettings proxy)
     {
-        HttpClientHandler httpClientHandler = new HttpClientHandler();
+#pragma warning disable CA2000 // HttpClientHandler is disposed by HttpClient
+        HttpClientHandler httpClientHandler = new HttpClientHandler
+        {
+            CheckCertificateRevocationList = true
+        };
 
         if (proxy.BypassSslCheck)
         {
@@ -67,9 +71,10 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
         };
 
         return new HttpClient(httpClientHandler);
+#pragma warning restore CA2000
     }
 
-    private static IWebProxy CreateHttpProxy(ProxySettings proxy)
+    private static WebProxy CreateHttpProxy(ProxySettings proxy)
     {
         WebProxy webProxy = new WebProxy(proxy.Host, proxy.Port)
         {
@@ -80,7 +85,7 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
         return webProxy;
     }
 
-    private static IWebProxy CreateHttpsProxy(ProxySettings proxy)
+    private static WebProxy CreateHttpsProxy(ProxySettings proxy)
     {
         WebProxy webProxy = new WebProxy(new Uri($"https://{proxy.Host}:{proxy.Port}"))
         {
@@ -91,7 +96,7 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
         return webProxy;
     }
 
-    private static IWebProxy CreateSocks5Proxy(ProxySettings proxy)
+    private static WebProxy CreateSocks5Proxy(ProxySettings proxy)
     {
         UriBuilder uriBuilder = new UriBuilder("socks5", proxy.Host, proxy.Port);
         if (!string.IsNullOrEmpty(proxy.Username) || !string.IsNullOrEmpty(proxy.Password))

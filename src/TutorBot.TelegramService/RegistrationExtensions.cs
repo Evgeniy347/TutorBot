@@ -7,6 +7,8 @@ public static class RegistrationExtensions
 {
     public static IServiceCollection AddTelegramService(this IServiceCollection services, IConfigurationManager configuration)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
+
         IConfigurationSection section = configuration.GetSection("TelegramService");
         services.Configure<TgBotServiceOptions>(section);
         TgBotServiceOptions? tgBotConfig = section.Get<TgBotServiceOptions>();

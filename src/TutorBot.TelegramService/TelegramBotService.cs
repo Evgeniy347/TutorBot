@@ -10,13 +10,19 @@ using TutorBot.TelegramService.BotActions;
 namespace TutorBot.TelegramService
 {
     internal class TelegramBotService(IApplication app, IOptions<TgBotServiceOptions> opt,
-        IBotFactory clientFactory) : BackgroundService
+        IBotFactory clientFactory) : BackgroundService, IDisposable
     {
         private DialogModelLoader _dialogLoader = new DialogModelLoader(opt.Value.DialogModelPath);
         private readonly Channel<bool> _reconnectChannel = Channel.CreateUnbounded<bool>();
         private ITelegramBot? _currentBot;
         private CancellationTokenSource? _botCts;
         private long _botID;
+
+        public override void Dispose()
+        {
+            _botCts?.Dispose();
+            base.Dispose();
+        }
 
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -51,11 +57,13 @@ namespace TutorBot.TelegramService
                 {
                     break;
                 }
+#pragma warning disable CA1031 // intentional — keep service alive on unexpected errors
                 catch (Exception ex)
                 {
                     await app.HistoryService.AddStatusService("Error", $"Critical: {ex.Message}");
                     await Task.Delay(5000, stoppingToken);
                 }
+#pragma warning restore CA1031
                 finally
                 {
                     _botCts?.Dispose();
@@ -69,7 +77,7 @@ namespace TutorBot.TelegramService
             {
                 await app.HistoryService.AddStatusService("Error", $"Network error: {exception.Message}. Reconnecting...");
 
-                cts.Cancel();
+                await cts.CancelAsync();
 
                 await _reconnectChannel.Writer.WriteAsync(true);
             }

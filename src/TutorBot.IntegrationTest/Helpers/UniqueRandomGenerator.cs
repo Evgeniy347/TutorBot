@@ -23,13 +23,9 @@ namespace TutorBot.IntegrationTest.Helpers
                     // Генерируем случайное 64-разрядное целое число
                     long number = _random.NextInt64();
 
-                    // Проверяем, было ли оно уже выдано раньше
-                    if (!_generatedNumbers.Contains(number))
-                    {
-                        // Если число уникальное, добавляем его в список и возвращаем
-                        _generatedNumbers.Add(number);
+                    // Если число уникальное, добавляем его в список и возвращаем
+                    if (_generatedNumbers.Add(number))
                         return number;
-                    }
                 }
             }
         }

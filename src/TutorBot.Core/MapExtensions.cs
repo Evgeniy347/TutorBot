@@ -88,8 +88,8 @@ namespace TutorBot.Core
 
         public static MessageHistory MapCore(this DBMessageHistory history)
         {
-            Enum.TryParse(history.Type, out MessageHistoryRole rolel);
-            return new MessageHistory(history.ChatID, history.Timestamp, history.MessageText, rolel, history.UserID, history.SessionID, history.Id);
+            MessageHistoryRole role = Enum.TryParse<MessageHistoryRole>(history.Type, out var parsed) ? parsed : MessageHistoryRole.None;
+            return new MessageHistory(history.ChatID, history.Timestamp, history.MessageText, role, history.UserID, history.SessionID, history.Id);
         }
     }
 }

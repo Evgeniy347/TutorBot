@@ -25,7 +25,23 @@
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<!-- NU1900 blocks SFA publish (Nexus-related) -->
 		<!-- NU1603 blocks package version mismatch -->
-		<WarningsNotAsErrors>NU1900;NU1603;NU1608</WarningsNotAsErrors>
+		<!-- CA2007: ConfigureAwait не нужен в ASP.NET/консольном приложении -->
+		<!-- CA1305: культура StringBuilder неважна для Telegram-сообщений -->
+		<!-- CA1707: тестовые методы с подчёркиваниями (стандарт xUnit) -->
+		<!-- CA1861: массивы-константы — низкая ценность -->
+		<!-- CA1869: кэширование массивов — низкая ценность -->
+		<!-- CA1852: sealed для типов — микрооптимизация -->
+		<!-- CA1063: в нашем проекте Dispose и так корректный -->
+		<!-- CA1816: GC.SuppressFinalize — низкая ценность -->
+		<!-- CA1303: Console.WriteLine с литералами — намеренно для логов -->
+		<!-- CA1515: Program публичный для WebApplicationFactory в интеграционных тестах -->
+		<WarningsNotAsErrors>NU1900;NU1603;NU1608;CA2007;CA1305;CA1707;CA1861;CA1869;CA1852;CA1063;CA1816;CA1303;CA1515</WarningsNotAsErrors>
+	</PropertyGroup>
+
+	<!-- Analyzer settings -->
+	<PropertyGroup>
+		<AnalysisLevel>latest-All</AnalysisLevel>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 	</PropertyGroup>
 
 	<PropertyGroup>

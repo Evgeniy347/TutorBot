@@ -40,7 +40,7 @@ public class StringExtensionsTests
     [Fact]
     public void Replace_WithStringReplacement_ReplacesAll()
     {
-        string result = "hello {name}".Replace("{name}", "world");
+        string result = "hello {name}".Replace("{name}", "world", StringComparison.Ordinal);
         result.ShouldBe("hello world");
     }
 

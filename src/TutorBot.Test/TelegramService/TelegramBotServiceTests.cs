@@ -21,7 +21,6 @@ public class TelegramBotServiceTests : IDisposable
 
     private readonly string _tempDir;
     private readonly string _modelPath;
-    private readonly Mock<ITelegramBot> _botMock = new();
     private readonly Mock<IApplication> _appMock = new();
     private readonly Mock<IChatService> _chatServiceMock = new();
     private readonly Mock<IHistoryService> _historyServiceMock = new();
@@ -66,6 +65,7 @@ public class TelegramBotServiceTests : IDisposable
     {
         if (Directory.Exists(_tempDir))
             Directory.Delete(_tempDir, recursive: true);
+        _service.Dispose();
     }
 
     private static TutorBotContext CreateContext(Action<ChatEntry>? configure = null)

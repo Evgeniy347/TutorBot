@@ -9,6 +9,8 @@ namespace TutorBot.Core
     {
         public static IServiceCollection AddApplicationCore(this IServiceCollection services, IConfigurationManager configuration)
         {
+            ArgumentNullException.ThrowIfNull(configuration);
+
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
@@ -16,7 +18,7 @@ namespace TutorBot.Core
             {
                 string? connectionString = configuration.GetConnectionString("DefaultConnection");
                 if (string.IsNullOrEmpty(connectionString))
-                    throw new NullReferenceException("connectionString");
+                    throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
                 options.UseNpgsql(connectionString);
             });
 

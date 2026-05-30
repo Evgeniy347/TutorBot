@@ -104,7 +104,7 @@ public class TutorBotContextTests
     [Fact]
     public void Token_ReturnsStoppingToken()
     {
-        CancellationTokenSource cts = new CancellationTokenSource();
+        using CancellationTokenSource cts = new();
         TutorBotContext context = new TutorBotContext(_botMock.Object, _options, _appMock.Object, 12345, cts.Token);
 
         context.Token.ShouldBe(cts.Token);
@@ -318,7 +318,7 @@ public class TutorBotContextTests
     public async Task WriteError_CallsConsoleAndHistory()
     {
         TutorBotContext context = CreateContext();
-        StringWriter stringWriter = new StringWriter();
+        using StringWriter stringWriter = new();
         TextWriter originalOut = Console.Out;
         Console.SetOut(stringWriter);
 

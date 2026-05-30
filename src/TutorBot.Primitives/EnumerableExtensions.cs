@@ -208,10 +208,8 @@ namespace System.Collections.Generic
         /// <exception cref="ArgumentException">Был передан размер списка менее единицы</exception>
         public static IEnumerable<IEnumerable<T>> ChunkBy<T>(this IEnumerable<T> source, int chunkSize)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-            if (chunkSize < 1)
-                throw new ArgumentException(nameof(chunkSize));
+            ArgumentNullException.ThrowIfNull(source);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(chunkSize);
 
             using (EnumeratorContext<T> context = new EnumeratorContext<T>(source, chunkSize))
             {
