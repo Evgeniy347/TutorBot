@@ -26,8 +26,10 @@ internal class BotFactory(TgBotServiceOptions options) : IBotFactory
         {
             try
             {
-                using HttpClient httpClient = CreateHttpClientWithProxy(proxy);
+#pragma warning disable CA2000 // HttpClient is passed to and owned by TelegramBotClient
+                HttpClient httpClient = CreateHttpClientWithProxy(proxy);
                 TelegramBotClient tgBotClient = new TelegramBotClient(options.Token, httpClient, cancellationToken: cancellationToken);
+#pragma warning restore CA2000
 
                 TelegramBot botClient = new TelegramBot(tgBotClient);
 
