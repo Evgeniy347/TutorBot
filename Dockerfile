@@ -70,9 +70,6 @@ RUN \
       /p:InvariantGlobalization=true \
       /p:EnableConfigurationBindingGenerator=false
 
-# Remove Roslyn compiler DLLs (~8 MB) — not needed, BlazorRuntimeCompilation=false
-RUN find /app/publish -name 'Microsoft.CodeAnalysis*' -delete
-
 # Remove extra Radzen CSS themes (~7 MB) — keep only material
 RUN find /app/publish/wwwroot/_content/Radzen.Blazor/css \
     -type f ! -name 'material*' -delete

@@ -73,7 +73,7 @@ namespace TutorBot.TelegramService
 
         private async Task HandleErrorAsync(Exception exception, HandleErrorSource source, CancellationTokenSource cts)
         {
-            if (exception is HttpRequestException or TaskCanceledException or IOException)
+            if (exception is HttpRequestException or TaskCanceledException)
             {
                 await app.HistoryService.AddStatusService("Error", $"Network error: {exception.Message}. Reconnecting...");
 

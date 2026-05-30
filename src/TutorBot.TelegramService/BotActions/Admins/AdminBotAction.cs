@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using Telegram.Bot.Types;
 
 namespace TutorBot.TelegramService.BotActions.Admins
@@ -30,16 +29,23 @@ namespace TutorBot.TelegramService.BotActions.Admins
                     }
                     else
                     {
-                        object resultKey = await CSharpScript.EvaluateAsync(client.Opt.EvaluateKey);
-
-                        if (resultKey?.ToString() == message.Text)
+                        try
                         {
-                            await client.SendMessage("Теперь вы администратор", replyMarkup: BotActionHub.GetAdminMenuKeyboard(client.ChatEntry.EnableAdminError));
-                            client.ChatEntry.IsAdmin = true;
-                            count = 0;
+                            object resultKey = EvaluateKeyEvaluator.Evaluate(client.Opt.EvaluateKey);
+
+                            if (resultKey?.ToString() == message.Text)
+                            {
+                                await client.SendMessage("Теперь вы администратор", replyMarkup: BotActionHub.GetAdminMenuKeyboard(client.ChatEntry.EnableAdminError));
+                                client.ChatEntry.IsAdmin = true;
+                                count = 0;
+                            }
+                            else
+                                await client.SendMessage("Код доступа введен с ошибкой");
                         }
-                        else
-                            await client.SendMessage("Код доступа введен с ошибкой");
+                        catch (InvalidOperationException)
+                        {
+                            await client.SendMessage("Ошибка: модуль проверки кода не установлен на сервере.");
+                        }
                     }
                 }
             }
